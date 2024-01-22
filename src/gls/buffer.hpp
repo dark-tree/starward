@@ -1,5 +1,6 @@
 #pragma once
 
+#include <external.hpp>
 #include "wrapper.hpp"
 #include "layout.hpp"
 
@@ -41,7 +42,7 @@ namespace gls {
 				glBufferData(GL_ARRAY_BUFFER, size, data, type);
 				vertices = size / stride;
 
-				printf("stride=%d size=%d vertices=%d\n", stride, (int) size, vertices);
+				//printf("stride=%d size=%d vertices=%d\n", stride, (int) size, vertices);
 			}
 
 			void draw() {

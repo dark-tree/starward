@@ -1,5 +1,8 @@
 #pragma once
 
+#include <external.hpp>
+#include <util.hpp>
+
 std::function<void()> __main_loop_func;
 
 inline void __main_loop() { 
@@ -25,8 +28,7 @@ namespace gls {
 		// create the context
 		int context = emscripten_webgl_create_context("canvas", &attrs);
 		if (context == 0) {
-		    printf("Failed to create WebGL context!\n");
-		    exit(-1);
+			fault("Failed to create WebGL context!\n");
 		}    
 	
 		// and bind it the the current "thread"
@@ -56,8 +58,7 @@ namespace gls {
 			std::vector<char> error (length);
 			glGetShaderInfoLog(shader, length, &length, error.data());
 
-			printf("Shader compilation failed with error: %s\n", error.data());
-			exit(-1);
+			fault("Shader compilation failed with error: %s\n", error.data());
 		}
 
 		return shader;
@@ -83,8 +84,7 @@ namespace gls {
 			std::vector<char> error (length);
 			glGetProgramInfoLog(program, length, &length, error.data());
 
-			printf("Failed to link shader program!\nLinking failed with error: %s\n", error.data());
-			exit(-1);
+			fault("Shader linking failed with error: %s\n", error.data());
 		}
 
 		return program;

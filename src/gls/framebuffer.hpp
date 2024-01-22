@@ -1,5 +1,6 @@
 #pragma once
 
+#include <external.hpp>
 #include "texture.hpp"
 
 namespace gls {

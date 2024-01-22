@@ -1,5 +1,8 @@
 #pragma once
 
+#include <external.hpp>
+#include <util.hpp>
+
 namespace gls {
 
 	class PixelBuffer {
@@ -22,7 +25,7 @@ namespace gls {
 
 		protected:
 		
-			GLuint tid;
+			uint32_t tid;
 		
 			GLenum format_of(int channels) {
 				switch (channels) {
@@ -31,8 +34,7 @@ namespace gls {
 					case 1: return GL_ALPHA;
 				}
 	
-				printf("Unsuported texture channel count: %d!", channels);
-				exit(-1);
+				fault("Unsuported texture channel count: %d!\n", channels);
 			}
 
 			void framebuffer(GLenum attachment) const override {
@@ -41,9 +43,22 @@ namespace gls {
 
 		public:
 
+			Texture(const char* path)
+			: Texture() {
+				int32_t width, height, channels;
+				uint8_t* data = stbi_load(path, &width, &height, &channels, 4);
+	
+				if (data == nullptr) {
+					fault("Failed to load texture: '%s'!\n", path);
+				}
+
+				upload(data, width, height, 4);
+				stbi_image_free(data);
+			}
+
 			Texture() {
 				glGenTextures(1, &tid);
-				glBindTexture(GL_TEXTURE_2D, tid);
+				use();
 
 				// set texture wrapping
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -79,7 +94,7 @@ namespace gls {
 
 		private:
 
-			unsigned int rbo;
+			uint32_t rbo;
 
 			void framebuffer(GLenum attachment) const override {
 				glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, rbo);

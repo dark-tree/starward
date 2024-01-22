@@ -1,14 +1,6 @@
-#include <functional>
 
-#include <GLES3/gl3.h>
-#include <emscripten.h>
-#include <emscripten/html5.h>
-
-#include "src/wrapper.hpp"
-#include "src/shader.hpp"
-#include "src/buffer.hpp"
-#include "src/texture.hpp"
-#include "src/framebuffer.hpp"
+#include <external.hpp>
+#include <rendering.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/image.h"
@@ -53,9 +45,9 @@ extern "C" void EMSCRIPTEN_KEEPALIVE toggle_background_color() {
 
 float mx, my;
 
-EM_BOOL mouse_handler (int eventType, const EmscriptenMouseEvent *keyEvent, void *userData) {
-	mx = keyEvent->clientX;
-	my = keyEvent->clientY;
+EM_BOOL mouse_handler (int type, const EmscriptenMouseEvent* event, void* userdata) {
+	mx = event->clientX;
+	my = event->clientY;
 
 	return true;
 }
@@ -79,7 +71,7 @@ int main() {
 		-0.9, -0.9, 0.1, 0.1, 0.9, 0.9, 0.9,
 	};
 
-	int w, h;
+	int32_t w, h;
 
     gls::webgl_init();
 	emscripten_get_canvas_element_size("#canvas", &w, &h);
@@ -97,19 +89,9 @@ int main() {
 	gls::Framebuffer frame_1;
 	frame_1.attach(color_att, GL_COLOR_ATTACHMENT0);
 	frame_1.attach(depth_att, GL_DEPTH_STENCIL_ATTACHMENT);
-	
-	int width, height, channels;
-	unsigned char* data = stbi_load("assets/test.png", &width, &height, &channels, 4);
-	
-	if (data == nullptr) {
-		exit(-1);
-	}
 
-	gls::Texture texture;
-	texture.upload(data, width, height, 4);
-
-	stbi_image_free(data);
-
+	gls::Texture bricks {"assets/test.png"};
+	gls::Texture font {"assets/font8x8.png"};
 
 	// Create and compile the shader program
 	gls::Shader shader {vertex_source, fragment_source};
@@ -126,6 +108,8 @@ int main() {
 	gls::Buffer quad_buffer {layout, GL_STATIC_DRAW};
 
 	quad_buffer.upload((uint8_t*) vertices_quad, sizeof(vertices_quad));
+
+	printf("System ready!\n");
 
 	gls::main_loop([&] {
 
@@ -144,9 +128,10 @@ int main() {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		frame_1.use();
 		frame_1.clear();
-		texture.use();
+		font.use();
 		trig_buffer.draw();
 
+		// blit
 		glClearColor(0.0f, 0.2f, 0.0f, 1.0f);
 		frame_0.use();
 		frame_0.clear();
