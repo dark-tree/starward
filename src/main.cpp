@@ -16,7 +16,7 @@ const char* vertex_source = R"(#version 300 es
 
 	out vec2 vTex;
 	out vec3 vCol;
-	
+
 	void main() {
 		gl_Position = vec4(iPos.xy, 1.0, 1.0);
 		vTex = iTex;
@@ -26,7 +26,7 @@ const char* vertex_source = R"(#version 300 es
 
 const char* fragment_source = R"(#version 300 es
 	precision mediump float;
-	uniform sampler2D sampler;	
+	uniform sampler2D sampler;
 
 	in vec2 vTex;
 	in vec3 vCol;
@@ -39,8 +39,8 @@ const char* fragment_source = R"(#version 300 es
 )";
 
 // the function called by the javascript code
-extern "C" void EMSCRIPTEN_KEEPALIVE toggle_background_color() { 
-	
+extern "C" void EMSCRIPTEN_KEEPALIVE toggle_background_color() {
+
 }
 
 float mx, my;
@@ -59,7 +59,7 @@ int main() {
 		 0.5f, -0.5f,   1.0, 0.0,   0.85, 0.35, 0.30,
 		-0.5f, -0.5f,   0.0, 0.0,   0.35, 0.35, 0.30,
 	};
-    
+
 
 	float vertices_quad[] = {
 		-0.9, -0.9, 0.1, 0.1, 0.9, 0.9, 0.9,
@@ -73,6 +73,7 @@ int main() {
 
 	int32_t w, h;
 
+	stbi_set_flip_vertically_on_load(true);
     gls::webgl_init();
 	emscripten_get_canvas_element_size("#canvas", &w, &h);
 
@@ -85,18 +86,18 @@ int main() {
 
 	gls::RenderBuffer depth_att;
 	depth_att.resize(w, h, GL_DEPTH24_STENCIL8, GL_DEPTH24_STENCIL8);
-	
+
 	gls::Framebuffer frame_1;
 	frame_1.attach(color_att, GL_COLOR_ATTACHMENT0);
 	frame_1.attach(depth_att, GL_DEPTH_STENCIL_ATTACHMENT);
 
 	gls::Texture bricks {"assets/test.png"};
-	gls::Texture font {"assets/font8x8.png"};
+	//gls::Texture font {"assets/font8x8.png"};
 
 	// Create and compile the shader program
 	gls::Shader shader {vertex_source, fragment_source};
 	shader.use();
-	
+
 	// Create buffer layout
 	gls::Layout layout;
 	layout.attribute(shader.attribute("iPos"), 2, GL_FLOAT);
@@ -108,6 +109,27 @@ int main() {
 	gls::Buffer quad_buffer {layout, GL_STATIC_DRAW};
 
 	quad_buffer.upload((uint8_t*) vertices_quad, sizeof(vertices_quad));
+
+
+	gls::TileSet font8x8 {"assets/font8x8.png", 8, 8};
+	gls::Sprite s = font8x8.sprite(0, 4);
+
+	float vertices_glyph[] = {
+		-0.5, -0.5, s.min_u, s.min_v, 0.9, 0.9, 0.9,
+		 0.5, -0.5, s.max_u, s.min_v, 0.9, 0.9, 0.9,
+		 0.5,  0.5, s.max_u, s.max_v, 0.9, 0.9, 0.9,
+
+		 0.5,  0.5, s.max_u, s.max_v, 0.9, 0.9, 0.9,
+		-0.5,  0.5, s.min_u, s.max_v, 0.9, 0.9, 0.9,
+		-0.5, -0.5, s.min_u, s.min_v, 0.9, 0.9, 0.9,
+
+	};
+
+	gls::Buffer sprite_buf {layout, GL_STATIC_DRAW};
+	sprite_buf.upload((uint8_t*) vertices_glyph, sizeof(vertices_glyph));
+
+
+
 
 	printf("System ready!\n");
 
@@ -128,7 +150,9 @@ int main() {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		frame_1.use();
 		frame_1.clear();
-		font.use();
+		font8x8.use();
+		sprite_buf.draw();
+		bricks.use();
 		trig_buffer.draw();
 
 		// blit
@@ -142,5 +166,3 @@ int main() {
 
     return EXIT_SUCCESS;
 }
-
-
