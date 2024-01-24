@@ -57,19 +57,19 @@ EM_BOOL mouse_handler (int type, const EmscriptenMouseEvent* event, void* userda
 int main() {
 
 	float vertices[] = {
-		-0.5f,  0.5f,   0.0, 1.0,   0.60, 0.85, 0.30,
-		 0.5f, -0.5f,   1.0, 0.0,   0.85, 0.35, 0.30,
-		-0.5f, -0.5f,   0.0, 0.0,   0.35, 0.35, 0.30,
+		-0.5f,  0.5f,  0.0,  1.0,  0.60,  0.85,  0.30,
+		 0.5f, -0.5f,  1.0,  0.0,  0.85,  0.35,  0.30,
+		-0.5f, -0.5f,  0.0,  0.0,  0.35,  0.35,  0.30,
 	};
 
 	float vertices_quad[] = {
-		-0.9, -0.9, 0.1, 0.1, 0.9, 0.9, 0.9,
-		 0.9, -0.9, 0.9, 0.1, 0.9, 0.9, 0.9,
-		 0.9,  0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
+		-0.9, -0.9,  0.1,  0.1,  0.9,  0.9,  0.9,
+		 0.9, -0.9,  0.9,  0.1,  0.9,  0.9,  0.9,
+		 0.9,  0.9,  0.9,  0.9,  0.9,  0.9,  0.9,
 
-		 0.9,  0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
-		-0.9,  0.9, 0.1, 0.9, 0.9, 0.9, 0.9,
-		-0.9, -0.9, 0.1, 0.1, 0.9, 0.9, 0.9,
+		 0.9,  0.9,  0.9,  0.9,  0.9,  0.9,  0.9,
+		-0.9,  0.9,  0.1,  0.9,  0.9,  0.9,  0.9,
+		-0.9, -0.9,  0.1,  0.1,  0.9,  0.9,  0.9,
 	};
 
 	int32_t w, h;
@@ -80,9 +80,18 @@ int main() {
 	emscripten_set_mousemove_callback("#canvas", nullptr, false, mouse_handler);
 
 	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 view = glm::mat4(1.0f);
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -4.0f));
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), w / (float) h, 0.1f, 100.0f);
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
+
+	const float sx = 2.0f / w;
+	const float sy = 2.0f / h;
+
+	glm::mat4 screen_space_matrix {
+		 sx,  0,   0,   0,
+		 0,   sy,  0,   0,
+		 0,   0,   1,   0,
+		-1,  -1,   0,   1,
+	};
 
 	const gls::Framebuffer& frame_0 = gls::Framebuffer::main();
 
@@ -91,10 +100,6 @@ int main() {
 
 	gls::RenderBuffer depth_att;
 	depth_att.resize(w, h, GL_DEPTH24_STENCIL8, GL_DEPTH24_STENCIL8);
-
-	gls::Framebuffer frame_1;
-	frame_1.attach(color_att, GL_COLOR_ATTACHMENT0);
-	frame_1.attach(depth_att, GL_DEPTH_STENCIL_ATTACHMENT);
 
 	gls::Texture bricks {"assets/test.png"};
 
@@ -115,23 +120,41 @@ int main() {
 	gls::Buffer quad_buffer {layout, GL_STATIC_DRAW};
 	quad_buffer.upload((uint8_t*) vertices_quad, sizeof(vertices_quad));
 
-
 	gls::TileSet font8x8 {"assets/font8x8.png", 8, 8};
-	gls::Sprite s = font8x8.sprite(0, 4);
+//	gls::Sprite s = font8x8.sprite(0, 4);
 
-	float vertices_glyph[] = {
-		-0.5, -0.5, s.min_u, s.min_v, 0.9, 0.9, 0.9,
-		 0.5, -0.5, s.max_u, s.min_v, 0.9, 0.9, 0.9,
-		 0.5,  0.5, s.max_u, s.max_v, 0.9, 0.9, 0.9,
+	std::vector<float> vertices_glyph;
 
-		 0.5,  0.5, s.max_u, s.max_v, 0.9, 0.9, 0.9,
-		-0.5,  0.5, s.min_u, s.max_v, 0.9, 0.9, 0.9,
-		-0.5, -0.5, s.min_u, s.min_v, 0.9, 0.9, 0.9,
-
+	auto push = [&] (float x, float y, float u, float v) {
+		vertices_glyph.push_back(x);
+		vertices_glyph.push_back(y);
+		vertices_glyph.push_back(u);
+		vertices_glyph.push_back(v);
+		vertices_glyph.push_back(1);
+		vertices_glyph.push_back(1);
+		vertices_glyph.push_back(1);
 	};
 
+	auto sprite = [&] (float x, float y, int sx, int sy) {
+		gls::Sprite s = font8x8.sprite(sx, sy);
+
+		push(x + 0,   0 + y,  s.min_u, s.min_v);
+		push(x + 64,  0 + y,  s.max_u, s.min_v);
+		push(x + 64, 64 + y,  s.max_u, s.max_v);
+		push(x + 64, 64 + y,  s.max_u, s.max_v);
+		push(x + 0,  64 + y,  s.min_u, s.max_v);
+		push(x + 0,   0 + y,  s.min_u, s.min_v);
+	};
+
+	int i = 0;
+	sprite(i * 64, 0, 0, 6); i ++;
+	sprite(i * 64, 0, 5, 7); i ++;
+	sprite(i * 64, 0, 4, 6); i ++;
+	sprite(i * 64, 0, 4, 6); i ++;
+	sprite(i * 64, 0, 7, 6); i ++;
+
 	gls::Buffer sprite_buf {layout, GL_STATIC_DRAW};
-	sprite_buf.upload((uint8_t*) vertices_glyph, sizeof(vertices_glyph));
+	sprite_buf.upload((uint8_t*) vertices_glyph.data(), vertices_glyph.size() * sizeof(float));
 
 	printf("System ready!\n");
 
@@ -139,36 +162,19 @@ int main() {
 
 		glm::mat4 matrix;
 
-//		vertices[0] = (mx * 2 / w) - 1;
-//		vertices[1] = ((h - my) * 2 / h) - 1;
-//		vertices[2] = vertices[0] + 0.5f;
-//		vertices[3] = vertices[1] + 0.5f;
-//
-//		trig_buffer.upload((uint8_t*) vertices, sizeof(vertices));
-
 		// render with perspective
-		matrix = projection * view * model;
+//		matrix = projection * view * model;
+		matrix = screen_space_matrix;
 		glUniformMatrix4fv(shader.uniform("matrix"), 1, GL_FALSE, glm::value_ptr(matrix));
 
 		// render
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		frame_1.use();
-		frame_1.clear();
+		frame_0.use();
+		frame_0.clear();
 		font8x8.use();
 		sprite_buf.draw();
 		bricks.use();
 		trig_buffer.draw();
-
-		// render with perspective
-		matrix = glm::mat4(1.0f);
-		glUniformMatrix4fv(shader.uniform("matrix"), 1, GL_FALSE, glm::value_ptr(matrix));
-
-		// blit
-		glClearColor(0.0f, 0.2f, 0.0f, 1.0f);
-		frame_0.use();
-		frame_0.clear();
-		color_att.use();
-		quad_buffer.draw();
 
 	});
 
