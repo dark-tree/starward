@@ -3,13 +3,15 @@
 #include <rendering.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "lib/image.h"
+#include <stb/stb_image.h>
 
 // docs
 // https://emscripten.org/docs/api_reference/html5.h.html
 
 // Shader sources
 const char* vertex_source = R"(#version 300 es
+	uniform mat4 matrix;
+
 	in vec2 iPos;
 	in vec2 iTex;
 	in vec3 iCol;
@@ -18,7 +20,7 @@ const char* vertex_source = R"(#version 300 es
 	out vec3 vCol;
 
 	void main() {
-		gl_Position = vec4(iPos.xy, 1.0, 1.0);
+		gl_Position = matrix * vec4(iPos.xy, 1.0, 1.0);
 		vTex = iTex;
 		vCol = iCol;
 	}
@@ -55,11 +57,10 @@ EM_BOOL mouse_handler (int type, const EmscriptenMouseEvent* event, void* userda
 int main() {
 
 	float vertices[] = {
-		 0.0f,  0.5f,   0.5, 1.0,   0.60, 0.85, 0.30,
+		-0.5f,  0.5f,   0.0, 1.0,   0.60, 0.85, 0.30,
 		 0.5f, -0.5f,   1.0, 0.0,   0.85, 0.35, 0.30,
 		-0.5f, -0.5f,   0.0, 0.0,   0.35, 0.35, 0.30,
 	};
-
 
 	float vertices_quad[] = {
 		-0.9, -0.9, 0.1, 0.1, 0.9, 0.9, 0.9,
@@ -76,8 +77,12 @@ int main() {
 	stbi_set_flip_vertically_on_load(true);
     gls::webgl_init();
 	emscripten_get_canvas_element_size("#canvas", &w, &h);
-
 	emscripten_set_mousemove_callback("#canvas", nullptr, false, mouse_handler);
+
+	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 view = glm::mat4(1.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), w / (float) h, 0.1f, 100.0f);
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
 
 	const gls::Framebuffer& frame_0 = gls::Framebuffer::main();
 
@@ -92,7 +97,6 @@ int main() {
 	frame_1.attach(depth_att, GL_DEPTH_STENCIL_ATTACHMENT);
 
 	gls::Texture bricks {"assets/test.png"};
-	//gls::Texture font {"assets/font8x8.png"};
 
 	// Create and compile the shader program
 	gls::Shader shader {vertex_source, fragment_source};
@@ -104,10 +108,11 @@ int main() {
 	layout.attribute(shader.attribute("iTex"), 2, GL_FLOAT);
 	layout.attribute(shader.attribute("iCol"), 3, GL_FLOAT);
 
-	// Create buffer
+	// Create buffers
 	gls::Buffer trig_buffer {layout, GL_DYNAMIC_DRAW};
-	gls::Buffer quad_buffer {layout, GL_STATIC_DRAW};
+	trig_buffer.upload((uint8_t*) vertices, sizeof(vertices));
 
+	gls::Buffer quad_buffer {layout, GL_STATIC_DRAW};
 	quad_buffer.upload((uint8_t*) vertices_quad, sizeof(vertices_quad));
 
 
@@ -128,23 +133,22 @@ int main() {
 	gls::Buffer sprite_buf {layout, GL_STATIC_DRAW};
 	sprite_buf.upload((uint8_t*) vertices_glyph, sizeof(vertices_glyph));
 
-
-
-
 	printf("System ready!\n");
 
 	gls::main_loop([&] {
 
-		const uint32_t milliseconds_since_start = emscripten_get_now();
-        const uint32_t milliseconds_per_loop = 3000;
+		glm::mat4 matrix;
 
-		vertices[0] = (mx * 2 / w) - 1;
-		vertices[1] = ((h - my) * 2 / h) - 1;
+//		vertices[0] = (mx * 2 / w) - 1;
+//		vertices[1] = ((h - my) * 2 / h) - 1;
+//		vertices[2] = vertices[0] + 0.5f;
+//		vertices[3] = vertices[1] + 0.5f;
+//
+//		trig_buffer.upload((uint8_t*) vertices, sizeof(vertices));
 
-		vertices[2] = vertices[0] + 0.5f;
-		vertices[3] = vertices[1] + 0.5f;
-
-		trig_buffer.upload((uint8_t*) vertices, sizeof(vertices));
+		// render with perspective
+		matrix = projection * view * model;
+		glUniformMatrix4fv(shader.uniform("matrix"), 1, GL_FALSE, glm::value_ptr(matrix));
 
 		// render
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -154,6 +158,10 @@ int main() {
 		sprite_buf.draw();
 		bricks.use();
 		trig_buffer.draw();
+
+		// render with perspective
+		matrix = glm::mat4(1.0f);
+		glUniformMatrix4fv(shader.uniform("matrix"), 1, GL_FALSE, glm::value_ptr(matrix));
 
 		// blit
 		glClearColor(0.0f, 0.2f, 0.0f, 1.0f);
