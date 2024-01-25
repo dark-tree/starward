@@ -162,7 +162,7 @@ namespace gls {
 
 			Sprite(float min_u, float min_v, float max_u, float max_v)
 			: min_u(min_u), min_v(min_v), max_u(max_u), max_v(max_v) {
-				printf("min_u=%f min_v=%f max_u=%f max_v=%f\n", min_u, min_v, max_u, max_v);
+//				printf("min_u=%f min_v=%f max_u=%f max_v=%f\n", min_u, min_v, max_u, max_v);
 			}
 
 	};
@@ -172,7 +172,7 @@ namespace gls {
 		private:
 
 			Texture texture;
-			int tw, th, line;
+			int tw, th, line, column;
 
 			void framebuffer(GLenum attachment) const override {
 				texture.framebuffer(attachment);
@@ -184,8 +184,8 @@ namespace gls {
 			: TileSet(path, tile, tile) {}
 
 			TileSet(const char* path, uint32_t tw, uint32_t th)
-			: texture(path), tw(tw), th(th), line(texture.width() / tw) {
-				if (texture.width() % tw != 0) {
+			: texture(path), tw(tw), th(th), line(texture.width() / tw), column(texture.height() / th) {
+				if (texture.width() % tw != 0 || texture.height() % th != 0) {
 					fault("Unable to neatly divide tileset! Texture width: %d tile width: %d\n", texture.width(), tw);
 				}
 			}
@@ -206,8 +206,12 @@ namespace gls {
 				return texture.height();
 			}
 
-			uint32_t tiles_per_line() const {
+			uint32_t tiles_in_line() const {
 				return line;
+			}
+
+			uint32_t tiles_in_column() const {
+				return column;
 			}
 
 		public:
@@ -219,11 +223,18 @@ namespace gls {
 				const int max_y = min_y + th;
 
 				return {
-					(min_x + 0.5f) / (float) width(),
-					(min_y + 0.5f) / (float) height(),
-					(max_x + 0.5f) / (float) width(),
-					(max_y + 0.5f) / (float) height()
+					(min_x + 0.01f) / (float) width(),
+					(min_y + 0.01f) / (float) height(),
+					(max_x - 0.01f) / (float) width(),
+					(max_y - 0.01f) / (float) height()
 				};
+			}
+
+			Sprite sprite(int index) {
+				int x = index % line;
+				int y = column - (index / line) - 1;
+
+				return sprite(x, y);
 			}
 
 	};

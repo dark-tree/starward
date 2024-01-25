@@ -17,7 +17,7 @@ namespace gls {
 			GLenum type;
 
 		public:
-		
+
 			Buffer(const Layout& layout, GLenum type) {
 				// create and bind VAO
 				glGenVertexArrays(1, &vao);
@@ -42,12 +42,35 @@ namespace gls {
 				glBufferData(GL_ARRAY_BUFFER, size, data, type);
 				vertices = size / stride;
 
-				//printf("stride=%d size=%d vertices=%d\n", stride, (int) size, vertices);
+//				printf("stride=%d size=%d vertices=%d\n", stride, (int) size, vertices);
 			}
 
 			void draw() {
 				glBindVertexArray(vao);
 				glDrawArrays(GL_TRIANGLES, 0, vertices);
+			}
+
+	};
+
+	template <typename V>
+	class BufferWriter {
+
+		private:
+
+			std::vector<V> vertices;
+			Buffer& buffer;
+
+		public:
+
+			BufferWriter(Buffer& buffer)
+			: buffer(buffer) {}
+
+			void push(V vertex) {
+				vertices.push_back(vertex);
+			}
+
+			void upload() {
+				buffer.upload((uint8_t*) vertices.data(), vertices.size() * sizeof(V));
 			}
 
 	};

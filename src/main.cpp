@@ -2,6 +2,8 @@
 #include <external.hpp>
 #include <rendering.hpp>
 
+#include "level.hpp"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
@@ -14,10 +16,10 @@ const char* vertex_source = R"(#version 300 es
 
 	in vec2 iPos;
 	in vec2 iTex;
-	in vec3 iCol;
+	in vec4 iCol;
 
 	out vec2 vTex;
-	out vec3 vCol;
+	out vec4 vCol;
 
 	void main() {
 		gl_Position = matrix * vec4(iPos.xy, 1.0, 1.0);
@@ -31,12 +33,12 @@ const char* fragment_source = R"(#version 300 es
 	uniform sampler2D sampler;
 
 	in vec2 vTex;
-	in vec3 vCol;
+	in vec4 vCol;
 
 	out vec4 fColor;
 
 	void main() {
-		fColor = vec4(vCol.rgb, 0) * texture(sampler, vTex);
+		fColor = vCol * texture(sampler, vTex);
 	}
 )";
 
@@ -56,20 +58,20 @@ EM_BOOL mouse_handler (int type, const EmscriptenMouseEvent* event, void* userda
 
 int main() {
 
-	float vertices[] = {
-		-0.5f,  0.5f,  0.0,  1.0,  0.60,  0.85,  0.30,
-		 0.5f, -0.5f,  1.0,  0.0,  0.85,  0.35,  0.30,
-		-0.5f, -0.5f,  0.0,  0.0,  0.35,  0.35,  0.30,
+	gls::Vert4f4b vertices[] = {
+		{-0.5f,  0.5f,  0.0,  1.0,  255, 255, 255, 255},
+		{ 0.5f, -0.5f,  1.0,  0.0,  255, 255, 255, 255},
+		{-0.5f, -0.5f,  0.0,  0.0,  255, 255, 255, 255},
 	};
 
-	float vertices_quad[] = {
-		-0.9, -0.9,  0.1,  0.1,  0.9,  0.9,  0.9,
-		 0.9, -0.9,  0.9,  0.1,  0.9,  0.9,  0.9,
-		 0.9,  0.9,  0.9,  0.9,  0.9,  0.9,  0.9,
+	gls::Vert4f4b vertices_quad[] = {
+		{-0.9, -0.9,  0.1,  0.1,  255, 255, 255, 255},
+		{ 0.9, -0.9,  0.9,  0.1,  255, 255, 255, 255},
+		{ 0.9,  0.9,  0.9,  0.9,  255, 255, 255, 255},
 
-		 0.9,  0.9,  0.9,  0.9,  0.9,  0.9,  0.9,
-		-0.9,  0.9,  0.1,  0.9,  0.9,  0.9,  0.9,
-		-0.9, -0.9,  0.1,  0.1,  0.9,  0.9,  0.9,
+		{ 0.9,  0.9,  0.9,  0.9,  255, 255, 255, 255},
+		{-0.9,  0.9,  0.1,  0.9,  255, 255, 255, 255},
+		{-0.9, -0.9,  0.1,  0.1,  255, 255, 255, 255},
 	};
 
 	int32_t w, h;
@@ -111,7 +113,7 @@ int main() {
 	gls::Layout layout;
 	layout.attribute(shader.attribute("iPos"), 2, GL_FLOAT);
 	layout.attribute(shader.attribute("iTex"), 2, GL_FLOAT);
-	layout.attribute(shader.attribute("iCol"), 3, GL_FLOAT);
+	layout.attribute(shader.attribute("iCol"), 4, GL_UNSIGNED_BYTE, true);
 
 	// Create buffers
 	gls::Buffer trig_buffer {layout, GL_DYNAMIC_DRAW};
@@ -121,40 +123,13 @@ int main() {
 	quad_buffer.upload((uint8_t*) vertices_quad, sizeof(vertices_quad));
 
 	gls::TileSet font8x8 {"assets/font8x8.png", 8, 8};
-//	gls::Sprite s = font8x8.sprite(0, 4);
-
-	std::vector<float> vertices_glyph;
-
-	auto push = [&] (float x, float y, float u, float v) {
-		vertices_glyph.push_back(x);
-		vertices_glyph.push_back(y);
-		vertices_glyph.push_back(u);
-		vertices_glyph.push_back(v);
-		vertices_glyph.push_back(1);
-		vertices_glyph.push_back(1);
-		vertices_glyph.push_back(1);
-	};
-
-	auto sprite = [&] (float x, float y, int sx, int sy) {
-		gls::Sprite s = font8x8.sprite(sx, sy);
-
-		push(x + 0,   0 + y,  s.min_u, s.min_v);
-		push(x + 64,  0 + y,  s.max_u, s.min_v);
-		push(x + 64, 64 + y,  s.max_u, s.max_v);
-		push(x + 64, 64 + y,  s.max_u, s.max_v);
-		push(x + 0,  64 + y,  s.min_u, s.max_v);
-		push(x + 0,   0 + y,  s.min_u, s.min_v);
-	};
-
-	int i = 0;
-	sprite(i * 64, 0, 0, 6); i ++;
-	sprite(i * 64, 0, 5, 7); i ++;
-	sprite(i * 64, 0, 4, 6); i ++;
-	sprite(i * 64, 0, 4, 6); i ++;
-	sprite(i * 64, 0, 7, 6); i ++;
 
 	gls::Buffer sprite_buf {layout, GL_STATIC_DRAW};
-	sprite_buf.upload((uint8_t*) vertices_glyph.data(), vertices_glyph.size() * sizeof(float));
+	gls::BufferWriter<gls::Vert4f4b> writer {sprite_buf};
+
+	Level level;
+	level.render(font8x8, writer);
+	writer.upload();
 
 	printf("System ready!\n");
 

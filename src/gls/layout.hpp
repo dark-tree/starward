@@ -22,7 +22,7 @@ namespace gls {
 				return 0;
 			}
 
-			friend class Buffer;  
+			friend class Buffer;
 
 			struct Attribute {
 				int index;
@@ -55,8 +55,8 @@ namespace gls {
 				for (const Attribute& attr : attributes) {
 					glVertexAttribPointer(attr.index, attr.count, attr.type, attr.normalize, stride, (void*) (attr.offset));
 					glEnableVertexAttribArray(attr.index);
-	
-					//printf("Applied attribute %d: count=%d stride=%d offset=%d\n", attr.index, attr.count, stride, attr.offset);
+
+//					printf("Applied attribute %d: count=%d stride=%d offset=%d\n", attr.index, attr.count, stride, attr.offset);
 				}
 
 				return stride;
