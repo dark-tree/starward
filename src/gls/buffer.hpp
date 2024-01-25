@@ -71,6 +71,7 @@ namespace gls {
 
 			void upload() {
 				buffer.upload((uint8_t*) vertices.data(), vertices.size() * sizeof(V));
+				vertices.clear();
 			}
 
 	};

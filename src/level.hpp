@@ -8,12 +8,12 @@ struct Level {
 	void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) {
 
 		static uint8_t tiles[6][6] = {
-			{'H', 'e', 'l', 'l', 'o', '!'},
-			{'H', 'e', 'l', 'l', 'o', '!'},
-			{'H', 'e', 'l', 'l', 'o', '!'},
-			{'H', 'e', 'l', 'l', 'o', '!'},
-			{'H', 'e', 'l', 'l', 'o', '!'},
-			{'H', 'e', 'l', 'l', 'o', '!'},
+			{10, 10, 10, 10, 10, 10},
+			{0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0},
+			{0, 0, 2, 3, 2, 0},
+			{0, 0, 0, 0, 0, 0},
 		};
 
 		for (int y = 0; y < 6; y ++) {

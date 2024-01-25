@@ -122,13 +122,14 @@ int main() {
 	gls::Buffer quad_buffer {layout, GL_STATIC_DRAW};
 	quad_buffer.upload((uint8_t*) vertices_quad, sizeof(vertices_quad));
 
-	gls::TileSet font8x8 {"assets/font8x8.png", 8, 8};
+	gls::TileSet font8x8 {"assets/font8x8.png", 8};
+	gls::TileSet tileset {"assets/tileset.png", 16};
 
 	gls::Buffer sprite_buf {layout, GL_STATIC_DRAW};
 	gls::BufferWriter<gls::Vert4f4b> writer {sprite_buf};
 
 	Level level;
-	level.render(font8x8, writer);
+	level.render(tileset, writer);
 	writer.upload();
 
 	printf("System ready!\n");
@@ -146,7 +147,7 @@ int main() {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		frame_0.use();
 		frame_0.clear();
-		font8x8.use();
+		tileset.use();
 		sprite_buf.draw();
 		bricks.use();
 		trig_buffer.draw();
