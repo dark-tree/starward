@@ -3,22 +3,44 @@
 #include <external.hpp>
 #include <rendering.hpp>
 
+struct World {
+
+	uint16_t tiles[20 * 20];
+
+	World() {
+		memset(tiles, 0, 20 * 20 * sizeof(uint16_t));
+	}
+
+	void set(int x, int y, uint16_t tid) {
+		tiles[y * 20 + x] = tid;
+	}
+
+};
+
+
+#include "entity.hpp"
+
 struct Level {
+
+	std::vector<Entity> entites;
+	World& world;
+
+	Level(World& world)
+	: world(world) {}
 
 	void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) {
 
-		static uint8_t tiles[6][6] = {
-			{10, 10, 10, 10, 10, 10},
-			{0, 0, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0},
-			{0, 0, 2, 3, 2, 0},
-			{0, 0, 0, 0, 0, 0},
-		};
+		for (Entity& entity : entites) {
+			entity.tick(world);
+		}
 
-		for (int y = 0; y < 6; y ++) {
-			for (int x = 0; x < 6; x ++) {
-				uint8_t tile = tiles[y][x];
+		for (Entity& entity : entites) {
+			entity.render(tileset, buffer);
+		}
+
+		for (int y = 0; y < 20; y ++) {
+			for (int x = 0; x < 20; x ++) {
+				uint8_t tile = world.tiles[y * 20 + x];
 
 				if (tile != 0) {
 					gls::Sprite s = tileset.sprite(tile);
@@ -35,7 +57,6 @@ struct Level {
 				}
 			}
 		}
-
 	}
 
 };

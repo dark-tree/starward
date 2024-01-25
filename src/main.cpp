@@ -80,6 +80,8 @@ int main() {
     gls::webgl_init();
 	emscripten_get_canvas_element_size("#canvas", &w, &h);
 	emscripten_set_mousemove_callback("#canvas", nullptr, false, mouse_handler);
+	emscripten_set_keydown_callback("#canvas", nullptr, false, gls::__keydown_handler);
+	emscripten_set_keyup_callback("#canvas", nullptr, false, gls::__keyup_handler);
 
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -4.0f));
@@ -128,9 +130,29 @@ int main() {
 	gls::Buffer sprite_buf {layout, GL_STATIC_DRAW};
 	gls::BufferWriter<gls::Vert4f4b> writer {sprite_buf};
 
-	Level level;
-	level.render(tileset, writer);
-	writer.upload();
+	World world;
+
+	for (int i = 0; i < 20; i ++) {
+		world.set(i, 0, 10);
+	}
+
+	// platform 1
+	world.set(4, 5, 9);
+	world.set(5, 5, 9);
+	world.set(6, 5, 9);
+
+	// platform 2
+	world.set(9, 5, 9);
+	world.set(10, 5, 9);
+	world.set(11, 5, 9);
+
+	// wall
+	world.set(17, 2, 9);
+	world.set(17, 3, 9);
+	world.set(17, 4, 9);
+
+	Level level {world};
+	level.entites.push_back({});
 
 	printf("System ready!\n");
 
@@ -142,6 +164,9 @@ int main() {
 //		matrix = projection * view * model;
 		matrix = screen_space_matrix;
 		glUniformMatrix4fv(shader.uniform("matrix"), 1, GL_FALSE, glm::value_ptr(matrix));
+
+		level.render(tileset, writer);
+		writer.upload();
 
 		// render
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

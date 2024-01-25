@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gls/input.hpp>
 #include <gls/wrapper.hpp>
 #include <gls/shader.hpp>
 #include <gls/buffer.hpp>
