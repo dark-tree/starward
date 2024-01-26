@@ -4,6 +4,7 @@
 
 // C++
 #include <functional>
+#include <memory>
 
 // emscripten
 #include <emscripten.h>

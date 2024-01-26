@@ -2,27 +2,11 @@
 
 #include <external.hpp>
 #include <rendering.hpp>
-
-struct World {
-
-	uint16_t tiles[20 * 20];
-
-	World() {
-		memset(tiles, 0, 20 * 20 * sizeof(uint16_t));
-	}
-
-	void set(int x, int y, uint16_t tid) {
-		tiles[y * 20 + x] = tid;
-	}
-
-};
-
-
 #include "entity.hpp"
 
 struct Level {
 
-	std::vector<Entity> entites;
+	std::vector<std::shared_ptr<Entity>> entites;
 	World& world;
 
 	Level(World& world)
@@ -30,17 +14,17 @@ struct Level {
 
 	void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) {
 
-		for (Entity& entity : entites) {
-			entity.tick(world);
+		for (auto& entity : entites) {
+			entity->tick(world);
 		}
 
-		for (Entity& entity : entites) {
-			entity.render(tileset, buffer);
+		for (auto& entity : entites) {
+			entity->render(tileset, buffer);
 		}
 
-		for (int y = 0; y < 20; y ++) {
-			for (int x = 0; x < 20; x ++) {
-				uint8_t tile = world.tiles[y * 20 + x];
+		for (int y = 0; y < world.height; y ++) {
+			for (int x = 0; x < world.width; x ++) {
+				uint8_t tile = world.get(x, y);
 
 				if (tile != 0) {
 					gls::Sprite s = tileset.sprite(tile);

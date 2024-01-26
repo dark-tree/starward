@@ -1,5 +1,7 @@
 #pragma once
 
+#include "world.hpp"
+
 int key_code = 0;
 
 struct Entity {
@@ -54,43 +56,44 @@ class Player : public Entity {
 				vy += 2;
 			}
 
-			float px = x, py = y;
+			x += 32;
 
 			int x1 = x / 64;
-			int y1 = (y + vy) / 64;
+			int y1 = (y + iy + vy) / 64;
 
-			if (world.tiles[x1 + y1 * 20] != 0) {
-				on_ground = true;
+			if (world.get(x1, y1) != 0) {
+				if (vy < 0) {
+					on_ground = true;
+				}
+
+				vy /= 2;
+			} else {
+				y = y + iy + vy;
 			}
 
 			int x2 = (x + ix + vx) / 64;
-			int y2 = (y + iy + vy) / 64;
+			int y2 = y / 64;
 
-
-			if (world.tiles[x2 + y2 * 20] == 0) {
-				on_ground = false;
-
-				x = x + ix + vx;
-				y = y + iy + vy;
+			if (world.get(x2, y2) != 0) {
+				vx /= 2;
 			} else {
-				//vx /= 2;
-				vy /= 2;
+				x = x + ix + vx;
 			}
 
 			if (gls::Input::is_pressed(gls::Key::LEFT)) {
-				ix = -5;
-			}
-
-			else if (gls::Input::is_pressed(gls::Key::RIGHT)) {
-				ix = +5;
+				vx = -5;
+			} else if (gls::Input::is_pressed(gls::Key::RIGHT)) {
+				vx = +5;
 			} else {
-				ix = 0;
+				if (on_ground) vx /= 2;
 			}
 
-			if (gls::Input::is_pressed(gls::Key::SPACE) && on_ground) {
+			if ((gls::Input::is_pressed(gls::Key::SPACE) || gls::Input::is_pressed(gls::Key::UP)) && on_ground) {
 				on_ground = false;
-				vy += 10;
+				vy += 12;
 			}
+
+			x -= 32;
 		}
 
 };

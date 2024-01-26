@@ -2,7 +2,8 @@
 #include <external.hpp>
 #include <rendering.hpp>
 
-#include "level.hpp"
+#include "const.hpp"
+#include "game/level.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -47,15 +48,6 @@ extern "C" void EMSCRIPTEN_KEEPALIVE toggle_background_color() {
 
 }
 
-float mx, my;
-
-EM_BOOL mouse_handler (int type, const EmscriptenMouseEvent* event, void* userdata) {
-	mx = event->clientX;
-	my = event->clientY;
-
-	return true;
-}
-
 int main() {
 
 	gls::Vert4f4b vertices[] = {
@@ -74,14 +66,9 @@ int main() {
 		{-0.9, -0.9,  0.1,  0.1,  255, 255, 255, 255},
 	};
 
-	int32_t w, h;
+    gls::init(HTML_CANVAS);
 
-	stbi_set_flip_vertically_on_load(true);
-    gls::webgl_init();
-	emscripten_get_canvas_element_size("#canvas", &w, &h);
-	emscripten_set_mousemove_callback("#canvas", nullptr, false, mouse_handler);
-	emscripten_set_keydown_callback("#canvas", nullptr, false, gls::__keydown_handler);
-	emscripten_set_keyup_callback("#canvas", nullptr, false, gls::__keyup_handler);
+	const auto [w, h] = gls::get_canvas_size(HTML_CANVAS);
 
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -4.0f));
@@ -130,9 +117,9 @@ int main() {
 	gls::Buffer sprite_buf {layout, GL_STATIC_DRAW};
 	gls::BufferWriter<gls::Vert4f4b> writer {sprite_buf};
 
-	World world;
+	World world {30, 20};
 
-	for (int i = 0; i < 20; i ++) {
+	for (int i = 0; i < world.width; i ++) {
 		world.set(i, 0, 10);
 	}
 
@@ -150,9 +137,11 @@ int main() {
 	world.set(17, 2, 9);
 	world.set(17, 3, 9);
 	world.set(17, 4, 9);
+	world.set(16, 2, 9);
+	world.set(13, 5, 9);
 
 	Level level {world};
-	level.entites.push_back({});
+	level.entites.push_back(std::make_shared<Player>());
 
 	printf("System ready!\n");
 
