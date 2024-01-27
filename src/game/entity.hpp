@@ -88,7 +88,7 @@ class Player : public Entity {
 				if (on_ground) vx /= 2;
 			}
 
-			if ((gls::Input::is_pressed(gls::Key::SPACE) || gls::Input::is_pressed(gls::Key::UP)) && on_ground) {
+			if (gls::Input::is_typed(gls::Key::SPACE) && on_ground) {
 				on_ground = false;
 				vy += 12;
 			}

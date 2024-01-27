@@ -166,6 +166,8 @@ int main() {
 		bricks.use();
 		trig_buffer.draw();
 
+		gls::Input::clear();
+
 	});
 
     return EXIT_SUCCESS;
