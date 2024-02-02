@@ -7,6 +7,7 @@
 #include <memory>
 #include <stdexcept>
 #include <list>
+#include <algorithm>
 
 // emscripten
 #include <emscripten.h>

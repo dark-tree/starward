@@ -61,22 +61,22 @@ class Screen {
 	protected:
 
 		Field<ScreenTile> tiles;
-		uint16_t selected = 0xFFFF;
+		uint16_t selected = 0;
 		bool closed = false;
-
+		uint16_t width, height;
 
 	public:
 
 		Screen(const ScreenPallet& pallet, uint32_t width, uint32_t height, uint16_t actions)
-		: pallet(pallet), tiles(width, height), actions(actions) {}
+		: pallet(pallet), tiles(width, height), actions(actions), width(width), height(height) {}
 
 		virtual ~Screen() {}
 
 		void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) {
 			const auto [w, h] = gls::get_canvas_size(HTML_CANVAS);
 
-			float ox = (w - tiles.width * 64) * 0.5f;
-			float oy = (h - tiles.height * 64) * 0.5f;
+			float ox = (w - tiles.width * 32) * 0.5f;
+			float oy = (h - tiles.height * 32) * 0.5f;
 
 			for (int y = 0; y < tiles.height; y ++) {
 				for (int x = 0; x < tiles.width; x ++) {
@@ -87,14 +87,14 @@ class Screen {
 						gls::Sprite s = tileset.sprite(tile.index);
 						ScreenColor c = pallet.get(color);
 
-						float tx = ox + x * 64.0f;
-						float ty = oy + y * 64.0f;
+						float tx = ox + x * 32.0f;
+						float ty = oy + y * 32.0f;
 
 						buffer.push({tx + 0,   0 + ty, s.min_u, s.min_v, c.fr, c.fg, c.fb, c.fa});
-						buffer.push({tx + 64,  0 + ty, s.max_u, s.min_v, c.fr, c.fg, c.fb, c.fa});
-						buffer.push({tx + 64, 64 + ty, s.max_u, s.max_v, c.fr, c.fg, c.fb, c.fa});
-						buffer.push({tx + 64, 64 + ty, s.max_u, s.max_v, c.fr, c.fg, c.fb, c.fa});
-						buffer.push({tx + 0,  64 + ty, s.min_u, s.max_v, c.fr, c.fg, c.fb, c.fa});
+						buffer.push({tx + 32,  0 + ty, s.max_u, s.min_v, c.fr, c.fg, c.fb, c.fa});
+						buffer.push({tx + 32, 32 + ty, s.max_u, s.max_v, c.fr, c.fg, c.fb, c.fa});
+						buffer.push({tx + 32, 32 + ty, s.max_u, s.max_v, c.fr, c.fg, c.fb, c.fa});
+						buffer.push({tx + 0,  32 + ty, s.min_u, s.max_v, c.fr, c.fg, c.fb, c.fa});
 						buffer.push({tx + 0,   0 + ty, s.min_u, s.min_v, c.fr, c.fg, c.fb, c.fa});
 					}
 				}
@@ -120,13 +120,13 @@ class Screen {
 			selected ++;
 
 			if (selected > actions) {
-				selected = 0;
+				selected = 1;
 			}
 		}
 
 		/// returns the actual color of the tile, in acordance with screen state
 		virtual uint16_t transform(uint16_t color, uint16_t action) const {
-			return color + (action == selected ? 1 : 0);
+			return color + (action != 0 && action == selected ? 1 : 0);
 		}
 
 		/// executed when the user triggers an action
@@ -137,7 +137,12 @@ class Screen {
 		/// executed for each keyboard event while the screen is focused
 		virtual bool on_key(int key) {
 			if (key == gls::Key::ESCAPE) {
-				close();
+				if (selected != 0) {
+					selected = 0;
+				} else {
+					close();
+				}
+
 				return true;
 			}
 
@@ -146,7 +151,7 @@ class Screen {
 				return true;
 			}
 
-			if (key == gls::Key::ENTER && selected != 0xFFFF) {
+			if (key == gls::Key::ENTER && selected != 0) {
 				on_action(selected);
 				return true;
 			}
@@ -177,6 +182,10 @@ class ScreenStack {
 			if (!screens.empty()) {
 				top()->render(tileset, buffer);
 			}
+
+			screens.remove_if([] (const std::shared_ptr<Screen>& screen) {
+				return screen->is_closed();
+			});
 		}
 
 		bool on_key(int key) {
