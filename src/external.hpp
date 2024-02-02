@@ -5,6 +5,8 @@
 // C++
 #include <functional>
 #include <memory>
+#include <stdexcept>
+#include <list>
 
 // emscripten
 #include <emscripten.h>

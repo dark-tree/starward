@@ -7,3 +7,4 @@
 #include <gls/texture.hpp>
 #include <gls/framebuffer.hpp>
 #include <gls/vertex.hpp>
+#include <gls/screen.hpp>

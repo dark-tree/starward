@@ -12,6 +12,8 @@ namespace gls {
 			DOWN   = 40,
 			SPACE  = 32,
 			ESCAPE = 27,
+			TAB    = 9,
+			ENTER  = 13,
 		};
 	};
 

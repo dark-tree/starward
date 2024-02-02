@@ -4,6 +4,7 @@
 
 #include "const.hpp"
 #include "game/level.hpp"
+#include "game/menu.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -143,6 +144,13 @@ int main() {
 	Level level {world};
 	level.entites.push_back(std::make_shared<Player>());
 
+	ScreenPallet pallet;
+	pallet.put({100, 120, 100, 255, 0, 0, 0, 0});
+	pallet.put({200, 240, 200, 255, 0, 0, 0, 0});
+
+	ScreenStack stack;
+	stack.open(std::shared_ptr<Screen>{new MenuScreen {pallet}});
+
 	printf("System ready!\n");
 
 	gls::main_loop([&] {
@@ -163,8 +171,15 @@ int main() {
 		frame_0.clear();
 		tileset.use();
 		sprite_buf.draw();
-		bricks.use();
-		trig_buffer.draw();
+		stack.render(font8x8, writer);
+		writer.upload();
+		font8x8.use();
+		sprite_buf.draw();
+
+		// ugly input wrapper, i will fix it later
+		if (gls::Input::is_typed(gls::Key::TAB)) stack.on_key(gls::Key::TAB);
+		if (gls::Input::is_typed(gls::Key::ENTER)) stack.on_key(gls::Key::ENTER);
+		if (gls::Input::is_typed(gls::Key::ESCAPE)) stack.on_key(gls::Key::ESCAPE);
 
 		gls::Input::clear();
 
