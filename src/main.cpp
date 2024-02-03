@@ -144,12 +144,12 @@ int main() {
 	Level level {world};
 	level.entites.push_back(std::make_shared<Player>());
 
-	ScreenPallet pallet;
+	gls::ScreenPallet pallet;
 	pallet.put({100, 120, 100, 255, 0, 0, 0, 0});
 	pallet.put({200, 240, 200, 255, 0, 0, 0, 0});
 
-	ScreenStack stack;
-	stack.open(std::shared_ptr<Screen>{new MenuScreen {pallet}});
+	gls::ScreenStack stack;
+	stack.open(std::shared_ptr<gls::Screen>{new MenuScreen {pallet}});
 
 	printf("System ready!\n");
 
@@ -180,6 +180,8 @@ int main() {
 		if (gls::Input::is_typed(gls::Key::TAB)) stack.on_key(gls::Key::TAB);
 		if (gls::Input::is_typed(gls::Key::ENTER)) stack.on_key(gls::Key::ENTER);
 		if (gls::Input::is_typed(gls::Key::ESCAPE)) stack.on_key(gls::Key::ESCAPE);
+		if (gls::Input::is_typed(gls::Key::UP)) stack.on_key(gls::Key::UP);
+		if (gls::Input::is_typed(gls::Key::DOWN)) stack.on_key(gls::Key::DOWN);
 
 		gls::Input::clear();
 
