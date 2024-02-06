@@ -6,6 +6,6 @@
 template <typename... Args>
 [[noreturn]] void fault(const char* format, Args... args) {
 	printf(format, args...);
-	exit(-1);
+	emscripten_force_exit(-1);
 }
 #pragma clang diagnostic pop

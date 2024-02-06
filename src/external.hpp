@@ -1,3 +1,6 @@
+#pragma once
+
+#define STB_VORBIS_HEADER_ONLY
 
 // C
 #include <cinttypes>
@@ -15,7 +18,10 @@
 
 // libraries
 #include <GLES3/gl3.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 #include <stb/stb_image.h>
+#include <stb/stb_vorbis.c>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
