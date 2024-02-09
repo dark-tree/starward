@@ -6,8 +6,8 @@
 #include "game/level.hpp"
 #include "game/menu.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
+//#define STB_IMAGE_IMPLEMENTATION
+//#include <stb/stb_image.h>
 
 // docs
 // https://emscripten.org/docs/api_reference/html5.h.html
@@ -141,8 +141,11 @@ int main() {
 	world.set(16, 2, 9);
 	world.set(13, 5, 9);
 
+	MapCollider collider(&world);
+
 	Level level {world};
 	level.entites.push_back(std::make_shared<Player>());
+	//level.entites.push_back(std::make_shared<Box>(glm::vec2(200.0f, 100.0f)));
 
 	gls::ScreenPallet pallet;
 	pallet.put({100, 120, 100, 255, 0, 0, 0, 0});
@@ -154,6 +157,7 @@ int main() {
 	printf("System ready!\n");
 
 	gls::main_loop([&] {
+		Physics::tick();
 
 		glm::mat4 matrix;
 

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "world.hpp"
+#include "physics.hpp"
+#include <iostream>
 
 int key_code = 0;
 
@@ -8,8 +10,7 @@ struct Entity {
 
 	protected:
 
-		float x = 100, y = 100;
-		float vx = 0, vy = 0;
+		Transform transform;
 
 	public:
 
@@ -23,16 +24,24 @@ struct Entity {
 class Player : public Entity {
 
 	protected:
-
-		bool on_ground = false;
-		float ix = 0, iy = 0;
+		
+		BoxCollider collider;
+		RigidBody rigid_body;
+		float coyote_timer = 0;
+		const float coyote_time = 0.2f;
 
 	public:
+
+		Player() : Entity(), collider(16, 0, 32, 32, &transform), rigid_body(&collider, &transform) {
+			transform.position = { 100.0f, 100.0f };
+		}
 
 		void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) override {
 			gls::Sprite s = tileset.sprite(11);
 
-			uint8_t v = on_ground ? 255 : 100;
+			uint8_t v = collider.get_collision() ? 255 : 100;
+			float x = transform.position.x;
+			float y = transform.position.y;
 
 			buffer.push({x + 0,   0 + y,  s.min_u, s.min_v, 255, 255, v, 255});
 			buffer.push({x + 64,  0 + y,  s.max_u, s.min_v, 255, 255, v, 255});
@@ -43,57 +52,59 @@ class Player : public Entity {
 		}
 
 		void tick(World& world) override {
-			if (!on_ground) {
-				if (vy > -10) vy -= 0.5;
-			}
+			float delta_time = 1.0f / 60.0f;
 
-			if (vx < -60) vx = -60;
-			if (vx > 60) vx = 60;
-			if (vy < -60) vy = -60;
-			if (vy > 60) vy = 60;
-
-			if (vy < -10) {
-				vy += 2;
-			}
-
-			x += 32;
-
-			int x1 = x / 64;
-			int y1 = (y + iy + vy) / 64;
-
-			if (world.get(x1, y1) != 0) {
-				if (vy < 0) {
-					on_ground = true;
-				}
-
-				vy /= 2;
-			} else {
-				y = y + iy + vy;
-			}
-
-			int x2 = (x + ix + vx) / 64;
-			int y2 = y / 64;
-
-			if (world.get(x2, y2) != 0) {
-				vx /= 2;
-			} else {
-				x = x + ix + vx;
-			}
+			coyote_timer = std::max(0.0f, coyote_timer - delta_time);
 
 			if (gls::Input::is_pressed(gls::Key::LEFT)) {
-				vx = -5;
-			} else if (gls::Input::is_pressed(gls::Key::RIGHT)) {
-				vx = +5;
-			} else {
-				if (on_ground) vx /= 2;
+				rigid_body.get_velocity().x = -3;
+				if (collider.get_collision()) {
+					coyote_timer = coyote_time;
+				}
+			} 
+			if (gls::Input::is_pressed(gls::Key::RIGHT)) {
+				rigid_body.get_velocity().x = 3;
+				if (collider.get_collision()) {
+					coyote_timer = coyote_time;
+				}
 			}
 
-			if (gls::Input::is_typed(gls::Key::SPACE) && on_ground) {
-				on_ground = false;
-				vy += 12;
+			if (gls::Input::is_typed(gls::Key::SPACE) && (collider.get_collision() || coyote_timer > 0.0f)) {
+				rigid_body.apply_force({0, 8});
+				coyote_timer = 0.0f;
 			}
-
-			x -= 32;
 		}
 
+};
+
+class Box : public Entity {
+protected:
+
+	BoxCollider collider;
+	RigidBody rigid_body;
+
+public:
+
+	Box(const glm::vec2& position) : Entity(), collider(16, 0, 32, 32, &transform), rigid_body(&collider, &transform) {
+		transform.position = position;
+	}
+
+	void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) override {
+		gls::Sprite s = tileset.sprite(11);
+
+		uint8_t v = 255;
+		float x = transform.position.x;
+		float y = transform.position.y;
+
+		buffer.push({ x + 0,   0 + y,  s.min_u, s.min_v, 255, 255, v, 255 });
+		buffer.push({ x + 64,  0 + y,  s.max_u, s.min_v, 255, 255, v, 255 });
+		buffer.push({ x + 64, 64 + y,  s.max_u, s.max_v, 255, 255, v, 255 });
+		buffer.push({ x + 64, 64 + y,  s.max_u, s.max_v, 255, 255, v, 255 });
+		buffer.push({ x + 0,  64 + y,  s.min_u, s.max_v, 255, 255, v, 255 });
+		buffer.push({ x + 0,   0 + y,  s.min_u, s.min_v, 255, 255, v, 255 });
+	}
+
+	void tick(World& world) override {
+
+	}
 };
