@@ -18,6 +18,11 @@ class SoundSource {
 		SoundVolumes& volumes;
 		float gain;
 
+		void flush() {
+			alSourcef(source, AL_GAIN, gain * volumes.get(group));
+			debug::openal::check_error("alSourcef");
+		}
+
 	public:
 
 		SoundSource(const SoundBuffer& sound, SoundVolumes& volumes)
@@ -67,22 +72,23 @@ class SoundSource {
 	// play state menegment
 	public:
 
-		void play() {
-			alSourcef(source, AL_GAIN, gain * volumes.get(group));
-			debug::openal::check_error("alSourcef");
-
+		SoundSource& play() {
+			flush();
 			alSourcePlay(source);
 			debug::openal::check_error("alSourcePlay");
+			return *this;
 		}
 
-		void pause() {
+		SoundSource& pause() {
 			alSourcePause(source);
 			debug::openal::check_error("alSourcePause");
+			return *this;
 		}
 
-		void drop() {
+		SoundSource& drop() {
 			alSourceStop(source);
 			debug::openal::check_error("alSourceStop");
+			return *this;
 		}
 
 	// source properties

@@ -75,4 +75,20 @@ class SoundSystem {
 			return {};
 		}
 
+		// stop all sounds in the given group
+		void stop(SoundGroup group = SoundGroup::MASTER) {
+			for (auto& source : sources) {
+				if (source->group == group || group == SoundGroup::MASTER) {
+					source->drop();
+				}
+			}
+		}
+
+		// update volumes of all playing sounds
+		void flush() {
+			for (auto& source : sources) {
+				source->flush();
+			}
+		}
+
 };
