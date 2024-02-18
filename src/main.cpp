@@ -5,9 +5,7 @@
 #include "const.hpp"
 #include "game/level.hpp"
 #include "game/menu.hpp"
-
-//#define STB_IMAGE_IMPLEMENTATION
-//#include <stb/stb_image.h>
+#include "sound/system.hpp"
 
 // docs
 // https://emscripten.org/docs/api_reference/html5.h.html
@@ -68,6 +66,8 @@ int main() {
 	};
 
     gls::init(HTML_CANVAS);
+	SoundSystem sounds;
+	SoundBuffer buffer {"assets/test.ogg"};
 
 	const auto [w, h] = gls::get_canvas_size(HTML_CANVAS);
 
@@ -155,6 +155,7 @@ int main() {
 	stack.open(std::shared_ptr<gls::Screen>{new MenuScreen {pallet}});
 
 	printf("System ready!\n");
+	bool sound_test = true;
 
 	gls::main_loop([&] {
 		Physics::tick();
@@ -187,9 +188,23 @@ int main() {
 		if (gls::Input::is_typed(gls::Key::UP)) stack.on_key(gls::Key::UP);
 		if (gls::Input::is_typed(gls::Key::DOWN)) stack.on_key(gls::Key::DOWN);
 
+		if (sound_test && stack.empty()) {
+			sounds.volume().set(SoundGroup::MUSIC, 0.5f);
+
+			sounds.add(buffer).loop().in(SoundGroup::MUSIC).event(0.35f, [] (float current, SoundSource& source) {
+				printf("From sound event of '%s', played at: '%f'\n", source.identifier(), current);
+			}).play();
+
+			sound_test = false;
+		}
+
+		sounds.update();
 		gls::Input::clear();
 
 	});
 
     return EXIT_SUCCESS;
+
+
+
 }

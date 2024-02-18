@@ -298,6 +298,10 @@ namespace gls {
 				return false;
 			}
 
+			bool empty() {
+				return screens.empty();
+			}
+
 	};
 
 }
