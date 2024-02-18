@@ -3,6 +3,7 @@
 #include <external.hpp>
 #include <sound/debug.hpp>
 #include <sound/event.hpp>
+#include <sound/volume.hpp>
 
 class SoundSource {
 
@@ -13,11 +14,14 @@ class SoundSource {
 		uint32_t source;
 		const char* path;
 		std::list<SoundEvent> events;
+		SoundGroup group = SoundGroup::MASTER;
+		SoundVolumes& volumes;
+		float gain;
 
 	public:
 
-		SoundSource(const SoundBuffer& sound)
-		: path(sound.identifier()) {
+		SoundSource(const SoundBuffer& sound, SoundVolumes& volumes)
+		: path(sound.identifier()), volumes(volumes) {
 			alGenSources(1, &source);
 			debug::openal::check_error("alGenSources");
 
@@ -25,6 +29,8 @@ class SoundSource {
 			alSourcei(source, AL_BUFFER, sound.buffer);
 			alSource3f(source, AL_POSITION, 0, 0, 0);
 			debug::openal::check_error("alSourcef");
+
+			volume(1.0f);
 		}
 
 		~SoundSource() {
@@ -62,6 +68,9 @@ class SoundSource {
 	public:
 
 		void play() {
+			alSourcef(source, AL_GAIN, gain * volumes.get(group));
+			debug::openal::check_error("alSourcef");
+
 			alSourcePlay(source);
 			debug::openal::check_error("alSourcePlay");
 		}
@@ -79,15 +88,19 @@ class SoundSource {
 	// source properties
 	public:
 
+		SoundSource& in(SoundGroup group) {
+			this->group = group;
+			return *this;
+		}
+
 		SoundSource& loop(bool value = true) {
 			alSourcei(source, AL_LOOPING, value);
 			debug::openal::check_error("alSourcei");
 			return *this;
 		}
 
-		SoundSource& gain(float value) {
-			alSourcef(source, AL_GAIN, value);
-			debug::openal::check_error("alSourcef");
+		SoundSource& volume(float value) {
+			this->gain = value;
 			return *this;
 		}
 

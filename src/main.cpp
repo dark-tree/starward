@@ -185,7 +185,9 @@ int main() {
 		if (gls::Input::is_typed(gls::Key::DOWN)) stack.on_key(gls::Key::DOWN);
 
 		if (sound_test && stack.empty()) {
-			sounds.add(buffer).loop().event(0.35f, [] (float current, SoundSource& source) {
+			sounds.volume().set(SoundGroup::MUSIC, 0.5f);
+
+			sounds.add(buffer).loop().in(SoundGroup::MUSIC).event(0.35f, [] (float current, SoundSource& source) {
 				printf("From sound event of '%s', played at: '%f'\n", source.identifier(), current);
 			}).play();
 

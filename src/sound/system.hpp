@@ -4,6 +4,7 @@
 #include <sound/debug.hpp>
 #include <sound/buffer.hpp>
 #include <sound/source.hpp>
+#include <sound/listener.hpp>
 
 // to learn all the Audio api quirks
 // see: https://emscripten.org/docs/porting/Audio.html
@@ -13,6 +14,7 @@ class SoundSystem {
 	private:
 
 		std::list<std::unique_ptr<SoundSource>> sources;
+		SoundVolumes volumes;
 
 	public:
 
@@ -31,6 +33,9 @@ class SoundSystem {
 
 			alcMakeContextCurrent(context);
 			debug::openal::check_error("alcMakeContextCurrent");
+
+			glm::vec3 origin {0, 0, 0};
+			listener().position(origin).velocity(origin).gain(1.0f);
 
 			printf("Sound system engaged!\n");
 		}
@@ -52,7 +57,7 @@ class SoundSystem {
 		}
 
 		SoundSource& add(const SoundBuffer& buffer) {
-			return add(std::make_unique<SoundSource>(buffer));
+			return add(std::make_unique<SoundSource>(buffer, volumes));
 		}
 
 		SoundSource& add(std::unique_ptr<SoundSource>&& source) {
@@ -60,6 +65,14 @@ class SoundSystem {
 			sources.push_back(std::move(source));
 
 			return *sources.back();
+		}
+
+		SoundVolumes& volume() {
+			return volumes;
+		}
+
+		SoundListener listener() {
+			return {};
 		}
 
 };
