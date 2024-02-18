@@ -5,7 +5,7 @@
 #include "const.hpp"
 #include "game/level.hpp"
 #include "game/menu.hpp"
-#include "sound/source.hpp"
+#include "sound/system.hpp"
 
 // docs
 // https://emscripten.org/docs/api_reference/html5.h.html
@@ -66,10 +66,8 @@ int main() {
 	};
 
     gls::init(HTML_CANVAS);
-	sound::init();
-
-	SoundBuffer buffer;
-	buffer.load("assets/test.ogg");
+	SoundSystem sounds;
+	SoundBuffer buffer {"assets/test.ogg"};
 
 	const auto [w, h] = gls::get_canvas_size(HTML_CANVAS);
 
@@ -187,11 +185,14 @@ int main() {
 		if (gls::Input::is_typed(gls::Key::DOWN)) stack.on_key(gls::Key::DOWN);
 
 		if (sound_test && stack.empty()) {
-			SoundSource source {buffer};
-			source.play();
+			sounds.add(buffer).loop().event(0.35f, [] (float current, SoundSource& source) {
+				printf("From sound event of '%s', played at: '%f'\n", source.identifier(), current);
+			}).play();
+
 			sound_test = false;
 		}
 
+		sounds.update();
 		gls::Input::clear();
 
 	});

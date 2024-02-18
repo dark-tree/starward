@@ -1,35 +1,145 @@
 #pragma once
 
 #include <external.hpp>
-#include "buffer.hpp"
+#include <sound/debug.hpp>
+#include <sound/event.hpp>
 
 class SoundSource {
 
 	private:
 
-		friend class SoundBuffer;
+		friend class SoundSystem;
 
 		uint32_t source;
+		const char* path;
+		std::list<SoundEvent> events;
 
 	public:
 
-		SoundSource(const SoundBuffer& sound) {
+		SoundSource(const SoundBuffer& sound)
+		: path(sound.identifier()) {
 			alGenSources(1, &source);
+			debug::openal::check_error("alGenSources");
 
 			alSourcef(source, AL_REFERENCE_DISTANCE, 5);
 			alSourcei(source, AL_BUFFER, sound.buffer);
 			alSource3f(source, AL_POSITION, 0, 0, 0);
-			sound::check_error("alGenSources");
+			debug::openal::check_error("alSourcef");
 		}
 
 		~SoundSource() {
-			// TODO alDeleteSources(1, &source);
+			alDeleteSources(1, &source);
+			debug::openal::check_error("alDeleteSources");
 		}
+
+		const char* identifier() const {
+			return path;
+		}
+
+		bool should_drop() const {
+			int state;
+			alGetSourcei(source, AL_SOURCE_STATE, &state);
+
+			return state == AL_STOPPED;
+		}
+
+		void update() {
+			float current = seconds();
+			std::list<SoundEvent>::iterator iter = events.begin();
+
+			while (iter != events.end()) {
+				bool drop = (*iter).update(*this, current);
+
+				if (drop) {
+					iter = events.erase(iter);
+				} else {
+					iter ++;
+				}
+			}
+		}
+
+	// play state menegment
+	public:
 
 		void play() {
 			alSourcePlay(source);
-			sound::check_error("alSourcePlay");
+			debug::openal::check_error("alSourcePlay");
 		}
 
+		void pause() {
+			alSourcePause(source);
+			debug::openal::check_error("alSourcePause");
+		}
 
+		void drop() {
+			alSourceStop(source);
+			debug::openal::check_error("alSourceStop");
+		}
+
+	// source properties
+	public:
+
+		SoundSource& loop(bool value = true) {
+			alSourcei(source, AL_LOOPING, value);
+			debug::openal::check_error("alSourcei");
+			return *this;
+		}
+
+		SoundSource& gain(float value) {
+			alSourcef(source, AL_GAIN, value);
+			debug::openal::check_error("alSourcef");
+			return *this;
+		}
+
+		SoundSource& pitch(float value) {
+			alSourcef(source, AL_PITCH, value);
+			debug::openal::check_error("alSourcef");
+			return *this;
+		}
+
+		SoundSource& position(glm::vec3 value) {
+			alSourcefv(source, AL_POSITION, glm::value_ptr(value));
+			debug::openal::check_error("alSourcefv");
+			return *this;
+		}
+
+		SoundSource& velocity(glm::vec3 value) {
+			alSourcefv(source, AL_VELOCITY, glm::value_ptr(value));
+			debug::openal::check_error("alSourcefv");
+			return *this;
+		}
+
+		SoundSource& direction(glm::vec3 value) {
+			alSourcefv(source, AL_DIRECTION, glm::value_ptr(value));
+			debug::openal::check_error("alSourcefv");
+			return *this;
+		}
+
+		SoundSource& event(float seconds, SoundEvent::Callback callback) {
+			events.emplace_back(seconds, callback);
+			return *this;
+		}
+
+		SoundSource& event(float seconds, Runnable runnable) {
+			return event(seconds, [&] (float, SoundSource&) { runnable(); });
+		}
+
+	// state getters
+	public:
+
+		int samples() {
+			int value;
+			alGetSourcei(source, AL_SAMPLE_OFFSET, &value);
+			debug::openal::check_error("alGetSourcei");
+
+			return value;
+		}
+
+		float seconds() {
+			float value;
+			alGetSourcef(source, AL_SEC_OFFSET, &value);
+			debug::openal::check_error("alGetSourcef");
+
+			return value;
+		}
 };
