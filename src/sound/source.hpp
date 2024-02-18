@@ -128,8 +128,8 @@ class SoundSource {
 			return *this;
 		}
 
-		SoundSource& event(float seconds, SoundEvent::Callback callback) {
-			events.emplace_back(seconds, callback);
+		SoundSource& event(float seconds, SoundEvent::Callback callback, float window = 0.04f, bool once = true) {
+			events.emplace_back(seconds, window, callback, once);
 			return *this;
 		}
 
