@@ -88,7 +88,7 @@ namespace gls {
 			virtual ~Screen() {}
 
 			void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) {
-				const auto [w, h] = gls::get_canvas_size(HTML_CANVAS);
+				const auto [w, h] = gls::get_canvas_size();
 
 				float ox = (w - tiles.width * 32) * 0.5f;
 				float oy = (h - tiles.height * 32) * 0.5f;

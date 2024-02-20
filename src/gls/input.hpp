@@ -111,19 +111,4 @@ namespace gls {
 
 	};
 
-	EM_BOOL __keydown_handler (int type, const EmscriptenKeyboardEvent* event, void* userdata) {
-		Input::press(event->keyCode);
-		return true;
-	}
-
-	EM_BOOL __keyup_handler (int type, const EmscriptenKeyboardEvent* event, void* userdata) {
-		Input::release(event->keyCode);
-		return true;
-	}
-
-	EM_BOOL __mousemove_handler (int type, const EmscriptenMouseEvent* event, void* userdata) {
-		Input::move(event->clientX, event->clientY);
-		return true;
-	}
-
 }
