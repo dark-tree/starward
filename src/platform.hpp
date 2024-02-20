@@ -138,6 +138,8 @@ using PlatformLoopCallback = void(*)();
 	inline void platform_init() {
 		printf("Began 'Winx/OpenGL' platform init...\n");
 
+		winxHint(WINX_HINT_VSYNC, WINX_VSYNC_ENABLED);
+
 		if (!winxOpen(400, 300, "WINX OpenGL 3.0")) {
 			printf("Failed to create WINX context! %s\n", winxGetError());
 			platform_exit(1);
