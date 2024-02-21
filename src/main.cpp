@@ -182,11 +182,11 @@ int main() {
 		sprite_buf.draw();
 
 		// ugly input wrapper, i will fix it later
-		if (gls::Input::is_typed(gls::Key::TAB)) stack.on_key(gls::Key::TAB);
-		if (gls::Input::is_typed(gls::Key::ENTER)) stack.on_key(gls::Key::ENTER);
-		if (gls::Input::is_typed(gls::Key::ESCAPE)) stack.on_key(gls::Key::ESCAPE);
-		if (gls::Input::is_typed(gls::Key::UP)) stack.on_key(gls::Key::UP);
-		if (gls::Input::is_typed(gls::Key::DOWN)) stack.on_key(gls::Key::DOWN);
+		if (gls::Input::is_typed(Key::TAB)) stack.on_key(Key::TAB);
+		if (gls::Input::is_typed(Key::ENTER)) stack.on_key(Key::ENTER);
+		if (gls::Input::is_typed(Key::ESCAPE)) stack.on_key(Key::ESCAPE);
+		if (gls::Input::is_typed(Key::UP)) stack.on_key(Key::UP);
+		if (gls::Input::is_typed(Key::DOWN)) stack.on_key(Key::DOWN);
 
 		if (sound_test && stack.empty()) {
 			sounds.volume().set(SoundGroup::MUSIC, 0.5f);

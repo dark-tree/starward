@@ -2,7 +2,35 @@
 
 #include "const.hpp"
 
-using PlatformKeyEventCallback = void(*)(int);
+struct PlatformKeyStateScope {
+	enum KeyStateEnum : unsigned int {
+		UP    = 0b00,
+		DOWN  = 0b01,
+		TYPED = 0b11,
+	};
+};
+
+struct PlatformKeyScope {
+	enum KeyEnum : unsigned int {
+		UNDEF = 0,
+
+		LEFT   = 37,
+		RIGHT  = 39,
+		UP     = 38,
+		DOWN   = 40,
+		SPACE  = 32,
+		ESCAPE = 27,
+		TAB    = 9,
+		ENTER  = 13,
+	};
+};
+
+// export enums
+using Key = PlatformKeyScope::KeyEnum;
+using KeyState = PlatformKeyStateScope::KeyStateEnum;
+
+// event callback types
+using PlatformKeyEventCallback = void(*)(Key);
 using PlatformMouseEventCallback = void(*)(float, float);
 using PlatformLoopCallback = void(*)();
 
@@ -16,17 +44,32 @@ using PlatformLoopCallback = void(*)();
 
 	namespace __impl {
 
-		inline EM_BOOL __platform_keydown_handler (int type, const EmscriptenKeyboardEvent* event, void* userdata) {
-			reinterpret_cast<PlatformKeyEventCallback>(userdata)(event->keyCode);
+		/// translates the javascript's key code into key enum
+		inline Key __platform_translate_key(const char* key) {
+
+			if (strcmp(key, "ArrowLeft") == 0) return Key::LEFT;
+			if (strcmp(key, "ArrowRight") == 0) return Key::RIGHT;
+			if (strcmp(key, "ArrowUp") == 0) return Key::UP;
+			if (strcmp(key, "ArrowDown") == 0) return Key::DOWN;
+			if (strcmp(key, "Space") == 0) return Key::SPACE;
+			if (strcmp(key, "Escape") == 0) return Key::ESCAPE;
+			if (strcmp(key, "Tab") == 0) return Key::TAB;
+			if (strcmp(key, "Enter") == 0) return Key::ENTER;
+
+			return Key::UNDEF;
+		}
+
+		inline EM_BOOL __platform_keydown_handler(int type, const EmscriptenKeyboardEvent* event, void* userdata) {
+			reinterpret_cast<PlatformKeyEventCallback>(userdata)(__platform_translate_key(event->code));
 			return true;
 		}
 
-		inline EM_BOOL __platform_keyup_handler (int type, const EmscriptenKeyboardEvent* event, void* userdata) {
-			reinterpret_cast<PlatformKeyEventCallback>(userdata)(event->keyCode);
+		inline EM_BOOL __platform_keyup_handler(int type, const EmscriptenKeyboardEvent* event, void* userdata) {
+			reinterpret_cast<PlatformKeyEventCallback>(userdata)(__platform_translate_key(event->code));
 			return true;
 		}
 
-		inline EM_BOOL __platform_mousemove_handler (int type, const EmscriptenMouseEvent* event, void* userdata) {
+		inline EM_BOOL __platform_mousemove_handler(int type, const EmscriptenMouseEvent* event, void* userdata) {
 			reinterpret_cast<PlatformMouseEventCallback>(userdata)(event->clientX, event->clientY);
 			return true;
 		}
@@ -92,19 +135,43 @@ using PlatformLoopCallback = void(*)();
 
 	namespace __impl {
 
+		extern int __screen_width;
+		extern int __screen_height;
 		extern PlatformKeyEventCallback __keydown_callback;
 		extern PlatformKeyEventCallback __keyup_callback;
+
+		/// translates the system keycode into key enum
+		inline Key __platform_translate_key(int key) {
+
+			if (key == WXK_LEFT) return Key::LEFT;
+			if (key == WXK_RIGHT) return Key::RIGHT;
+			if (key == WXK_UP) return Key::UP;
+			if (key == WXK_DOWN) return Key::DOWN;
+			if (key == WXK_SPACE) return Key::SPACE;
+			if (key == WXK_ESC) return Key::ESCAPE;
+			if (key == WXK_TAB) return Key::TAB;
+			if (key == WXK_ENTER) return Key::ENTER;
+
+			return Key::UNDEF;
+		}
 
 		inline void __platform_close_handler() {
 			exit(-1);
 		}
 
 		inline void __platform_keyboard_handler(int state, int keycode) {
+			Key key = __platform_translate_key(keycode);
+
 			if (state == WINX_PRESSED) {
-				__impl::__keydown_callback(keycode);
+				__keydown_callback(key);
 			} else {
-				__impl::__keyup_callback(keycode);
+				__keyup_callback(key);
 			}
+		}
+
+		inline void __platform_resize_handler(int width, int height) {
+			__screen_width = width;
+			__screen_height = height;
 		}
 
 	}
@@ -122,8 +189,8 @@ using PlatformLoopCallback = void(*)();
 	}
 
 	inline void platform_get_canvas_element_size(int* width, int* height) {
-		*width = 400;
-		*height = 300;
+		*width = __impl::__screen_width;
+		*height = __impl::__screen_height;
 	}
 
 	inline void platform_set_main_loop(PlatformLoopCallback callback, int fps) {
@@ -140,16 +207,20 @@ using PlatformLoopCallback = void(*)();
 
 		winxHint(WINX_HINT_VSYNC, WINX_VSYNC_ENABLED);
 
-		if (!winxOpen(400, 300, "WINX OpenGL 3.0")) {
+		if (!winxOpen(GAME_NATIVE_WIDTH, GAME_NATIVE_HEIGHT, GAME_TITLE)) {
 			printf("Failed to create WINX context! %s\n", winxGetError());
-			platform_exit(1);
+			platform_exit(-1);
 		}
 
 		// use GLAD to load OpenGL functions
 		gladLoadGL();
 
+		__impl::__screen_width = GAME_NATIVE_WIDTH;
+		__impl::__screen_height = GAME_NATIVE_HEIGHT;
+
 		winxSetCloseEventHandle(__impl::__platform_close_handler);
 		winxSetKeybordEventHandle(__impl::__platform_keyboard_handler);
+		winxSetResizeEventHandle(__impl::__platform_resize_handler);
 	}
 
 #endif

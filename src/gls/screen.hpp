@@ -181,8 +181,8 @@ namespace gls {
 			}
 
 			/// executed for each keyboard event while the screen is focused
-			virtual bool on_key(int key) {
-				if (key == gls::Key::ESCAPE) {
+			virtual bool on_key(Key key) {
+				if (key == Key::ESCAPE) {
 					if (selected != 0) {
 						selected = 0;
 					} else {
@@ -192,22 +192,22 @@ namespace gls {
 					return true;
 				}
 
-				if (key == gls::Key::TAB) {
+				if (key == Key::TAB) {
 					cycle();
 					return true;
 				}
 
-				if (key == gls::Key::ENTER && selected != 0) {
+				if (key == Key::ENTER && selected != 0) {
 					on_action(selected);
 					return true;
 				}
 
-				if (key == gls::Key::UP) {
+				if (key == Key::UP) {
 					next(-1);
 					return true;
 				}
 
-				if (key == gls::Key::DOWN) {
+				if (key == Key::DOWN) {
 					next(1);
 					return true;
 				}
@@ -290,7 +290,7 @@ namespace gls {
 				});
 			}
 
-			bool on_key(int key) {
+			bool on_key(Key key) {
 				if (!screens.empty()) {
 					return top()->on_key(key);
 				}
