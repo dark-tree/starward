@@ -4,31 +4,6 @@
 
 namespace gls {
 
-	struct KeyScope {
-		enum KeyEnum : int32_t {
-			LEFT   = 37,
-			RIGHT  = 39,
-			UP     = 38,
-			DOWN   = 40,
-			SPACE  = 32,
-			ESCAPE = 27,
-			TAB    = 9,
-			ENTER  = 13,
-		};
-	};
-
-	struct KeyStateScope {
-		enum KeyStateEnum : int32_t {
-			UP    = 0b00,
-			DOWN  = 0b01,
-			TYPED = 0b11,
-		};
-	};
-
-	// export enums
-	using Key = KeyScope::KeyEnum;
-	using KeyState = KeyStateScope::KeyStateEnum;
-
 	class InputState {
 
 		private:
@@ -39,7 +14,7 @@ namespace gls {
 			float prev_mouse_y;
 
 			// records the state of the keyboard keys
-			std::unordered_map<int32_t, KeyState> keyboard;
+			std::unordered_map<Key, KeyState> keyboard;
 
 		public:
 
@@ -52,7 +27,7 @@ namespace gls {
 			}
 
 			/// returns the state of the given key
-			KeyState& get(int32_t key) {
+			KeyState& get(Key key) {
 
 				// if key is not in the map the underlying integral type of the
 				// KeyState enum will be initilized to 0, which corresponds to KeyState::UP
@@ -82,12 +57,12 @@ namespace gls {
 
 		public:
 
-			static void press(int32_t code) {
+			static void press(Key code) {
 				KeyState& key = state().get(code);
 				key = (key == KeyState::UP) ? KeyState::TYPED : KeyState::DOWN;
 			}
 
-			static void release(int32_t code) {
+			static void release(Key code) {
 				state().get(code) = KeyState::UP;
 			}
 
@@ -101,29 +76,14 @@ namespace gls {
 
 		public:
 
-			static bool is_pressed(int32_t code) {
+			static bool is_pressed(Key code) {
 				return state().get(code) != KeyState::UP;
 			}
 
-			static bool is_typed(int32_t code) {
+			static bool is_typed(Key code) {
 				return state().get(code) == KeyState::TYPED;
 			}
 
 	};
-
-	EM_BOOL __keydown_handler (int type, const EmscriptenKeyboardEvent* event, void* userdata) {
-		Input::press(event->keyCode);
-		return true;
-	}
-
-	EM_BOOL __keyup_handler (int type, const EmscriptenKeyboardEvent* event, void* userdata) {
-		Input::release(event->keyCode);
-		return true;
-	}
-
-	EM_BOOL __mousemove_handler (int type, const EmscriptenMouseEvent* event, void* userdata) {
-		Input::move(event->clientX, event->clientY);
-		return true;
-	}
 
 }

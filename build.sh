@@ -6,6 +6,40 @@ NONE=`tput sgr0`
 ROOT_DIR=`pwd`
 BUILD_DIR="$ROOT_DIR/build"
 
+TARGET="web"
+
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+		--clean)
+			if [ -d "build" ]; then
+				rm -rf build
+			fi
+			shift
+			;;
+		--native)
+			TARGET="native"
+			shift
+			;;
+		--web)
+			TARGET="web"
+			shift
+			;;
+		--help)
+			echo "C/C++ Builder"
+			echo "Usage: script.sh [options]"
+			echo "Options:"
+			echo "  --clean           (re-)generate build system"
+			echo "  --native          Build for native linux"
+			echo "  --web             Build for emscripten"
+			echo "  --help            display this help message"
+			exit
+			;;
+		*)
+			shift
+			;;
+	esac
+done
+
 if [ ! -d "build" ]; then
 	mkdir build
 fi
@@ -48,13 +82,21 @@ if [ ! -f "deps.lock" ]; then
 	echo
 fi
 
-# load emscripten SDK
-cd "$BUILD_DIR"
-source ./emsdk/emsdk_env.sh
+SOURCES="lib/source.cpp src/game/*.cpp src/main.cpp"
 
-# TODO: move to cmake (?)
-cd "$ROOT_DIR"
-emcc -sRUNTIME_DEBUG -sOPENAL_DEBUG -lopenal -std=c++20 -Wno-c++17-extensions lib/source.cpp src/game/*.cpp src/main.cpp -I./src -I./lib -I./lib/glm -I. -s WASM=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -O3 -o build/index.js --preload-file assets
+if [ "$TARGET" = "web" ]; then
+	# load emscripten SDK
+	cd "$BUILD_DIR"
+	export EMSDK_QUIET=1
+	source ./emsdk/emsdk_env.sh
 
-rm -f -- build/index.html
-cp index.html build/index.html
+	cd "$ROOT_DIR"
+	emcc -sRUNTIME_DEBUG -sOPENAL_DEBUG -lopenal -std=c++20 -Wno-c++17-extensions $SOURCES -I./src -I./lib -I./lib/glm -I. -s WASM=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -O3 -o build/index.js --preload-file assets
+	rm -f -- build/index.html
+	cp index.html build/index.html
+fi
+
+if [ "$TARGET" = "native" ]; then
+	cd "$ROOT_DIR"
+	g++ -Wno-volatile -std=c++20 src/platform.cpp lib/winx/winx.c lib/glad/glad.c $SOURCES -I./src -I./lib -I./lib/glm -I. -ldl -lGL -lX11 -lXcursor -lopenal -o build/main
+fi

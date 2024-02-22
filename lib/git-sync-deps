@@ -46,3 +46,4 @@ function install() {
 
 install https://github.com/g-truc/glm 0.9.9.8 glm
 install https://github.com/nothings/stb f4a71b13373436a2866c5d68f8f80ac6f0bc1ffe stb
+install https://github.com/dark-tree/winx 1.1.0 winx

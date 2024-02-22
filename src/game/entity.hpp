@@ -24,7 +24,7 @@ struct Entity {
 class Player : public Entity {
 
 	protected:
-		
+
 		BoxCollider collider;
 		RigidBody rigid_body;
 		float coyote_timer = 0;
@@ -56,20 +56,20 @@ class Player : public Entity {
 
 			coyote_timer = std::max(0.0f, coyote_timer - delta_time);
 
-			if (gls::Input::is_pressed(gls::Key::LEFT)) {
+			if (gls::Input::is_pressed(Key::LEFT)) {
 				rigid_body.get_velocity().x = -3;
 				if (collider.get_collision()) {
 					coyote_timer = coyote_time;
 				}
-			} 
-			if (gls::Input::is_pressed(gls::Key::RIGHT)) {
+			}
+			if (gls::Input::is_pressed(Key::RIGHT)) {
 				rigid_body.get_velocity().x = 3;
 				if (collider.get_collision()) {
 					coyote_timer = coyote_time;
 				}
 			}
 
-			if (gls::Input::is_typed(gls::Key::SPACE) && (collider.get_collision() || coyote_timer > 0.0f)) {
+			if (gls::Input::is_typed(Key::SPACE) && (collider.get_collision() || coyote_timer > 0.0f)) {
 				rigid_body.apply_force({0, 8});
 				coyote_timer = 0.0f;
 			}

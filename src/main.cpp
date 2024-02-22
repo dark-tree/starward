@@ -43,7 +43,7 @@ const char* fragment_source = R"(#version 300 es
 )";
 
 // the function called by the javascript code
-extern "C" void EMSCRIPTEN_KEEPALIVE toggle_background_color() {
+extern "C" void EXPORTED_NATIVE toggle_background_color() {
 
 }
 
@@ -65,11 +65,11 @@ int main() {
 		{-0.9, -0.9,  0.1,  0.1,  255, 255, 255, 255},
 	};
 
-    gls::init(HTML_CANVAS);
+    gls::init();
 	SoundSystem sounds;
 	SoundBuffer buffer {"assets/test.ogg"};
 
-	const auto [w, h] = gls::get_canvas_size(HTML_CANVAS);
+	const auto [w, h] = gls::get_canvas_size();
 
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -4.0f));
@@ -182,11 +182,11 @@ int main() {
 		sprite_buf.draw();
 
 		// ugly input wrapper, i will fix it later
-		if (gls::Input::is_typed(gls::Key::TAB)) stack.on_key(gls::Key::TAB);
-		if (gls::Input::is_typed(gls::Key::ENTER)) stack.on_key(gls::Key::ENTER);
-		if (gls::Input::is_typed(gls::Key::ESCAPE)) stack.on_key(gls::Key::ESCAPE);
-		if (gls::Input::is_typed(gls::Key::UP)) stack.on_key(gls::Key::UP);
-		if (gls::Input::is_typed(gls::Key::DOWN)) stack.on_key(gls::Key::DOWN);
+		if (gls::Input::is_typed(Key::TAB)) stack.on_key(Key::TAB);
+		if (gls::Input::is_typed(Key::ENTER)) stack.on_key(Key::ENTER);
+		if (gls::Input::is_typed(Key::ESCAPE)) stack.on_key(Key::ESCAPE);
+		if (gls::Input::is_typed(Key::UP)) stack.on_key(Key::UP);
+		if (gls::Input::is_typed(Key::DOWN)) stack.on_key(Key::DOWN);
 
 		if (sound_test && stack.empty()) {
 			sounds.volume().set(SoundGroup::MUSIC, 0.5f);

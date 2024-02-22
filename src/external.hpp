@@ -13,11 +13,9 @@
 #include <algorithm>
 
 // emscripten
-#include <emscripten.h>
-#include <emscripten/html5.h>
+#include <platform.hpp>
 
 // libraries
-#include <GLES3/gl3.h>
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <stb/stb_image.h>
