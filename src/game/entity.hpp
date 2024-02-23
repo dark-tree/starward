@@ -28,12 +28,14 @@ class Player : public Entity {
 		BoxCollider collider;
 		RigidBody rigid_body;
 		float coyote_timer = 0;
+		int move_direction_x = 0;
 		const float coyote_time = 0.2f;
 
 	public:
 
 		Player() : Entity(), collider(16, 0, 32, 32, &transform), rigid_body(&collider, &transform) {
 			transform.position = { 100.0f, 100.0f };
+			collider.set_friction({ 0.0f, 1.0f });
 		}
 
 		void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) override {
@@ -52,26 +54,35 @@ class Player : public Entity {
 		}
 
 		void tick(World& world) override {
-			float delta_time = 1.0f / 60.0f;
+			float delta_time = Physics::get_deltatime();
 
 			coyote_timer = std::max(0.0f, coyote_timer - delta_time);
 
-			if (gls::Input::is_pressed(Key::LEFT)) {
+			bool left = gls::Input::is_pressed(Key::LEFT);
+			bool right = gls::Input::is_pressed(Key::RIGHT);
+
+			if (left) {
 				rigid_body.get_velocity().x = -3;
 				if (collider.get_collision()) {
 					coyote_timer = coyote_time;
 				}
 			}
-			if (gls::Input::is_pressed(Key::RIGHT)) {
+			if (right) {
 				rigid_body.get_velocity().x = 3;
 				if (collider.get_collision()) {
 					coyote_timer = coyote_time;
 				}
 			}
 
-			if (gls::Input::is_typed(Key::SPACE) && (collider.get_collision() || coyote_timer > 0.0f)) {
-				rigid_body.apply_force({0, 8});
-				coyote_timer = 0.0f;
+			// jump
+			if (gls::Input::is_typed(Key::SPACE)) {
+				bool on_ground = collider.get_collision_y();
+				bool coyote = coyote_timer > 0.0f;
+				// if is on groun or just left the ground/wall and is moving to the side and is not going up too fast
+				if (on_ground || (coyote && !collider.get_collision_x() && (left || right) && rigid_body.get_velocity().y < 2.0f)) {
+					rigid_body.get_velocity().y = 8;
+					coyote_timer = 0.0f;
+				}
 			}
 		}
 

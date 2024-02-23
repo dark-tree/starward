@@ -18,7 +18,15 @@ public:
 	virtual ~Collider() = default;
 	
 	bool get_collision() {
-		return collision;
+		return collision.x || collision.y;
+	}
+
+	bool get_collision_x() {
+		return collision.x;
+	}
+
+	bool get_collision_y() {
+		return collision.y;
 	}
 
 	float get_bounciness() {
@@ -29,14 +37,22 @@ public:
 		this->bounciness = bounciness;
 	}
 
+	void set_friction(const glm::vec2& friction) {
+		this->friction = friction;
+	}
+
+	void set_friction(float f){
+		this->friction = {f, f};
+	}
+
 protected:
 	virtual bool collides(Collider* other) {
 		return false;
 	}
 
-	bool collision = false;
-
+	glm::bvec2 collision = { false, false };
 	float bounciness = 0.0f;
+	glm::vec2 friction = { 0.0f, 0.0f };
 
 	friend class Physics;
 };

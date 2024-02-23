@@ -23,7 +23,6 @@ bool BoxCollider::collides(Collider* other) {
 		bool xOverlap = (wp.x <= box->x + box->w + box->transform->position.x) && (wp.x + w >= box->x + box->transform->position.x);
 		bool yOverlap = (wp.y <= box->y + box->h + box->transform->position.y) && (wp.y + h >= box->y + box->transform->position.y);
 
-		this->collision |= xOverlap && yOverlap;
 		return xOverlap && yOverlap;
 	}
 	else if (MapCollider* map = dynamic_cast<MapCollider*>(other); map != nullptr) {
@@ -45,7 +44,6 @@ bool BoxCollider::collides(Collider* other) {
 
 		bool result = leftbottom_hit || rightbottom_hit || lefttop_hit || righttop_hit;
 
-		this->collision |= result;
 		return result;
 	}
 	return false;
