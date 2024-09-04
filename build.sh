@@ -7,6 +7,7 @@ ROOT_DIR=`pwd`
 BUILD_DIR="$ROOT_DIR/build"
 
 TARGET="web"
+RUN="false"
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -24,6 +25,10 @@ while [[ $# -gt 0 ]]; do
 			TARGET="web"
 			shift
 			;;
+	  --run)
+	    RUN="true"
+	    shift
+	    ;;
 		--help)
 			echo "C/C++ Builder"
 			echo "Usage: script.sh [options]"
@@ -31,6 +36,7 @@ while [[ $# -gt 0 ]]; do
 			echo "  --clean           (re-)generate build system"
 			echo "  --native          Build for native linux"
 			echo "  --web             Build for emscripten"
+			echo "  --run             Execute the native executable"
 			echo "  --help            display this help message"
 			exit
 			;;
@@ -99,4 +105,8 @@ fi
 if [ "$TARGET" = "native" ]; then
 	cd "$ROOT_DIR"
 	g++ -Wno-volatile -std=c++20 src/platform.cpp lib/winx/winx.c lib/glad/glad.c $SOURCES -I./src -I./lib -I./lib/glm -I. -ldl -lGL -lX11 -lXcursor -lopenal -o build/main
+fi
+
+if [ "$RUN" = "true" ]; then
+    ./build/main
 fi
