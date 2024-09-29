@@ -18,6 +18,7 @@ class SoundBuffer {
 
 	public:
 
+		SoundBuffer() = default;
 		SoundBuffer(const char* path)
 		: path(path) {
 			alGenBuffers(1, &buffer);
@@ -50,7 +51,7 @@ class SoundBuffer {
 			free(data);
 		}
 
-		~SoundBuffer() {
+		void close() {
 			alDeleteBuffers(1, &buffer);
 			debug::openal::check_error("alDeleteBuffers");
 		}

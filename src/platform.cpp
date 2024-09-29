@@ -1,5 +1,8 @@
 
+#include "external.hpp"
 #include "platform.hpp"
+
+std::function<void()> __main_loop_func;
 
 #if !defined(__EMSCRIPTEN__) && defined(__linux__)
 	int __impl::__screen_width;

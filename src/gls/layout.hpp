@@ -34,7 +34,6 @@ namespace gls {
 
 				Attribute(int index, int count, GLenum type, bool normalize, int size, int offset)
 				: index(index), count(count), type(type), normalize(normalize), size(size), offset(offset) {}
-
 			};
 
 			std::vector<Attribute> attributes;

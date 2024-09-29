@@ -1,121 +1,76 @@
 #pragma once
 
-#include "world.hpp"
-#include "physics.hpp"
-#include <iostream>
+#include <external.hpp>
+#include <rendering.hpp>
 
-int key_code = 0;
+class Level;
 
-struct Entity {
-
-	protected:
-
-		Transform transform;
-
-	public:
-
-		virtual ~Entity() {};
-		virtual void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) = 0;
-		virtual void tick(World& world) = 0;
-
-};
-
-
-class Player : public Entity {
+class Entity {
 
 	protected:
 
-		BoxCollider collider;
-		RigidBody rigid_body;
-		float coyote_timer = 0;
-		int move_direction_x = 0;
-		const float coyote_time = 0.2f;
+		bool dead = false;
+		long age = 0;
 
 	public:
 
-		Player() : Entity(), collider(16, 0, 32, 32, &transform), rigid_body(&collider, &transform) {
-			transform.position = { 100.0f, 100.0f };
-			collider.set_friction({ 0.0f, 1.0f });
-		}
+		const double size;
+		double x;
+		double y;
 
-		void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) override {
-			gls::Sprite s = tileset.sprite(11);
+	public:
 
-			uint8_t v = collider.get_collision() ? 255 : 100;
-			float x = transform.position.x;
-			float y = transform.position.y;
+		Entity(double size, double x, double y);
+		virtual ~Entity();
 
-			buffer.push({x + 0,   0 + y,  s.min_u, s.min_v, 255, 255, v, 255});
-			buffer.push({x + 64,  0 + y,  s.max_u, s.min_v, 255, 255, v, 255});
-			buffer.push({x + 64, 64 + y,  s.max_u, s.max_v, 255, 255, v, 255});
-			buffer.push({x + 64, 64 + y,  s.max_u, s.max_v, 255, 255, v, 255});
-			buffer.push({x + 0,  64 + y,  s.min_u, s.max_v, 255, 255, v, 255});
-			buffer.push({x + 0,   0 + y,  s.min_u, s.min_v, 255, 255, v, 255});
-		}
+		bool shouldRemove() const;
+		virtual bool checkCollision(float x, float y, float size);
 
-		void tick(World& world) override {
-			float delta_time = Physics::get_deltatime();
-
-			coyote_timer = std::max(0.0f, coyote_timer - delta_time);
-
-			bool left = gls::Input::is_pressed(Key::LEFT);
-			bool right = gls::Input::is_pressed(Key::RIGHT);
-
-			if (left) {
-				rigid_body.get_velocity().x = -3;
-				if (collider.get_collision()) {
-					coyote_timer = coyote_time;
-				}
-			}
-			if (right) {
-				rigid_body.get_velocity().x = 3;
-				if (collider.get_collision()) {
-					coyote_timer = coyote_time;
-				}
-			}
-
-			// jump
-			if (gls::Input::is_typed(Key::SPACE)) {
-				bool on_ground = collider.get_collision_y();
-				bool coyote = coyote_timer > 0.0f;
-				// if is on groun or just left the ground/wall and is moving to the side and is not going up too fast
-				if (on_ground || (coyote && !collider.get_collision_x() && (left || right) && rigid_body.get_velocity().y < 2.0f)) {
-					rigid_body.get_velocity().y = 8;
-					coyote_timer = 0.0f;
-				}
-			}
-		}
+		virtual gls::Sprite sprite(gls::TileSet& tileset);
+		virtual void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer);
+		virtual void tick(Level& level);
 
 };
 
-class Box : public Entity {
-protected:
+class BulletEntity : public Entity {
 
-	BoxCollider collider;
-	RigidBody rigid_body;
+	private:
 
-public:
+		Entity* parent;
+		float velocity;
 
-	Box(const glm::vec2& position) : Entity(), collider(16, 0, 32, 32, &transform), rigid_body(&collider, &transform) {
-		transform.position = position;
-	}
+	public:
 
-	void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) override {
-		gls::Sprite s = tileset.sprite(11);
+		BulletEntity(float velocity, double x, double y, Entity* except);
 
-		uint8_t v = 255;
-		float x = transform.position.x;
-		float y = transform.position.y;
+		void tick(Level& level) override;
 
-		buffer.push({ x + 0,   0 + y,  s.min_u, s.min_v, 255, 255, v, 255 });
-		buffer.push({ x + 64,  0 + y,  s.max_u, s.min_v, 255, 255, v, 255 });
-		buffer.push({ x + 64, 64 + y,  s.max_u, s.max_v, 255, 255, v, 255 });
-		buffer.push({ x + 64, 64 + y,  s.max_u, s.max_v, 255, 255, v, 255 });
-		buffer.push({ x + 0,  64 + y,  s.min_u, s.max_v, 255, 255, v, 255 });
-		buffer.push({ x + 0,   0 + y,  s.min_u, s.min_v, 255, 255, v, 255 });
-	}
+};
 
-	void tick(World& world) override {
+class BlowEntity : public Entity {
 
-	}
+	public:
+
+		BlowEntity(double x, double y);
+
+		bool checkCollision(float x, float y, float size) override;
+
+		gls::Sprite sprite(gls::TileSet& tileset) override;
+		void tick(Level& level) override;
+
+};
+
+class PlayerEntity : public Entity {
+
+	private:
+
+		float cooldown = 0;
+
+	public:
+
+		PlayerEntity();
+
+		gls::Sprite sprite(gls::TileSet& tileset) override;
+		void tick(Level& level) override;
+
 };

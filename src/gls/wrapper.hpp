@@ -4,7 +4,7 @@
 #include <external.hpp>
 #include <util.hpp>
 
-std::function<void()> __main_loop_func;
+extern std::function<void()> __main_loop_func;
 
 inline void __main_loop() {
 	__main_loop_func();

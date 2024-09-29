@@ -4,7 +4,7 @@
 
 namespace debug::openal {
 
-	const char* get_error() {
+	inline const char* get_error() {
 			int error = alGetError();
 
 			if (error == AL_NO_ERROR) {
@@ -20,7 +20,7 @@ namespace debug::openal {
 			return "UNDEFINED";
 		}
 
-	void check_error(const char* usage) {
+	inline void check_error(const char* usage) {
 		const char* error = get_error();
 
 		if (error != nullptr) {

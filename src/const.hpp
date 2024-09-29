@@ -11,3 +11,7 @@
 #define FONT_RIGHT_BOTTOM (' ' - 4)
 #define FONT_LEFT_TOP (' ' - 3)
 #define FONT_RIGHT_TOP (' ' - 2)
+
+#define SW 1024
+#define SH 768
+#define ASPECT_RATIO (4.0f/3.0f)

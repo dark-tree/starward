@@ -2,45 +2,36 @@
 
 #include <external.hpp>
 #include <rendering.hpp>
+
+#include "segment.hpp"
 #include "entity.hpp"
 
-struct Level {
+class Level {
 
-	std::vector<std::shared_ptr<Entity>> entites;
-	World& world;
+	private:
 
-	Level(World& world)
-	: world(world) {}
+		static constexpr int segment_width = 128;
+		static constexpr int segment_height = 32;
 
-	void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) {
+		double scroll = 0;
+		float skip = 0;
 
-		for (auto& entity : entites) {
-			entity->tick(world);
-		}
+		std::array<Segment<segment_width, segment_height>, 4> segments;
 
-		for (auto& entity : entites) {
-			entity->render(tileset, buffer);
-		}
+		std::vector<Entity*> pending;
+		std::vector<std::unique_ptr<Entity>> entities;
 
-		for (int y = 0; y < world.height; y ++) {
-			for (int x = 0; x < world.width; x ++) {
-				uint8_t tile = world.get(x, y);
+	public:
 
-				if (tile != 0) {
-					gls::Sprite s = tileset.sprite(tile);
+		double getSkip() const;
+		double getScroll() const;
 
-					float tx = x * 64.0f;
-					float ty = y * 64.0f;
-
-					buffer.push({tx + 0,   0 + ty,  s.min_u, s.min_v, 255, 255, 255, 255});
-					buffer.push({tx + 64,  0 + ty,  s.max_u, s.min_v, 255, 255, 255, 255});
-					buffer.push({tx + 64, 64 + ty,  s.max_u, s.max_v, 255, 255, 255, 255});
-					buffer.push({tx + 64, 64 + ty,  s.max_u, s.max_v, 255, 255, 255, 255});
-					buffer.push({tx + 0,  64 + ty,  s.min_u, s.max_v, 255, 255, 255, 255});
-					buffer.push({tx + 0,   0 + ty,  s.min_u, s.min_v, 255, 255, 255, 255});
-				}
-			}
-		}
-	}
+		glm::ivec2 toTilePos(int x, int y);
+		void addEntity(Entity* entity);
+		void tick();
+		void draw(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer);
+		void set(int x, int y, uint8_t tile);
+		uint8_t get(int x, int y);
+		bool checkCollision(Entity* entity, Entity* except);
 
 };

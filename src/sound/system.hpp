@@ -16,8 +16,6 @@ class SoundSystem {
 		std::list<std::unique_ptr<SoundSource>> sources;
 		SoundVolumes volumes;
 
-	public:
-
 		SoundSystem() {
 			ALCdevice* device = alcOpenDevice(nullptr);
 
@@ -38,6 +36,13 @@ class SoundSystem {
 			listener().position(origin).velocity(origin).gain(1.0f);
 
 			printf("Sound system engaged!\n");
+		}
+
+	public:
+
+		static SoundSystem& getInstance() {
+			static SoundSystem system;
+			return system;
 		}
 
 		void update() {

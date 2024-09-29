@@ -7,9 +7,17 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat"
 template <typename... Args>
-[[noreturn]] void fault(const char* format, Args... args) {
+[[noreturn]] inline void fault(const char* format, Args... args) {
 	printf(format, args...);
 	platform_exit(-1);
 }
 #pragma clang diagnostic pop
 #pragma GCC diagnostic pop
+
+inline int randomInt(int min, int max) {
+	static std::random_device device;
+	static std::mt19937 generator(device());
+
+	std::uniform_int_distribution<std::mt19937::result_type> distribution(min, max);
+	return distribution(generator);
+}

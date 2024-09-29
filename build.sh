@@ -104,7 +104,8 @@ fi
 
 if [ "$TARGET" = "native" ]; then
 	cd "$ROOT_DIR"
-	g++ -Wno-volatile -std=c++20 src/platform.cpp lib/winx/winx.c lib/glad/glad.c $SOURCES -I./src -I./lib -I./lib/glm -I. -ldl -lGL -lX11 -lXcursor -lopenal -o build/main
+	rm build/main
+	g++ -g -Wno-volatile -std=c++20 src/platform.cpp lib/winx/winx.c lib/glad/glad.c $SOURCES -I./src -I./lib -I./lib/glm -I. -ldl -lGL -lX11 -lXcursor -lopenal -o build/main
 fi
 
 if [ "$RUN" = "true" ]; then
