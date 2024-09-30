@@ -2,6 +2,7 @@
 
 #include <external.hpp>
 #include <rendering.hpp>
+#include "tile.hpp"
 
 template <size_t W, size_t H>
 class Segment {
@@ -134,19 +135,7 @@ class Segment {
 
 			for (int x = 0; x < W; x++) {
 				for (int y = 0; y < H; y++) {
-					uint8_t tile = at(x, y);
-					gls::Sprite s = tileset.sprite(tile, 4);
-
-					if (tile != 0) {
-
-						if (tile == 3) {
-							int i = ((int) (-scroll / 20)) % 2;
-
-							s = tileset.sprite(i, 6);
-						}
-
-						drawTile(writer, s, x, y, W, scroll + index * H * width);
-					}
+					drawTile(writer, getTileSprite(tileset, at(x, y)), x, y, W, scroll + index * H * width);
 				}
 			}
 		}

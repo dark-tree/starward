@@ -27,6 +27,8 @@ class Level {
 		double getScroll() const;
 
 		glm::ivec2 toTilePos(int x, int y);
+		glm::vec2 toEntityPos(int x, int y);
+
 		void addEntity(Entity* entity);
 		void tick();
 		void draw(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer);

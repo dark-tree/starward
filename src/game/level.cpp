@@ -52,20 +52,22 @@ void Level::draw(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer
 
 glm::ivec2 Level::toTilePos(int x, int y) {
 	const float pixels = SW / segment_width;
-	int tx = x / pixels;
-	int ty = y / pixels;
+	return glm::vec2 {x, y} / pixels;
+}
 
-	return {tx, ty};
+glm::vec2 Level::toEntityPos(int x, int y) {
+	const float pixels = SW / segment_width;
+	return (glm::vec2 {x, y} + 0.5f) * pixels;
 }
 
 uint8_t Level::get(int tx, int ty) {
-	if (tx < 0 || ty > segment_width) {
+	if (tx < 0 || tx > segment_width) {
 		return 0;
 	}
 
 	for (auto& segment : segments) {
 		if (segment.contains(ty)) {
-			return segment.atWorldPos(round(tx), round(ty));
+			return segment.atWorldPos(tx, ty);
 		}
 	}
 
@@ -79,7 +81,7 @@ void Level::set(int tx, int ty, uint8_t tile) {
 
 	for (auto& segment : segments) {
 		if (segment.contains(ty)) {
-			segment.atWorldPos(round(tx), round(ty)) = tile;
+			segment.atWorldPos(tx, ty) = tile;
 		}
 	}
 }
@@ -103,12 +105,13 @@ bool Level::checkCollision(Entity* self, Entity* except) {
 
 	float pixels = SW / segment_width;
 
-	int tx = x / pixels;
-	int ty = y / pixels;
+	int radius = 1;
+	int tx = round(x / pixels);
+	int ty = round(y / pixels);
 
-	for (auto& segment : segments) {
-		if (segment.contains(ty)) {
-			uint8_t& tile = segment.atWorldPos(round(tx), round(ty));
+	for (int ox = - radius; ox <= radius; ox ++) {
+		for (int oy = - radius; oy <= radius; oy ++) {
+			uint8_t tile = get(tx + ox, ty + oy);
 
 			if (tile) {
 				return true;
