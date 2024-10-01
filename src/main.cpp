@@ -43,15 +43,18 @@ const char* fragment_source = R"(#version 300 es
 )";
 
 const char* postprocess_vertex_source = R"(#version 300 es
+	uniform mat4 matrix;
 
 	in vec2 iPos;
 	in vec2 iTex;
 
 	out vec2 fragCoord;
+	out vec2 vTex;
 
 	void main() {
+		vTex = iTex;
 		fragCoord = iPos;
-		gl_Position = vec4(iPos.xy, 1.0, 1.0);
+		gl_Position = matrix * vec4(iPos.xy, 1.0, 1.0);
 	}
 )";
 
@@ -62,6 +65,8 @@ const char* postprocess_fragment_source = R"(#version 300 es
 	uniform vec2 iResolution;
 
 	in vec2 fragCoord;
+	in vec2 vTex;
+
 	out vec4 fragColor;
 
 	vec2 curve(vec2 uv) {
@@ -75,10 +80,11 @@ const char* postprocess_fragment_source = R"(#version 300 es
 	}
 
 	void main() {
-		vec2 q = (fragCoord.xy + 1.0f) / 2.0f;
+		vec2 q = vTex.xy;
 		vec2 uv = q;
 		uv = curve( uv );
-		vec3 oricol = texture( iChannel0, vec2(q.x,q.y) ).xyz;
+//		vec3 oricol = mix(texture( iChannel0, vec2(q.x,q.y) ).xyz, vec3(0.3, 1.0, 0.5), 0.25);
+
 		vec3 col;
 		float x =  sin(0.3*iTime+uv.y*21.0)*sin(0.7*iTime+uv.y*29.0)*sin(0.3+0.33*iTime+uv.y*31.0)*0.0017;
 
@@ -90,6 +96,7 @@ const char* postprocess_fragment_source = R"(#version 300 es
 		col.b += 0.08*texture(iChannel0,0.75*vec2(x+-0.02, -0.018)+vec2(uv.x-0.002,uv.y+0.000)).z;
 
 		col = clamp(col*0.6+0.4*col*col*1.0,0.0,1.0);
+		col = mix(col, vec3(0.3, 1.0, 0.5), 0.25);
 
 		float vig = (0.0 + 1.0*16.0*uv.x*uv.y*(1.0-uv.x)*(1.0-uv.y));
 		col *= vec3(pow(vig,0.3));
@@ -97,7 +104,7 @@ const char* postprocess_fragment_source = R"(#version 300 es
 		col *= vec3(0.95,1.05,0.95);
 		col *= 2.8;
 
-		float scans = clamp( 0.35+0.35*sin(3.5*iTime+uv.y*iResolution.y*1.5), 0.0, 1.0);
+		float scans = clamp( 0.35+0.35*sin(3.5*iTime+vTex.y * iResolution.y *1.5), 0.0, 1.0);
 
 		float s = pow(scans,1.7);
 		col = col*vec3( 0.4+0.7*s) ;
@@ -110,10 +117,6 @@ const char* postprocess_fragment_source = R"(#version 300 es
 
 		col*=1.0-0.65*vec3(clamp((mod(q.x * iResolution.x, 2.0)-1.0)*2.0,0.0,1.0));
 
-		float comp = smoothstep( 0.1, 0.9, sin(iTime) );
-
-		// Remove the next line to stop cross-fade between original and postprocess
-	//	col = mix( col, oricol, comp );
 
 		fragColor = vec4(col,1.0);
 	}
@@ -124,7 +127,7 @@ extern "C" void EXPORTED_NATIVE toggle_background_color() {
 
 }
 
-void checkViewport(float ratio, const std::function<void(int, int, glm::mat4& matrix)>& on_resize) {
+void checkViewport(float ratio, const std::function<void(int, int, int, int, glm::mat4& matrix)>& on_resize) {
 
 	static int pw = 0;
 	static int ph = 0;
@@ -160,8 +163,8 @@ void checkViewport(float ratio, const std::function<void(int, int, glm::mat4& ma
 		const float fy = sy * (rh / SH);
 
 		glm::mat4 matrix {
-			fx,   0,   0,   0,
-			 0,  fy,   0,   0,
+			fx * SW,   0,   0,   0,
+			 0,  fy * SH,   0,   0,
 			 0,   0,   1,   0,
 			ox,  oy,   0,   1,
 		};
@@ -169,12 +172,9 @@ void checkViewport(float ratio, const std::function<void(int, int, glm::mat4& ma
 		pw = w;
 		ph = h;
 
-		gls::setViewportArea(w, h);
-		gls::setScissorArea(mx, my, rw, rh);
+		on_resize(w, h, rw, rh, matrix);
 
-		on_resize(w, h, matrix);
-
-		printf("Screen resized to %dx%d\n", w, h);
+		printf("Screen resized to %dx%d (with region: %dx%d)\n", w, h, (int) rw, (int) rh);
 
 	}
 
@@ -182,20 +182,16 @@ void checkViewport(float ratio, const std::function<void(int, int, glm::mat4& ma
 
 int main() {
 
-	gls::Vert4f4b vertices[] = {
-		{-0.5f,  0.5f,  0.0,  1.0,  255, 255, 255, 255},
-		{ 0.5f, -0.5f,  1.0,  0.0,  255, 255, 255, 255},
-		{-0.5f, -0.5f,  0.0,  0.0,  255, 255, 255, 255},
-	};
+	auto startup_time = std::chrono::steady_clock::now();
 
 	gls::Vert4f vertices_quad[] = {
-		{-1, -1, 0, 0},
-		{+1, -1, 1, 0},
-		{+1, +1, 1, 1},
+		{0, 0, 0, 0},
+		{1, 0, 1, 0},
+		{1, 1, 1, 1},
 
-		{+1, +1, 1, 1},
-		{-1, +1, 0, 1},
-		{-1, -1, 0, 0},
+		{1, 1, 1, 1},
+		{0, 1, 0, 1},
+		{0, 0, 0, 0},
 	};
 
     gls::init();
@@ -210,7 +206,16 @@ int main() {
 	const gls::Framebuffer& pass_2 = gls::Framebuffer::main();
 
 	gls::Texture color_att;
+	color_att.resize(SW, SH, GL_RGBA, GL_RGBA);
+
 	gls::RenderBuffer depth_att;
+	depth_att.resize(SW, SH, GL_DEPTH24_STENCIL8, GL_DEPTH24_STENCIL8);
+
+	color_att.use();
+	pass_1.attach(color_att, GL_COLOR_ATTACHMENT0);
+
+	depth_att.use();
+	pass_1.attach(depth_att, GL_DEPTH_STENCIL_ATTACHMENT);
 
 	// Create and compile the shader program
 	gls::Shader shader {vertex_source, fragment_source};
@@ -241,52 +246,42 @@ int main() {
 
 	printf("System ready!\n");
 
+	int __w, __h;
+
 	gls::main_loop([&] {
 
 		level.tick();
 
 		// takes care of the screen ratio, calls the callback when the screen resizes
-		checkViewport(ASPECT_RATIO, [&] (int w, int h, glm::mat4& matrix) {
+		checkViewport(ASPECT_RATIO, [&] (int w, int h, int rw, int rh, glm::mat4& matrix) {
+			glm::mat4 static_matrix {
+				2.0f/SW,   0,   0,   0,
+				0,  2.0f/SH,   0,   0,
+				0,   0,   1,   0,
+				-1,  -1,   0,   1,
+			};
+
 			shader.use();
-			glUniformMatrix4fv(shader.uniform("matrix"), 1, GL_FALSE, glm::value_ptr(matrix));
+			glUniformMatrix4fv(shader.uniform("matrix"), 1, GL_FALSE, glm::value_ptr(static_matrix));
 
 			postprocessing.use();
-			glUniform1f(postprocessing.uniform("iTime"), 100);
-			glUniform2f(postprocessing.uniform("iResolution"), (float) w, (float) h);
+			glUniform2f(postprocessing.uniform("iResolution"), rw, rh);
+			glUniformMatrix4fv(postprocessing.uniform("matrix"), 1, GL_FALSE, glm::value_ptr(matrix));
 
-			color_att.resize(w, h, GL_RGBA, GL_RGBA);
-			depth_att.resize(w, h, GL_DEPTH24_STENCIL8, GL_DEPTH24_STENCIL8);
-
-			color_att.use();
-			pass_1.attach(color_att, GL_COLOR_ATTACHMENT0);
-
-			depth_att.use();
-			pass_1.attach(depth_att, GL_DEPTH_STENCIL_ATTACHMENT);
+			__w = w;
+			__h = h;
 		});
 
-		int tx = 0;
-		int ty = 0;
+		postprocessing.use();
+		auto now_time = std::chrono::steady_clock::now();
 
-		gls::Sprite s {0, 0, 1, 1};
+		typedef std::chrono::duration<float> float_seconds;
+		auto secs = std::chrono::duration_cast<float_seconds>(now_time - startup_time).count();
+		glUniform1f(postprocessing.uniform("iTime"), secs);
 
-//		writer.push({tx + 0, 0 + ty,  s.min_u, s.min_v, 255, 255, 255, 255});
-//		writer.push({tx + SW, 0 + ty,  s.max_u, s.min_v, 255, 255, 255, 255});
-//		writer.push({tx + SW, SH + ty,  s.max_u, s.max_v, 255, 255, 255, 255});
-//		writer.push({tx + SW, SH + ty,  s.max_u, s.max_v, 255, 255, 255, 255});
-//		writer.push({tx + 0, SH + ty,  s.min_u, s.max_v, 255, 255, 255, 255});
-//		writer.push({tx + 0, 0 + ty,  s.min_u, s.min_v, 255, 255, 255, 255});
+		gls::setViewportArea(SW, SH);
 
 		level.draw(tileset, writer);
-
-//		s = tileset.sprite(0, 0);
-//
-//		for (int x = 0; x < 64; x++) {
-//			for (int y = 0; y < 64; y++) {
-//				if (rand() % 100 < 2) {
-//					drawTile(writer, s, x, y, 64);
-//				}
-//			}
-//		}
 
 		writer.upload();
 
@@ -298,10 +293,13 @@ int main() {
 
 		shader.use();
 
-		gls::scissor(true);
+		//gls::scissor(true);
 		gls::blend(true);
+
 		geometry_buffer.draw();
-		gls::scissor(false);
+		//gls::scissor(false);
+
+		gls::setViewportArea(__w, __h);
 
 		pass_2.use();
 		pass_2.clear();

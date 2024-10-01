@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <array>
 #include <random>
+#include <chrono>
 
 // emscripten
 #include <platform.hpp>
