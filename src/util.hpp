@@ -21,3 +21,12 @@ inline int randomInt(int min, int max) {
 	std::uniform_int_distribution<std::mt19937::result_type> distribution(min, max);
 	return distribution(generator);
 }
+
+inline std::string readFile(const std::string& path) {
+	if (std::ifstream source_file {path, std::ios::binary}; source_file) {
+		return std::string(std::istreambuf_iterator<char>{source_file}, {});
+	}
+
+	fault("Unable to read file: '%s'!\n", path.c_str());
+	return {};
+}

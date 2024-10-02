@@ -13,18 +13,18 @@ namespace gls {
 
 	};
 
-	struct Vert4f {
+	struct Vert2f {
 
 		float x, y;
-		float u, v;
 
-		Vert4f(float x, float y, float u, float v)
-		: x(x), y(y), u(u), v(v) {}
+		Vert2f(float x, float y)
+		: x(x), y(y) {}
 
 	};
 
 	struct TypeAsserts {
 		static_assert (sizeof(Vert4f4b) == 4 * sizeof(float) + 4 * sizeof(uint8_t), "Vert4f4b is not of the correct size!");
+		static_assert (sizeof(Vert2f) == 2 * sizeof(float), "Vert2f is not of the correct size!");
 	};
 
 }

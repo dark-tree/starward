@@ -14,6 +14,7 @@
 #include <array>
 #include <random>
 #include <chrono>
+#include <fstream>
 
 // emscripten
 #include <platform.hpp>
