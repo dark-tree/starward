@@ -135,7 +135,11 @@ class Segment {
 
 			for (int x = 0; x < W; x++) {
 				for (int y = 0; y < H; y++) {
-					drawTile(writer, getTileSprite(tileset, at(x, y)), x, y, W, scroll + index * H * width);
+					uint8_t tile = at(x, y);
+
+					if (tile) {
+						drawTile(writer, getTileSprite(tileset, tile), x, y, W, scroll + index * H * width);
+					}
 				}
 			}
 		}

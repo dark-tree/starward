@@ -59,10 +59,24 @@ const char* postprocess_vertex_source = R"(#version 300 es
 )";
 
 const char* postprocess_fragment_source = R"(#version 300 es
-	precision mediump float;
+
+	#ifdef GL_FRAGMENT_PRECISION_HIGH
+		precision highp float;
+	#else
+		precision mediump float;
+	#endif
+
 	uniform sampler2D iChannel0;
 	uniform float iTime;
 	uniform vec2 iResolution;
+
+	vec2 getResolution() {
+		#ifdef GL_FRAGMENT_PRECISION_HIGH
+			return iResolution;
+		#else
+			return iResolution * 0.5f;
+		#endif
+	}
 
 	in vec2 fragCoord;
 	in vec2 vTex;
@@ -80,10 +94,12 @@ const char* postprocess_fragment_source = R"(#version 300 es
 	}
 
 	void main() {
+
+		vec2 res = getResolution();
+
 		vec2 q = vTex.xy;
 		vec2 uv = q;
 		uv = curve( uv );
-//		vec3 oricol = mix(texture( iChannel0, vec2(q.x,q.y) ).xyz, vec3(0.3, 1.0, 0.5), 0.25);
 
 		vec3 col;
 		float x =  sin(0.3*iTime+uv.y*21.0)*sin(0.7*iTime+uv.y*29.0)*sin(0.3+0.33*iTime+uv.y*31.0)*0.0017;
@@ -104,7 +120,7 @@ const char* postprocess_fragment_source = R"(#version 300 es
 		col *= vec3(0.95,1.05,0.95);
 		col *= 2.8;
 
-		float scans = clamp( 0.35+0.35*sin(3.5*iTime+vTex.y * iResolution.y *1.5), 0.0, 1.0);
+		float scans = clamp( 0.35+0.35*sin(3.5*iTime+vTex.y * res.y *1.5), 0.0, 1.0);
 
 		float s = pow(scans,1.7);
 		col = col*vec3( 0.4+0.7*s) ;
@@ -115,7 +131,7 @@ const char* postprocess_fragment_source = R"(#version 300 es
 		if (uv.y < 0.0 || uv.y > 1.0)
 			col *= 0.0;
 
-		col*=1.0-0.65*vec3(clamp((mod(q.x * iResolution.x, 2.0)-1.0)*2.0,0.0,1.0));
+		col*=1.0-0.65*vec3(clamp((mod(q.x * res.x, 2.0)-1.0)*2.0,0.0,1.0));
 
 
 		fragColor = vec4(col,1.0);
