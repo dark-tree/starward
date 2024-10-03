@@ -87,7 +87,7 @@ int main() {
 
 	Level level;
 	level.addEntity(new PlayerEntity {});
-	level.addEntity(new SweeperAlienEntity {100, 400});
+	level.addEntity(new SweeperAlienEntity {100, 450, 2});
 
 	gls::Framebuffer pass_1;
 	const gls::Framebuffer& pass_2 = gls::Framebuffer::main();

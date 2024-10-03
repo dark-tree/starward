@@ -24,11 +24,23 @@ bool Entity::shouldRemove() const {
 	return dead;
 }
 
-bool Entity::checkCollision(float x, float y, float size) {
-	float dx = this->x - x;
-	float dy = this->y - y;
+bool Entity::shouldCollide(Entity* entity) {
+	float ts = this->size / 2;
+	float es = entity->size / 2;
 
-	return (sqrt(dx * dx + dy * dy) < (size + this->size));
+	if (this->x + ts < entity->x - es || this->x - ts > entity->x + es) {
+		return false;
+	}
+
+	if (this->y + ts < entity->y - es || this->y - ts > entity->y + es) {
+		return false;
+	}
+
+	return true;
+}
+
+void Entity::onDamage(int damage) {
+	this->dead = true;
 }
 
 gls::Sprite Entity::sprite(gls::TileSet& tileset) {
@@ -100,9 +112,15 @@ void BulletEntity::tick(Level& level) {
 		dead = true;
 	}
 
-	if (level.checkCollision(this, parent)) {
+	Collision collision = level.checkCollision(this);
+
+	if (collision.type != Collision::MISS) {
 		level.addEntity(new BlowEntity(x, y));
 		SoundSystem::getInstance().add(Sounds::hit_1).play();
+
+		if (collision.entity) {
+			collision.entity->onDamage(1);
+		}
 
 		glm::ivec2 pos = level.toTilePos(x, y);
 		int radius = 5;
@@ -139,7 +157,7 @@ void BulletEntity::tick(Level& level) {
 BlowEntity::BlowEntity(double x, double y)
 : Entity(64, x, y) {}
 
-bool BlowEntity::checkCollision(float x, float y, float size) {
+bool BlowEntity::shouldCollide(Entity* entity) {
 	return false;
 }
 
@@ -185,7 +203,7 @@ void PlayerEntity::tick(Level& level) {
 	}
 
 	if ((cooldown <= 0) && gls::Input::is_pressed(Key::SPACE)) {
-		level.addEntity(new BulletEntity {11, x, y + 32, this});
+		level.addEntity(new BulletEntity {11, x, y + 64, this});
 		SoundSystem::getInstance().add(Sounds::hit_0).play();
 		cooldown = 1;
 	}
@@ -204,30 +222,64 @@ void PlayerEntity::tick(Level& level) {
  * SweeperAlienEntity
  */
 
-SweeperAlienEntity::SweeperAlienEntity(double x, double y)
+SweeperAlienEntity::SweeperAlienEntity(double x, double y, int evolution)
 : Entity(32, x, y) {
 	this->r = 255;
 	this->g = 50;
 	this->b = 50;
 	this->a = 255;
+
+	this->evolution = evolution;
+	this->health += evolution;
+}
+
+void SweeperAlienEntity::onDamage(int damage) {
+	health --;
+	bump = 4;
+
+	if (health <= 0) {
+		this->dead = true;
+	}
 }
 
 gls::Sprite SweeperAlienEntity::sprite(gls::TileSet& tileset) {
-	return tileset.sprite(3, 0);
+	return tileset.sprite(evolution, 5);
 }
 
 void SweeperAlienEntity::tick(Level& level) {
-	this->x += facing * 3;
-	this->cooldown -= 0.02f;
+	this->x += facing * 2;
+	this->y += bump;
 
-	if ((x < 0) || (x > SW) || level.checkCollision(this, nullptr)) {
+	if (this->bump > 0) {
+		this->bump -= 0.1;
+	} else {
+		this->bump = 0;
+	}
+
+	this->cooldown -= 0.05f;
+
+	Collision collision = level.checkCollision(this);
+
+	if ((x < 0) || (x > SW) || collision.type != Collision::MISS) {
 		facing *= -1;
 	}
 
 	if (cooldown <= 0) {
-		cooldown = 1;
+		cooldown = 0.75;
+		count ++;
 
-		level.addEntity(new BulletEntity {-11, x, y - 8, this});
+		if (count >= health) {
+			count = 0;
+			cooldown = 5 - evolution;
+		}
+
+		float bx = x;
+
+		if (evolution >= 2) {
+			bx += (count % 2 == 1 ? -size : size) * 0.3f;
+		}
+
+		level.addEntity(new BulletEntity {-3, bx, y - 24, this});
 	}
 }
 
@@ -257,7 +309,7 @@ void TileEntity::tick(Level& level) {
 	this->fx *= 0.9f;
 	this->fy *= 0.9f;
 
-//	if (!dead || level.checkCollision(this, nullptr)) {
+//	if (!dead || level.checkCollision(this)) {
 //		dead = true;
 //	}
 

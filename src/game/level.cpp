@@ -7,7 +7,7 @@ void Level::addEntity(Entity* entity) {
 
 void Level::tick() {
 
-	scroll -= 1 + skip * 4;
+	scroll -= base_speed + skip * 4;
 	skip *= 0.95;
 
 	for (auto& segment : segments) {
@@ -94,13 +94,13 @@ double Level::getScroll() const {
 	return scroll;
 }
 
-bool Level::checkCollision(Entity* self, Entity* except) {
+Collision Level::checkCollision(Entity* self) {
 	float x = self->x;
 	float y = self->y;
 	float size = self->size;
 
 	if (x + size < 0 || x - size > SW) {
-		return false;
+		return {};
 	}
 
 	float pixels = SW / segment_width;
@@ -114,7 +114,7 @@ bool Level::checkCollision(Entity* self, Entity* except) {
 			uint8_t tile = get(tx + ox, ty + oy);
 
 			if (tile) {
-				return true;
+				return {tx + ox, ty + oy};
 			}
 		}
 	}
@@ -122,14 +122,14 @@ bool Level::checkCollision(Entity* self, Entity* except) {
 	for (auto& entity : entities) {
 		Entity* pointer = entity.get();
 
-		if ((pointer == except) || (pointer == self)) {
+		if (pointer == self) {
 			continue;
 		}
 
-		if (entity->checkCollision(x, self->y, size)) {
-			return true;
+		if (entity->shouldCollide(self)) {
+			return {pointer};
 		}
 	}
 
-	return false;
+	return {};
 }

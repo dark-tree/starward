@@ -26,7 +26,8 @@ class Entity {
 		virtual ~Entity();
 
 		bool shouldRemove() const;
-		virtual bool checkCollision(float x, float y, float size);
+		virtual bool shouldCollide(Entity* entity);
+		virtual void onDamage(int damage);
 
 		virtual gls::Sprite sprite(gls::TileSet& tileset);
 		virtual void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer);
@@ -55,7 +56,7 @@ class BlowEntity : public Entity {
 
 		BlowEntity(double x, double y);
 
-		bool checkCollision(float x, float y, float size) override;
+		bool shouldCollide(Entity* entity) override;
 
 		gls::Sprite sprite(gls::TileSet& tileset) override;
 		void tick(Level& level) override;
@@ -98,13 +99,18 @@ class SweeperAlienEntity : public Entity {
 
 	private:
 
+		int evolution; // 0, 1, 2
+		float bump = 0;
+		int health = 2;
+		int count = 0;
 		float facing = 1;
 		float cooldown = 1;
 
 	public:
 
-		SweeperAlienEntity(double x, double y);
+		SweeperAlienEntity(double x, double y, int evolution);
 
+		void onDamage(int damage) override;
 		gls::Sprite sprite(gls::TileSet& tileset) override;
 		void tick(Level& level) override;
 
