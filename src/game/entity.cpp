@@ -3,58 +3,9 @@
 #include "sounds.hpp"
 #include "tile.hpp"
 
-/*
- * Entity
- */
-
-Entity::Entity(double size, double x, double y)
-: size(size) {
-	this->x = x;
-	this->y = y;
-
-	this->r = 255;
-	this->g = 255;
-	this->b = 255;
-	this->a = 255;
-}
-
-Entity::~Entity() {}
-
-bool Entity::shouldRemove() const {
-	return dead;
-}
-
-bool Entity::shouldCollide(Entity* entity) {
-	float ts = this->size / 2;
-	float es = entity->size / 2;
-
-	if (this->x + ts < entity->x - es || this->x - ts > entity->x + es) {
-		return false;
-	}
-
-	if (this->y + ts < entity->y - es || this->y - ts > entity->y + es) {
-		return false;
-	}
-
-	return true;
-}
-
-void Entity::onDamage(int damage) {
-	this->dead = true;
-}
-
-gls::Sprite Entity::sprite(gls::TileSet& tileset) {
-	return tileset.sprite(0, 0);
-}
-
-void Entity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
-	gls::Sprite s = sprite(tileset);
-
-	const float tx = x;
-	const float ty = y + level.getScroll();
-
+void drawSprite(gls::BufferWriter<gls::Vert4f4b>& writer, float tx, float ty, float size, float angle, const gls::Sprite& s, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 	double quarter = M_PI / 2;
-	double start = M_PI / 4 + M_PI / 2;
+	double start = M_PI / 4 + M_PI / 2 + angle;
 
 	auto getUnitPoint = [=] (int index) {
 		return glm::vec2 {sin(start + quarter * index), cos(start + quarter * index)} * (float) size;
@@ -72,7 +23,75 @@ void Entity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Ve
 	writer.push({tx + v2.x, v2.y + ty, s.max_u, s.max_v, r, g, b, a});
 	writer.push({tx + v3.x, v3.y + ty, s.min_u, s.max_v, r, g, b, a});
 	writer.push({tx + v0.x, v0.y + ty, s.min_u, s.min_v, r, g, b, a});
+}
 
+/*
+ * Entity
+ */
+
+Entity::Entity(int radius, double size, double x, double y)
+: tile_radius(radius), size(size) {
+	this->x = x;
+	this->y = y;
+
+	this->r = 255;
+	this->g = 255;
+	this->b = 255;
+	this->a = 255;
+}
+
+Entity::~Entity() {}
+
+bool Entity::shouldRemove() const {
+	return dead;
+}
+
+void Entity::move(Level& level, float x, float y) {
+	this->x += x;
+	this->y += y;
+}
+
+void Entity::clamp() {
+	if (this->x < 0) {
+		this->x = 0;
+	}
+
+	if (this->x > SW) {
+		this->x = SW;
+	}
+}
+
+bool Entity::shouldCollide(Entity* entity) {
+	float ts = this->size / 2;
+	float es = entity->size / 2;
+
+	if (this->x + ts < entity->x - es || this->x - ts > entity->x + es) {
+		return false;
+	}
+
+	if (this->y + ts < entity->y - es || this->y - ts > entity->y + es) {
+		return false;
+	}
+
+	return true;
+}
+
+void Entity::onDamage(int damage, Entity* damager) {
+	if (damage > 0) {
+		this->dead = true;
+	}
+}
+
+Entity* Entity::getParent() {
+	return nullptr;
+}
+
+gls::Sprite Entity::sprite(gls::TileSet& tileset) {
+	return tileset.sprite(0, 0);
+}
+
+void Entity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+	drawSprite(writer, x, y + level.getScroll(), size, angle, sprite(tileset), r, g, b, a);
 }
 
 void Entity::tick(Level& level) {
@@ -88,7 +107,7 @@ void Entity::tick(Level& level) {
  */
 
 BulletEntity::BulletEntity(float velocity, double x, double y, Entity* parent)
-: Entity(8, x, y) {
+: Entity(1, 8, x, y) {
 	this->parent = parent;
 	this->velocity = velocity;
 
@@ -105,6 +124,10 @@ BulletEntity::BulletEntity(float velocity, double x, double y, Entity* parent)
 	}
 }
 
+Entity* BulletEntity::getParent() {
+	return parent;
+}
+
 void BulletEntity::tick(Level& level) {
 	y += velocity;
 
@@ -119,7 +142,7 @@ void BulletEntity::tick(Level& level) {
 		SoundSystem::getInstance().add(Sounds::hit_1).play();
 
 		if (collision.entity) {
-			collision.entity->onDamage(1);
+			collision.entity->onDamage(1, this);
 		}
 
 		glm::ivec2 pos = level.toTilePos(x, y);
@@ -155,7 +178,7 @@ void BulletEntity::tick(Level& level) {
  */
 
 BlowEntity::BlowEntity(double x, double y)
-: Entity(64, x, y) {}
+: Entity(1, 64, x, y) {}
 
 bool BlowEntity::shouldCollide(Entity* entity) {
 	return false;
@@ -178,15 +201,54 @@ void BlowEntity::tick(Level& level) {
  */
 
 PlayerEntity::PlayerEntity()
-: Entity(64, SW / 2, 0) {
-	this->r = 50;
-	this->g = 50;
+: Entity(2, 64, SW / 2, 0) {
+	this->r = 255;
+	this->g = 255;
 	this->b = 255;
 	this->a = 255;
 }
 
+bool PlayerEntity::shouldCollide(Entity* entity) {
+	if (invulnerable > 0) {
+		return false;
+	}
+
+	return Entity::shouldCollide(entity);
+}
+
+void PlayerEntity::onDamage(int damage, Entity* damager) {
+	if (damage > 0) {
+		if (invulnerable <= 0) {
+			if (lives <= 0) {
+				Entity::onDamage(damage, damager);
+			}
+
+			lives--;
+			invulnerable = 300;
+		}
+
+		return;
+	}
+
+	if (damage == -10) {
+		lives ++;
+	}
+}
+
 gls::Sprite PlayerEntity::sprite(gls::TileSet& tileset) {
+	if (invulnerable > 0) {
+		return tileset.sprite(3 - (invulnerable & 0b1000 ? 1 : 0), 0);
+	}
+
 	return tileset.sprite(2, 0);
+}
+
+void PlayerEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+	Entity::draw(level, tileset, writer);
+
+	for (int i = 0; i < lives; i ++) {
+		drawSprite(writer, 48 + i * 48, 32, 32, 0, tileset.sprite(0, 1), 255, 255, 255, 200);
+	}
 }
 
 void PlayerEntity::tick(Level& level) {
@@ -195,11 +257,11 @@ void PlayerEntity::tick(Level& level) {
 	this->cooldown -= 0.1f;
 
 	if (gls::Input::is_pressed(Key::LEFT)) {
-		this->x -= 6;
+		move(level, -6, 0);
 	}
 
 	if (gls::Input::is_pressed(Key::RIGHT)) {
-		this->x += 6;
+		move(level, +6, 0);
 	}
 
 	if ((cooldown <= 0) && gls::Input::is_pressed(Key::SPACE)) {
@@ -208,13 +270,11 @@ void PlayerEntity::tick(Level& level) {
 		cooldown = 1;
 	}
 
-	if (this->x < 0) {
-		this->x = 0;
+	if (invulnerable > 0) {
+		invulnerable --;
 	}
 
-	if (this->x > SW) {
-		this->x = SW;
-	}
+	clamp();
 
 }
 
@@ -223,7 +283,7 @@ void PlayerEntity::tick(Level& level) {
  */
 
 SweeperAlienEntity::SweeperAlienEntity(double x, double y, int evolution)
-: Entity(32, x, y) {
+: Entity(2, 32, x, y) {
 	this->r = 255;
 	this->g = 50;
 	this->b = 50;
@@ -233,7 +293,7 @@ SweeperAlienEntity::SweeperAlienEntity(double x, double y, int evolution)
 	this->health += evolution;
 }
 
-void SweeperAlienEntity::onDamage(int damage) {
+void SweeperAlienEntity::onDamage(int damage, Entity* damager) {
 	health --;
 	bump = 4;
 
@@ -247,8 +307,7 @@ gls::Sprite SweeperAlienEntity::sprite(gls::TileSet& tileset) {
 }
 
 void SweeperAlienEntity::tick(Level& level) {
-	this->x += facing * 2;
-	this->y += bump;
+	move(level, facing * 2, bump);
 
 	if (this->bump > 0) {
 		this->bump -= 0.1;
@@ -288,7 +347,7 @@ void SweeperAlienEntity::tick(Level& level) {
  */
 
 TileEntity::TileEntity(double x, double y, uint8_t tile, int tx, int ty)
-: Entity(4, tx, ty) {
+: Entity(0, 4, tx, ty) {
 	float dx = x - tx;
 	float dy = y - ty;
 
@@ -321,4 +380,32 @@ void TileEntity::tick(Level& level) {
 	}
 
 	age ++;
+}
+
+/*
+ * ExtraLiveEntity
+ */
+
+ExtraLiveEntity::ExtraLiveEntity(double x, double y)
+: Entity(1, 32, x, y) {
+
+}
+
+void ExtraLiveEntity::onDamage(int damage, Entity* damager) {
+	Entity::onDamage(damage, damager);
+
+	Entity* parent = damager->getParent();
+
+	if (parent) {
+		parent->onDamage(-10, this);
+	}
+}
+
+gls::Sprite ExtraLiveEntity::sprite(gls::TileSet& tileset) {
+	return tileset.sprite(0, 1);
+}
+
+void ExtraLiveEntity::tick(Level& level) {
+	Entity::tick(level);
+	this->angle = sin(this->age * 0.075f) * 0.8;
 }

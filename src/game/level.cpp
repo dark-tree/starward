@@ -105,7 +105,7 @@ Collision Level::checkCollision(Entity* self) {
 
 	float pixels = SW / segment_width;
 
-	int radius = 1;
+	int radius = self->tile_radius;
 	int tx = round(x / pixels);
 	int ty = round(y / pixels);
 

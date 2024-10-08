@@ -10,24 +10,30 @@ class Entity {
 	protected:
 
 		float r, g, b, a;
+		float angle = 0;
 
 		bool dead = false;
 		long age = 0;
 
 	public:
 
+		const int tile_radius;
 		const double size;
 		double x;
 		double y;
 
 	public:
 
-		Entity(double size, double x, double y);
+		Entity(int radius, double size, double x, double y);
 		virtual ~Entity();
+
+		void move(Level& level, float x, float y);
+		void clamp();
 
 		bool shouldRemove() const;
 		virtual bool shouldCollide(Entity* entity);
-		virtual void onDamage(int damage);
+		virtual void onDamage(int damage, Entity* damager);
+		virtual Entity* getParent();
 
 		virtual gls::Sprite sprite(gls::TileSet& tileset);
 		virtual void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer);
@@ -46,6 +52,7 @@ class BulletEntity : public Entity {
 
 		BulletEntity(float velocity, double x, double y, Entity* except);
 
+		virtual Entity* getParent() override;
 		void tick(Level& level) override;
 
 };
@@ -67,13 +74,19 @@ class PlayerEntity : public Entity {
 
 	private:
 
+		int lives = 2;
+		int invulnerable = 0;
 		float cooldown = 0;
 
 	public:
 
 		PlayerEntity();
 
+		bool shouldCollide(Entity* entity) override;
+
+		void onDamage(int damage, Entity* damager);
 		gls::Sprite sprite(gls::TileSet& tileset) override;
+		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer);
 		void tick(Level& level) override;
 
 };
@@ -95,6 +108,18 @@ class TileEntity : public Entity {
 
 };
 
+class ExtraLiveEntity : public Entity {
+
+	public:
+
+		ExtraLiveEntity(double x, double y);
+
+		void onDamage(int damage, Entity* damager) override;
+		gls::Sprite sprite(gls::TileSet& tileset) override;
+		void tick(Level& level) override;
+
+};
+
 class SweeperAlienEntity : public Entity {
 
 	private:
@@ -110,7 +135,7 @@ class SweeperAlienEntity : public Entity {
 
 		SweeperAlienEntity(double x, double y, int evolution);
 
-		void onDamage(int damage) override;
+		void onDamage(int damage, Entity* damager) override;
 		gls::Sprite sprite(gls::TileSet& tileset) override;
 		void tick(Level& level) override;
 
