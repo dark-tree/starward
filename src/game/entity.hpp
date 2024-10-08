@@ -32,7 +32,9 @@ class Entity {
 
 		bool shouldRemove() const;
 		virtual bool shouldCollide(Entity* entity);
-		virtual void onDamage(int damage, Entity* damager);
+		virtual void onDamage(Level& level, int damage, Entity* damager);
+
+		virtual bool isCausedByPlayer();
 		virtual Entity* getParent();
 
 		virtual gls::Sprite sprite(gls::TileSet& tileset);
@@ -52,7 +54,8 @@ class BulletEntity : public Entity {
 
 		BulletEntity(float velocity, double x, double y, Entity* except);
 
-		virtual Entity* getParent() override;
+		bool isCausedByPlayer() override;
+		Entity* getParent() override;
 		void tick(Level& level) override;
 
 };
@@ -84,7 +87,8 @@ class PlayerEntity : public Entity {
 
 		bool shouldCollide(Entity* entity) override;
 
-		void onDamage(int damage, Entity* damager);
+		bool isCausedByPlayer() override;
+		void onDamage(Level& level, int damage, Entity* damager);
 		gls::Sprite sprite(gls::TileSet& tileset) override;
 		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer);
 		void tick(Level& level) override;
@@ -114,7 +118,7 @@ class ExtraLiveEntity : public Entity {
 
 		ExtraLiveEntity(double x, double y);
 
-		void onDamage(int damage, Entity* damager) override;
+		void onDamage(Level& level, int damage, Entity* damager) override;
 		gls::Sprite sprite(gls::TileSet& tileset) override;
 		void tick(Level& level) override;
 
@@ -135,7 +139,7 @@ class SweeperAlienEntity : public Entity {
 
 		SweeperAlienEntity(double x, double y, int evolution);
 
-		void onDamage(int damage, Entity* damager) override;
+		void onDamage(Level& level, int damage, Entity* damager) override;
 		gls::Sprite sprite(gls::TileSet& tileset) override;
 		void tick(Level& level) override;
 

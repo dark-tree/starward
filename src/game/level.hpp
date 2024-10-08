@@ -35,6 +35,7 @@ class Level {
 		static constexpr int segment_width = 128;
 		static constexpr int segment_height = 32;
 
+		int score;
 		double base_speed = 0.75;
 		double scroll = 0;
 		float skip = 0;
@@ -52,9 +53,10 @@ class Level {
 		glm::ivec2 toTilePos(int x, int y);
 		glm::vec2 toEntityPos(int x, int y);
 
+		void addScore(int points);
 		void addEntity(Entity* entity);
 		void tick();
-		void draw(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer);
+		void draw(gls::TileSet& font8x8, gls::BufferWriter<gls::Vert4f4b>& text_writer, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& game_writer);
 		void set(int x, int y, uint8_t tile);
 		uint8_t get(int x, int y);
 		Collision checkCollision(Entity* self);

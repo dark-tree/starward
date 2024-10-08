@@ -1,5 +1,10 @@
 #include "level.hpp"
 #include "sounds.hpp"
+#include "emitter.hpp"
+
+void Level::addScore(int points) {
+	this->score += points;
+}
 
 void Level::addEntity(Entity* entity) {
 	pending.push_back(entity);
@@ -38,14 +43,22 @@ void Level::tick() {
 
 }
 
-void Level::draw(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) {
+void Level::draw(gls::TileSet& font8x8, gls::BufferWriter<gls::Vert4f4b>& text_writer, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& game_writer) {
+
+	char str[20];
+	sprintf(str, "%d", score);
+	int chars = strlen(str);
 
 	for (auto& segment : segments) {
-		segment.draw(scroll, tileset, buffer);
+		segment.draw(scroll, tileset, game_writer);
 	}
 
 	for (auto& entity : entities) {
-		entity->draw(*this, tileset, buffer);
+		entity->draw(*this, tileset, game_writer);
+	}
+
+	for (int i = 0; i < chars; i ++) {
+		emitSpriteQuad(text_writer, SW - 32 - i * 24, SH - 32, -20, 20, 0, font8x8.sprite(str[chars - i - 1]), 255, 255, 0, 220);
 	}
 
 }

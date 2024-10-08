@@ -89,6 +89,7 @@ int main() {
 	level.addEntity(new PlayerEntity {});
 	level.addEntity(new SweeperAlienEntity {100, 450, 2});
 	level.addEntity(new ExtraLiveEntity {200, 600});
+	level.addEntity(new ExtraLiveEntity {200, 800});
 
 	gls::Framebuffer pass_1;
 	const gls::Framebuffer& pass_2 = gls::Framebuffer::main();
@@ -124,8 +125,11 @@ int main() {
 	gls::TileSet font8x8 {"assets/font8x8.png", 8};
 	gls::TileSet tileset {"assets/tileset.png", 16};
 
-	gls::Buffer immediate_buffer {geometry_layout, GL_DYNAMIC_DRAW};
-	gls::BufferWriter<gls::Vert4f4b> writer {immediate_buffer};
+	gls::Buffer game_buffer {geometry_layout, GL_DYNAMIC_DRAW};
+	gls::BufferWriter<gls::Vert4f4b> game_writer {game_buffer};
+
+	gls::Buffer text_buffer {geometry_layout, GL_DYNAMIC_DRAW};
+	gls::BufferWriter<gls::Vert4f4b> text_writer {text_buffer};
 
 	gls::blend(true);
 
@@ -168,16 +172,20 @@ int main() {
 		glViewport(0, 0, SW, SH);
 
 		// render
-		level.draw(tileset, writer);
-		writer.upload();
+		level.draw(font8x8, text_writer, tileset, game_writer);
+		game_writer.upload();
+		text_writer.upload();
 
 		// render
 		pass_1.use();
 		pass_1.clear();
-		tileset.use();
 
+		tileset.use();
 		level_shader.use();
-		immediate_buffer.draw();
+		game_buffer.draw();
+
+		font8x8.use();
+		text_buffer.draw();
 
 		glViewport(0, 0, __w, __h);
 
