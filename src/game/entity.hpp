@@ -80,6 +80,7 @@ class PlayerEntity : public Entity {
 		int lives = 2;
 		int invulnerable = 0;
 		float cooldown = 0;
+		float tilt;
 
 	public:
 

@@ -214,6 +214,7 @@ void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
 				Entity::onDamage(level, damage, damager);
 			}
 
+			SoundSystem::getInstance().add(Sounds::hit_4).play();
 			lives--;
 			invulnerable = 300;
 		}
@@ -231,6 +232,12 @@ void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
 }
 
 gls::Sprite PlayerEntity::sprite(gls::TileSet& tileset) {
+	if (invulnerable > 0) {
+		this->a = 180;
+	} else {
+		this->a = 255;
+	}
+
 	if (invulnerable > 0) {
 		return tileset.sprite(3 - (invulnerable & 0b1000 ? 1 : 0), 0);
 	}
@@ -251,13 +258,27 @@ void PlayerEntity::tick(Level& level) {
 	this->y = 64 - level.getScroll() + level.getSkip() * 32;
 	this->cooldown -= 0.1f;
 
+	if (invulnerable == 0) {
+		Collision collision = level.checkCollision(this);
+
+		if (collision.type == Collision::TILE) {
+			onDamage(level, 10, this);
+		}
+	}
+
+	tilt *= 0.9;
+
 	if (gls::Input::is_pressed(Key::LEFT)) {
 		move(level, -6, 0);
+		tilt -= 0.1;
 	}
 
 	if (gls::Input::is_pressed(Key::RIGHT)) {
 		move(level, +6, 0);
+		tilt += 0.1;
 	}
+
+	this->angle = tilt * 0.2;
 
 	if ((cooldown <= 0) && gls::Input::is_pressed(Key::SPACE)) {
 		level.addEntity(new BulletEntity {11, x, y + 64, this});
