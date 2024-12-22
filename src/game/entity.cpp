@@ -100,10 +100,11 @@ std::shared_ptr<Entity> Entity::self() {
  * BulletEntity
  */
 
-BulletEntity::BulletEntity(float velocity, double x, double y, const std::shared_ptr<Entity>& parent)
+BulletEntity::BulletEntity(float velocity, double x, double y, const std::shared_ptr<Entity>& parent, float angle)
 : Entity(1, 8, x, y) {
 	this->parent = parent;
 	this->velocity = velocity;
+	this->angle = angle;
 
 	if (velocity < 0) {
 		this->r = 255;
@@ -127,7 +128,9 @@ std::shared_ptr<Entity> BulletEntity::getParent() {
 }
 
 void BulletEntity::tick(Level& level) {
-	y += velocity;
+
+	x += velocity * cos(deg(270) - angle);
+	y += velocity * sin(deg(270) - angle);
 
 	if (age > 60 * 4) {
 		dead = true;
@@ -502,4 +505,58 @@ void PowerUpEntity::tick(Level& level) {
 	}
 
 	Entity::tick(level);
+}
+
+/*
+ * TurretAlienEntity
+ */
+
+TurretAlienEntity::TurretAlienEntity(double x, double y, int evolution)
+: Entity(2, 32, x, y) {
+	this->r = 255;
+	this->g = 50;
+	this->b = 50;
+	this->a = 255;
+
+	this->evolution = evolution;
+}
+
+void TurretAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
+	this->dead = true;
+}
+
+gls::Sprite TurretAlienEntity::sprite(gls::TileSet& tileset) {
+	return tileset.sprite(0, 6);
+}
+
+void TurretAlienEntity::tick(Level& level) {
+	Entity::tick(level);
+
+	if (std::shared_ptr<PlayerEntity> player = level.getPlayer()) {
+		glm::vec2 dir {player->x - x, player->y - y};
+		float bullet = 5;
+
+		// try to be sneaky and target future position
+		float oy = level.getSpeed() * glm::length(dir) / bullet;
+		target = deg(90) - std::atan2(dir.y + oy, dir.x);
+		head = lerp(head, target, deg(1));
+
+		float angle = deg(90) - head;
+		float dx = 48 * cos(angle);
+		float dy = 48 * sin(angle);
+
+		if (cooldown <= 0) {
+			cooldown = 4.0f - evolution;
+			level.addEntity(new BulletEntity {-bullet, x + dx, y + dy, self(), head});
+		} else {
+			this->cooldown -= 0.05f;
+		}
+	}
+}
+
+void TurretAlienEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+	this->a = 200;
+	Entity::draw(level, tileset, writer);
+
+	emitSpriteQuad(writer, x, y + level.getScroll(), size, size, head, tileset.sprite(1, 6), r, g, b, 255);
 }

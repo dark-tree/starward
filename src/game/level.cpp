@@ -11,10 +11,28 @@ void Level::setState(GameState state) {
 }
 
 void Level::addEntity(Entity* entity) {
-	pending.push_back(entity);
+	pending.emplace_back(entity);
+}
+
+Entity* Level::randomAlien(glm::vec2 pos) {
+	int pick = randomInt(0, 1);
+
+	if (pick == 0) return new SweeperAlienEntity {pos.x, pos.y, randomInt(0, 2)};
+	if (pick == 1) return new TurretAlienEntity {pos.x, pos.y, randomInt(0, 2)};
+
+	return randomAlien(pos);
+}
+
+std::shared_ptr<PlayerEntity> Level::getPlayer() {
+	return player;
 }
 
 void Level::tick() {
+
+	// update player pointer
+	if (player && player->shouldRemove()) {
+		player.reset();
+	}
 
 	if (state == GameState::DEAD) {
 		age ++;
@@ -22,7 +40,7 @@ void Level::tick() {
 		age = 60;
 	}
 
-	scroll -= base_speed + skip * 4;
+	scroll -= getSpeed();
 	skip *= 0.95;
 
 	for (auto& segment : segments) {
@@ -37,7 +55,7 @@ void Level::tick() {
 
 				int level = randomInt(0, 2);
 
-				SweeperAlienEntity* alien = new SweeperAlienEntity {entity.x, entity.y, level};
+				Entity* alien = randomAlien(entity);
 				if (checkCollision(alien).type != Collision::MISS) {
 					delete alien;
 					continue;
@@ -64,7 +82,11 @@ void Level::tick() {
 	}), entities.end());
 
 	for (Entity* entity : pending) {
-		entities.emplace_back(entity);
+		std::shared_ptr<Entity>& ptr = entities.emplace_back(entity);
+
+		if (std::shared_ptr<PlayerEntity> shared_player = std::dynamic_pointer_cast<PlayerEntity>(ptr)) {
+			player = shared_player;
+		}
 	}
 
 	pending.clear();
@@ -158,6 +180,10 @@ double Level::getSkip() const {
 
 double Level::getScroll() const {
 	return scroll;
+}
+
+double Level::getSpeed() const {
+	return base_speed + skip * 4;
 }
 
 Collision Level::checkCollision(Entity* self) {

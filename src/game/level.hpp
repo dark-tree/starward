@@ -41,6 +41,8 @@ class Level {
 		static constexpr int segment_width = 128;
 		static constexpr int segment_height = 32;
 
+		using LevelSegment = Segment<segment_width, segment_height>;
+
 		GameState state = GameState::BEGIN;
 		int score = 0;
 		double base_speed = 0.75;
@@ -48,18 +50,23 @@ class Level {
 		float skip = 0;
 		int age = 0;
 
-		std::array<Segment<segment_width, segment_height>, 4> segments;
+		std::array<LevelSegment, 4> segments;
 
 		std::vector<Entity*> pending;
 		std::vector<std::shared_ptr<Entity>> entities;
+		std::shared_ptr<PlayerEntity> player;
 
 	public:
 
 		double getSkip() const;
 		double getScroll() const;
+		double getSpeed() const;
 
 		glm::ivec2 toTilePos(int x, int y);
 		glm::vec2 toEntityPos(int x, int y);
+
+		Entity* randomAlien(glm::vec2);
+		std::shared_ptr<PlayerEntity> getPlayer();
 
 		void addScore(int points);
 		void addEntity(Entity* entity);

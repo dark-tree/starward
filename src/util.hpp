@@ -30,3 +30,29 @@ inline std::string readFile(const std::string& path) {
 	fault("Unable to read file: '%s'!\n", path.c_str());
 	return {};
 }
+
+constexpr float deg(float degrees) {
+	return degrees * (M_PI / 180);
+}
+
+constexpr float lerp(float a, float b, float speed) {
+	// normalize angles to range [0, 2 PI)
+	a = fmod(a + 2 * M_PI, 2 * M_PI);
+	b = fmod(b + 2 * M_PI, 2 * M_PI);
+
+	// find the shortest arc direction
+	float delta = b - a;
+	if (delta > M_PI) {
+		delta -= 2 * M_PI;
+	} else if (delta < -M_PI) {
+		delta += 2 * M_PI;
+	}
+
+	// clamp the movement by speed
+	if (fabs(delta) <= speed) {
+		return b; // Can reach the target within this step
+	}
+
+	// move toward the target by speed
+	return a + (delta > 0 ? speed : -speed);
+}
