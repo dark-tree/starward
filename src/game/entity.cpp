@@ -218,6 +218,8 @@ void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
 	if (damage > 0) {
 		if (invulnerable <= 0) {
 			if (lives <= 0) {
+				level.setState(GameState::DEAD);
+				SoundSystem::getInstance().add(Sounds::death).play();
 				Entity::onDamage(level, damage, damager);
 			}
 
@@ -438,6 +440,7 @@ void ExtraLiveEntity::onDamage(Level& level, int damage, Entity* damager) {
 	Entity::onDamage(level, damage, damager);
 
 	Entity* parent = damager->getParent();
+	SoundSystem::getInstance().add(Sounds::coin).play();
 
 	if (parent) {
 		parent->onDamage(level, -10, this);
@@ -450,5 +453,5 @@ gls::Sprite ExtraLiveEntity::sprite(gls::TileSet& tileset) {
 
 void ExtraLiveEntity::tick(Level& level) {
 	Entity::tick(level);
-	this->angle = sin(this->age * 0.075f) * 0.8;
+	this->angle = sin(this->age * 0.07f) * 0.5;
 }

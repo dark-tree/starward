@@ -6,12 +6,17 @@ void Level::addScore(int points) {
 	this->score += points;
 }
 
+void Level::setState(GameState state) {
+	this->state = state;
+}
+
 void Level::addEntity(Entity* entity) {
 	pending.push_back(entity);
 }
 
 void Level::tick() {
 
+	age ++;
 	scroll -= base_speed + skip * 4;
 	skip *= 0.95;
 
@@ -80,6 +85,17 @@ void Level::draw(gls::TileSet& font8x8, gls::BufferWriter<gls::Vert4f4b>& text_w
 		emitSpriteQuad(text_writer, SW - 32 - i * 24, SH - 32, -20, 20, 0, font8x8.sprite(str[chars - i - 1]), 255, 255, 0, 220);
 	}
 
+	if (state == GameState::DEAD && (age % 120 < 60)) {
+		const char* over = "GAME OVER";
+		int length = strlen(over);
+
+		int start = (SW - length * 48) / 2;
+
+		for (int i = 0; i < length; i ++) {
+			emitSpriteQuad(text_writer, start + i * 48, SH / 2 + 24, -48, 48, 0, font8x8.sprite(over[i]), 255, 255, 0, 220);
+		}
+	}
+
 }
 
 glm::ivec2 Level::toTilePos(int x, int y) {
@@ -93,7 +109,7 @@ glm::vec2 Level::toEntityPos(int x, int y) {
 }
 
 uint8_t Level::get(int tx, int ty) {
-	if (tx < 0 || tx > segment_width) {
+	if (tx < 0 || tx >= segment_width) {
 		return 0;
 	}
 
@@ -107,7 +123,7 @@ uint8_t Level::get(int tx, int ty) {
 }
 
 void Level::set(int tx, int ty, uint8_t tile) {
-	if (tx < 0 || tx > segment_width) {
+	if (tx < 0 || tx >= segment_width) {
 		return;
 	}
 

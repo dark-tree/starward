@@ -13,6 +13,8 @@ void Sounds::load() {
 	damage_4 = SoundBuffer {"assets/sound/damage-4.ogg"};
 	blow_1 = SoundBuffer {"assets/sound/blow-1.ogg"};
 	blow_2 = SoundBuffer {"assets/sound/blow-2.ogg"};
+	death = SoundBuffer {"assets/sound/death.ogg"};
+	coin = SoundBuffer {"assets/sound/coin.ogg"};
 }
 
 SoundBuffer& Sounds::getRandomBlow() {
@@ -40,4 +42,5 @@ SoundBuffer Sounds::damage_3 {};
 SoundBuffer Sounds::damage_4 {};
 SoundBuffer Sounds::blow_1 {};
 SoundBuffer Sounds::blow_2 {};
-
+SoundBuffer Sounds::death {};
+SoundBuffer Sounds::coin {};

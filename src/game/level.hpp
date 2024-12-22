@@ -6,6 +6,12 @@
 #include "segment.hpp"
 #include "entity.hpp"
 
+enum struct GameState {
+	BEGIN,
+	PLAYING,
+	DEAD,
+};
+
 struct Collision {
 
 	enum Type {
@@ -35,10 +41,12 @@ class Level {
 		static constexpr int segment_width = 128;
 		static constexpr int segment_height = 32;
 
-		int score;
+		GameState state = GameState::BEGIN;
+		int score = 0;
 		double base_speed = 0.75;
 		double scroll = 0;
 		float skip = 0;
+		int age = 0;
 
 		std::array<Segment<segment_width, segment_height>, 4> segments;
 
@@ -60,5 +68,6 @@ class Level {
 		void set(int x, int y, uint8_t tile);
 		uint8_t get(int x, int y);
 		Collision checkCollision(Entity* self);
+		void setState(GameState state);
 
 };
