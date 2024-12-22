@@ -16,7 +16,12 @@ void Level::addEntity(Entity* entity) {
 
 void Level::tick() {
 
-	age ++;
+	if (state == GameState::DEAD) {
+		age ++;
+	} else {
+		age = 60;
+	}
+
 	scroll -= base_speed + skip * 4;
 	skip *= 0.95;
 
@@ -59,12 +64,13 @@ void Level::tick() {
 
 	// player input
 
-	if (gls::Input::is_pressed(Key::UP)) {
-		skip += skip * 0.1 + 0.02;
+	if (state != GameState::DEAD) {
+		if (gls::Input::is_pressed(Key::UP)) {
+			skip += skip * 0.1 + 0.02;
+		}
+
+		if (skip > 1) skip = 1;
 	}
-
-	if (skip > 1) skip = 1;
-
 }
 
 void Level::draw(gls::TileSet& font8x8, gls::BufferWriter<gls::Vert4f4b>& text_writer, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& game_writer) {
@@ -89,10 +95,16 @@ void Level::draw(gls::TileSet& font8x8, gls::BufferWriter<gls::Vert4f4b>& text_w
 		const char* over = "GAME OVER";
 		int length = strlen(over);
 
-		int start = (SW - length * 48) / 2;
+		if (age % 120 == 0) {
+			SoundSystem::getInstance().add(Sounds::beep).play();
+		}
+
+		int spacing = 8;
+		int width = 48 + spacing;
+		int start = (SW - length * width) / 2;
 
 		for (int i = 0; i < length; i ++) {
-			emitSpriteQuad(text_writer, start + i * 48, SH / 2 + 24, -48, 48, 0, font8x8.sprite(over[i]), 255, 255, 0, 220);
+			emitSpriteQuad(text_writer, start + i * width, SH / 2 + 24, -48, 48, 0, font8x8.sprite(over[i]), 255, 255, 0, 220);
 		}
 	}
 

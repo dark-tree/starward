@@ -140,7 +140,7 @@ void BulletEntity::tick(Level& level) {
 		}
 
 		glm::ivec2 pos = level.toTilePos(x, y);
-		int radius = 5;
+		int radius = isCausedByPlayer() ? 5 : 4;
 
 		for (int ox = -radius; ox <= radius; ox ++) {
 			for (int oy = -radius; oy <= radius; oy ++) {
@@ -207,7 +207,7 @@ bool PlayerEntity::isCausedByPlayer() {
 }
 
 bool PlayerEntity::shouldCollide(Entity* entity) {
-	if (invulnerable > 0) {
+	if ((invulnerable > 0) && !dynamic_cast<ExtraLiveEntity*>(entity)) {
 		return false;
 	}
 
@@ -437,13 +437,16 @@ ExtraLiveEntity::ExtraLiveEntity(double x, double y)
 }
 
 void ExtraLiveEntity::onDamage(Level& level, int damage, Entity* damager) {
-	Entity::onDamage(level, damage, damager);
+	if (damager->isCausedByPlayer()) {
+		Entity* parent = damager->getParent();
+		SoundSystem::getInstance().add(Sounds::coin).play();
 
-	Entity* parent = damager->getParent();
-	SoundSystem::getInstance().add(Sounds::coin).play();
+		if (!dead && parent) {
+			parent->onDamage(level, -10, this);
+			dead = true;
+		}
 
-	if (parent) {
-		parent->onDamage(level, -10, this);
+		Entity::onDamage(level, damage, damager);
 	}
 }
 
@@ -452,6 +455,19 @@ gls::Sprite ExtraLiveEntity::sprite(gls::TileSet& tileset) {
 }
 
 void ExtraLiveEntity::tick(Level& level) {
-	Entity::tick(level);
 	this->angle = sin(this->age * 0.07f) * 0.5;
+
+	Collision collision = level.checkCollision(this);
+
+	if (!dead && (collision.type == Collision::ENTITY)) {
+		if(PlayerEntity* player = dynamic_cast<PlayerEntity*>(collision.entity)) {
+			level.addEntity(new BlowEntity(x, y));
+			SoundSystem::getInstance().add(Sounds::coin).play();
+
+			player->onDamage(level, -10, this);
+			dead = true;
+		}
+	}
+
+	Entity::tick(level);
 }

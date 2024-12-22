@@ -18,6 +18,7 @@ namespace Sounds {
 	extern SoundBuffer blow_2;
 	extern SoundBuffer death;
 	extern SoundBuffer coin;
+	extern SoundBuffer beep;
 
 	SoundBuffer& getRandomBlow();
 	SoundBuffer& getRandomDamage();
