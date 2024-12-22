@@ -211,7 +211,7 @@ bool PlayerEntity::isCausedByPlayer() {
 }
 
 bool PlayerEntity::shouldCollide(Entity* entity) {
-	if ((invulnerable > 0) && !dynamic_cast<ExtraLiveEntity*>(entity)) {
+	if ((invulnerable > 0) && !dynamic_cast<PowerUpEntity*>(entity)) {
 		return false;
 	}
 
@@ -294,13 +294,23 @@ void PlayerEntity::tick(Level& level) {
 	this->angle = tilt * 0.2;
 
 	if ((cooldown <= 0) && gls::Input::is_pressed(Key::SPACE)) {
-		level.addEntity(new BulletEntity {11, x, y + 64, self()});
+		if (double_barrel_ticks > 0) {
+			level.addEntity(new BulletEntity {11, x - 32, y + 30, self()});
+			level.addEntity(new BulletEntity {11, x + 32, y + 30, self()});
+		} else {
+			level.addEntity(new BulletEntity{11, x, y + 48, self()});
+		}
+
 		SoundSystem::getInstance().add(Sounds::getRandomSoft()).play();
 		cooldown = 1;
 	}
 
 	if (invulnerable > 0) {
 		invulnerable --;
+	}
+
+	if (double_barrel_ticks > 0) {
+		double_barrel_ticks --;
 	}
 
 	clamp();
@@ -432,21 +442,31 @@ void TileEntity::tick(Level& level) {
 }
 
 /*
- * ExtraLiveEntity
+ * PowerUpEntity
  */
 
-ExtraLiveEntity::ExtraLiveEntity(double x, double y)
-: Entity(1, 32, x, y) {
+PowerUpEntity::PowerUpEntity(double x, double y, Type type)
+: Entity(1, 32, x, y), type(type) {
 
 }
 
-void ExtraLiveEntity::onDamage(Level& level, int damage, Entity* damager) {
+void PowerUpEntity::applyEffect(Level& level, PlayerEntity* player) {
+	if (type == Type::LIVE) {
+		player->onDamage(level, -10, this);
+	}
+
+	if (type == Type::DOUBLE_BARREL) {
+		player->double_barrel_ticks = 600;
+	}
+}
+
+void PowerUpEntity::onDamage(Level& level, int damage, Entity* damager) {
 	if (damager->isCausedByPlayer()) {
 		std::shared_ptr<Entity> parent = damager->getParent();
 		SoundSystem::getInstance().add(Sounds::coin).play();
 
 		if (!dead && parent) {
-			parent->onDamage(level, -10, this);
+			applyEffect(level, dynamic_cast<PlayerEntity*>(parent.get()));
 			dead = true;
 		}
 
@@ -454,11 +474,11 @@ void ExtraLiveEntity::onDamage(Level& level, int damage, Entity* damager) {
 	}
 }
 
-gls::Sprite ExtraLiveEntity::sprite(gls::TileSet& tileset) {
-	return tileset.sprite(0, 1);
+gls::Sprite PowerUpEntity::sprite(gls::TileSet& tileset) {
+	return tileset.sprite((int) type, 1);
 }
 
-void ExtraLiveEntity::tick(Level& level) {
+void PowerUpEntity::tick(Level& level) {
 	this->angle = sin(this->age * 0.07f) * 0.5;
 
 	Collision collision = level.checkCollision(this);
@@ -468,7 +488,7 @@ void ExtraLiveEntity::tick(Level& level) {
 			level.addEntity(new BlowEntity(x, y));
 			SoundSystem::getInstance().add(Sounds::coin).play();
 
-			player->onDamage(level, -10, this);
+			applyEffect(level, player);
 			dead = true;
 		}
 	}

@@ -87,6 +87,11 @@ class PlayerEntity : public Entity {
 
 	public:
 
+		// bonuses
+		int double_barrel_ticks = 0;
+
+	public:
+
 		PlayerEntity();
 
 		bool shouldCollide(Entity* entity) override;
@@ -116,12 +121,24 @@ class TileEntity : public Entity {
 
 };
 
-class ExtraLiveEntity : public Entity {
+class PowerUpEntity : public Entity {
 
 	public:
 
-		ExtraLiveEntity(double x, double y);
+		enum Type {
+			LIVE = 0,
+			DOUBLE_BARREL = 1,
+		};
 
+	private:
+
+		Type type;
+
+	public:
+
+		PowerUpEntity(double x, double y, Type type);
+
+		void applyEffect(Level& level, PlayerEntity* player);
 		void onDamage(Level& level, int damage, Entity* damager) override;
 		gls::Sprite sprite(gls::TileSet& tileset) override;
 		void tick(Level& level) override;
