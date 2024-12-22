@@ -6,15 +6,19 @@ namespace Sounds {
 
 	void load();
 
-	extern SoundBuffer hit_0;
-	extern SoundBuffer hit_1;
-	extern SoundBuffer hit_2;
-	extern SoundBuffer hit_3;
-	extern SoundBuffer hit_4;
-	extern SoundBuffer hit_5;
-	extern SoundBuffer hit_6;
-	extern SoundBuffer hit_7;
-	extern SoundBuffer hit_8;
-	extern SoundBuffer hit_9;
+	extern SoundBuffer soft_1;
+	extern SoundBuffer soft_2;
+	extern SoundBuffer soft_3;
+	extern SoundBuffer soft_4;
+	extern SoundBuffer damage_1;
+	extern SoundBuffer damage_2;
+	extern SoundBuffer damage_3;
+	extern SoundBuffer damage_4;
+	extern SoundBuffer blow_1;
+	extern SoundBuffer blow_2;
+
+	SoundBuffer& getRandomBlow();
+	SoundBuffer& getRandomDamage();
+	SoundBuffer& getRandomSoft();
 
 };

@@ -16,7 +16,26 @@ void Level::tick() {
 	skip *= 0.95;
 
 	for (auto& segment : segments) {
-		segment.tick(scroll);
+
+		// returns true when it is regenerated, populate with entities
+		if (segment.tick(scroll)) {
+
+			// try adding enemies
+			for (int i = 0; i < 1; i ++) {
+				glm::ivec2 tile = segment.getRandomPos();
+				glm::vec2 entity = toEntityPos(tile.x, tile.y);
+
+				int level = randomInt(0, 2);
+
+				SweeperAlienEntity* alien = new SweeperAlienEntity {entity.x, entity.y, level};
+				if (checkCollision(alien).type != Collision::MISS) {
+					delete alien;
+					continue;
+				}
+
+				addEntity(alien);
+			}
+		}
 	}
 
 	for (auto& entity : entities) {

@@ -12,6 +12,7 @@ class Entity {
 		float r, g, b, a;
 		float angle = 0;
 
+		bool visible = false;
 		bool dead = false;
 		long age = 0;
 

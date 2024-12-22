@@ -108,6 +108,13 @@ class Segment {
 			generate();
 		}
 
+		glm::ivec2 getRandomPos() {
+			int x = randomInt(0, W);
+			int y = randomInt(0, H);
+
+			return {x, y + index * H};
+		}
+
 		bool contains(int y) {
 			return (y >= index * H) && (y < (index + 1) * H);
 		}
@@ -120,14 +127,17 @@ class Segment {
 			return at(sx, sy - index * H);
 		}
 
-		void tick(double scroll) {
+		bool tick(double scroll) {
 			double height = H * size();
 
 			if ((index + 1) * height + scroll < 0) {
 				index = next();
 				generate();
 				printf("Segment %d loaded\n", index);
+				return true;
 			}
+
+			return false;
 		}
 
 		void draw(double scroll, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {

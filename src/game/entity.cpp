@@ -78,8 +78,15 @@ void Entity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Ve
 }
 
 void Entity::tick(Level& level) {
-	if (level.getScroll() + y < -size) {
+	float wy = level.getScroll() + y;
+	visible = (wy < SH);
+
+	if (wy < -size) {
 		dead = true;
+	}
+
+	if (dead) {
+		visible = false;
 	}
 
 	age += 1;
@@ -126,7 +133,7 @@ void BulletEntity::tick(Level& level) {
 
 	if (collision.type != Collision::MISS) {
 		level.addEntity(new BlowEntity(x, y));
-		SoundSystem::getInstance().add(Sounds::hit_1).play();
+		SoundSystem::getInstance().add(Sounds::getRandomDamage()).play();
 
 		if (collision.entity) {
 			collision.entity->onDamage(level, 1, this);
@@ -214,7 +221,7 @@ void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
 				Entity::onDamage(level, damage, damager);
 			}
 
-			SoundSystem::getInstance().add(Sounds::hit_4).play();
+			SoundSystem::getInstance().add(Sounds::getRandomBlow()).play();
 			lives--;
 			invulnerable = 300;
 		}
@@ -282,7 +289,7 @@ void PlayerEntity::tick(Level& level) {
 
 	if ((cooldown <= 0) && gls::Input::is_pressed(Key::SPACE)) {
 		level.addEntity(new BulletEntity {11, x, y + 64, this});
-		SoundSystem::getInstance().add(Sounds::hit_0).play();
+		SoundSystem::getInstance().add(Sounds::getRandomSoft()).play();
 		cooldown = 1;
 	}
 
@@ -310,12 +317,13 @@ SweeperAlienEntity::SweeperAlienEntity(double x, double y, int evolution)
 }
 
 void SweeperAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
+	if (damager && !damager->isCausedByPlayer()) {
+		facing *= -1;
+		return;
+	}
+
 	health --;
 	bump = 4;
-
-//	if (damager && damager->isCausedByPlayer()) {
-//		level.addScore(5);
-//	}
 
 	if (health <= 0) {
 		this->dead = true;
@@ -331,7 +339,10 @@ gls::Sprite SweeperAlienEntity::sprite(gls::TileSet& tileset) {
 }
 
 void SweeperAlienEntity::tick(Level& level) {
-	move(level, facing * 2, bump);
+
+	float speed = evolution > 1 ? 2 : 1;
+
+	move(level, facing * speed, bump);
 
 	if (this->bump > 0) {
 		this->bump -= 0.1;
@@ -362,8 +373,12 @@ void SweeperAlienEntity::tick(Level& level) {
 			bx += (count % 2 == 1 ? -size : size) * 0.3f;
 		}
 
-		level.addEntity(new BulletEntity {-3, bx, y - 24, this});
+		if (visible) {
+			level.addEntity(new BulletEntity{-3, bx, y - 24, this});
+		}
 	}
+
+	Entity::tick(level);
 }
 
 /*
