@@ -445,6 +445,14 @@ void TileEntity::tick(Level& level) {
  * PowerUpEntity
  */
 
+PowerUpEntity::Type PowerUpEntity::randomPick() {
+	int pick = randomInt(0, 100);
+	if (pick >=   0 && pick <=  40) return LIVE;
+	if (pick >=  40 && pick <= 100) return DOUBLE_BARREL;
+
+	return randomPick();
+}
+
 PowerUpEntity::PowerUpEntity(double x, double y, Type type)
 : Entity(1, 32, x, y), type(type) {
 

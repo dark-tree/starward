@@ -108,8 +108,8 @@ class Segment {
 			generate();
 		}
 
-		glm::ivec2 getRandomPos() {
-			int x = randomInt(0, W);
+		glm::ivec2 getRandomPos(int margin) {
+			int x = randomInt(margin, W - margin);
 			int y = randomInt(0, H);
 
 			return {x, y + index * H};

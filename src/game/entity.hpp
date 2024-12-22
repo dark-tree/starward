@@ -130,6 +130,8 @@ class PowerUpEntity : public Entity {
 			DOUBLE_BARREL = 1,
 		};
 
+		static Type randomPick();
+
 	private:
 
 		Type type;

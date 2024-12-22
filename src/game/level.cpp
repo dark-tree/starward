@@ -32,7 +32,7 @@ void Level::tick() {
 
 			// try adding enemies
 			for (int i = 0; i < 1; i ++) {
-				glm::ivec2 tile = segment.getRandomPos();
+				glm::ivec2 tile = segment.getRandomPos(1);
 				glm::vec2 entity = toEntityPos(tile.x, tile.y);
 
 				int level = randomInt(0, 2);
@@ -44,6 +44,13 @@ void Level::tick() {
 				}
 
 				addEntity(alien);
+			}
+
+			while (randomInt(0, 40) == 0) {
+				glm::ivec2 tile = segment.getRandomPos(6);
+				glm::vec2 entity = toEntityPos(tile.x, tile.y);
+
+				addEntity(new PowerUpEntity(entity.x, entity.y, PowerUpEntity::randomPick()));
 			}
 		}
 	}
