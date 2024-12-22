@@ -51,7 +51,7 @@ class Level {
 		std::array<Segment<segment_width, segment_height>, 4> segments;
 
 		std::vector<Entity*> pending;
-		std::vector<std::unique_ptr<Entity>> entities;
+		std::vector<std::shared_ptr<Entity>> entities;
 
 	public:
 

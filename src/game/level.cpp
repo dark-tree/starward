@@ -63,7 +63,6 @@ void Level::tick() {
 	pending.clear();
 
 	// player input
-
 	if (state != GameState::DEAD) {
 		if (gls::Input::is_pressed(Key::UP)) {
 			skip += skip * 0.1 + 0.02;

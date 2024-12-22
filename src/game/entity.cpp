@@ -65,7 +65,7 @@ bool Entity::isCausedByPlayer() {
 	return false;
 }
 
-Entity* Entity::getParent() {
+std::shared_ptr<Entity> Entity::getParent() {
 	return nullptr;
 }
 
@@ -92,11 +92,15 @@ void Entity::tick(Level& level) {
 	age += 1;
 }
 
+std::shared_ptr<Entity> Entity::self() {
+	return shared_from_this();
+}
+
 /*
  * BulletEntity
  */
 
-BulletEntity::BulletEntity(float velocity, double x, double y, Entity* parent)
+BulletEntity::BulletEntity(float velocity, double x, double y, const std::shared_ptr<Entity>& parent)
 : Entity(1, 8, x, y) {
 	this->parent = parent;
 	this->velocity = velocity;
@@ -118,7 +122,7 @@ bool BulletEntity::isCausedByPlayer() {
 	return parent && parent->isCausedByPlayer();
 }
 
-Entity* BulletEntity::getParent() {
+std::shared_ptr<Entity> BulletEntity::getParent() {
 	return parent;
 }
 
@@ -290,7 +294,7 @@ void PlayerEntity::tick(Level& level) {
 	this->angle = tilt * 0.2;
 
 	if ((cooldown <= 0) && gls::Input::is_pressed(Key::SPACE)) {
-		level.addEntity(new BulletEntity {11, x, y + 64, this});
+		level.addEntity(new BulletEntity {11, x, y + 64, self()});
 		SoundSystem::getInstance().add(Sounds::getRandomSoft()).play();
 		cooldown = 1;
 	}
@@ -376,7 +380,7 @@ void SweeperAlienEntity::tick(Level& level) {
 		}
 
 		if (visible) {
-			level.addEntity(new BulletEntity{-3, bx, y - 24, this});
+			level.addEntity(new BulletEntity{-3, bx, y - 24, self()});
 		}
 	}
 
@@ -438,7 +442,7 @@ ExtraLiveEntity::ExtraLiveEntity(double x, double y)
 
 void ExtraLiveEntity::onDamage(Level& level, int damage, Entity* damager) {
 	if (damager->isCausedByPlayer()) {
-		Entity* parent = damager->getParent();
+		std::shared_ptr<Entity> parent = damager->getParent();
 		SoundSystem::getInstance().add(Sounds::coin).play();
 
 		if (!dead && parent) {

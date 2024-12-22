@@ -5,7 +5,7 @@
 
 class Level;
 
-class Entity {
+class Entity : public std::enable_shared_from_this<Entity> {
 
 	protected:
 
@@ -36,11 +36,13 @@ class Entity {
 		virtual void onDamage(Level& level, int damage, Entity* damager);
 
 		virtual bool isCausedByPlayer();
-		virtual Entity* getParent();
+		virtual std::shared_ptr<Entity> getParent();
 
 		virtual gls::Sprite sprite(gls::TileSet& tileset);
 		virtual void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer);
 		virtual void tick(Level& level);
+
+		std::shared_ptr<Entity> self();
 
 };
 
@@ -48,15 +50,15 @@ class BulletEntity : public Entity {
 
 	private:
 
-		Entity* parent;
+		std::shared_ptr<Entity> parent;
 		float velocity;
 
 	public:
 
-		BulletEntity(float velocity, double x, double y, Entity* except);
+		BulletEntity(float velocity, double x, double y, const std::shared_ptr<Entity>& except);
 
 		bool isCausedByPlayer() override;
-		Entity* getParent() override;
+		std::shared_ptr<Entity> getParent() override;
 		void tick(Level& level) override;
 
 };
