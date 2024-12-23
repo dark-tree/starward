@@ -5,6 +5,7 @@
 
 #include "segment.hpp"
 #include "entity.hpp"
+#include "biome.hpp"
 
 enum struct GameState {
 	BEGIN,
@@ -45,12 +46,17 @@ class Level {
 
 	private:
 
+		BiomeManager& manager;
+
 		GameState state = GameState::BEGIN;
 		int score = 0;
-		double base_speed = 0.75;
+		double base_speed = 0.8;
 		double scroll = 0;
 		float skip = 0;
+		float biome_speed = 0;
 		int age = 0;
+
+		int total = 0;
 
 		std::array<LevelSegment, 4> segments;
 
@@ -59,6 +65,11 @@ class Level {
 		std::shared_ptr<PlayerEntity> player;
 
 	public:
+
+		Level(BiomeManager& manager);
+
+//		double getLocalDifficulty();
+//		double getTotalDifficulty();
 
 		double getSkip() const;
 		double getScroll() const;

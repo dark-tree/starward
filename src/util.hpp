@@ -35,7 +35,7 @@ constexpr float deg(float degrees) {
 	return degrees * (M_PI / 180);
 }
 
-constexpr float lerp(float a, float b, float speed) {
+constexpr float slerp(float a, float b, float speed) {
 	// normalize angles to range [0, 2 PI)
 	a = fmod(a + 2 * M_PI, 2 * M_PI);
 	b = fmod(b + 2 * M_PI, 2 * M_PI);

@@ -330,7 +330,7 @@ void PlayerEntity::tick(Level& level) {
 			level.addEntity(new BulletEntity {11, x - 32, y + 30, self()});
 			level.addEntity(new BulletEntity {11, x + 32, y + 30, self()});
 		} else {
-			level.addEntity(new BulletEntity{11, x, y + 48, self()});
+			level.addEntity(new BulletEntity {11, x, y + 48, self()});
 		}
 
 		SoundSystem::getInstance().add(Sounds::getRandomSoft()).play();
@@ -613,7 +613,7 @@ void TurretAlienEntity::tick(Level& level) {
 		// try to be sneaky and target future position
 		float oy = level.getSpeed() * (glm::length(dir) - radius) / bullet;
 		target = deg(90) - std::atan2(dir.y + oy, dir.x);
-		head = lerp(head, target, deg(1 + evolution));
+		head = slerp(head, target, deg(1 + evolution));
 
 		if (cooldown <= 0) {
 			cooldown = 4.05f - evolution;

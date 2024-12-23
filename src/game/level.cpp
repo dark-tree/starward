@@ -1,6 +1,12 @@
 #include "level.hpp"
 #include "sounds.hpp"
 #include "emitter.hpp"
+#include "biome.hpp"
+
+Level::Level(BiomeManager& manager)
+: manager(manager) {
+	manager.tick(0);
+}
 
 void Level::addScore(int points) {
 	this->score += points;
@@ -15,24 +21,26 @@ void Level::addEntity(Entity* entity) {
 }
 
 Entity* Level::randomAlien(int margin, LevelSegment& segment) {
-	int pick = randomInt(0, 1);
+	Alien alien = manager.getAlien();
+	Evolution evolution = manager.getEvolution();
 
-	if (pick == 0) {
+	if (alien == Alien::SWEEPER) {
 		glm::ivec2 tile = segment.getRandomPos(margin);
 		glm::vec2 pos = toEntityPos(tile.x, tile.y);
 
-		return new SweeperAlienEntity {pos.x, pos.y, randomInt(0, 2)};
+		return new SweeperAlienEntity {pos.x, pos.y, (int) evolution};
 	}
 
-	if (pick == 1) {
+	if (alien == Alien::TURRET) {
 		glm::ivec2 tile = segment.getRandomTurretPos(margin);
 		glm::vec2 pos = toEntityPos(tile.x, tile.y);
 
+		// failed to find valid turret placement
 		if (tile.x == 0 && tile.y == 0) {
-			return nullptr;
+			return randomAlien(margin, segment);
 		}
 
-		return new TurretAlienEntity {pos.x, pos.y, randomInt(0, 2)};
+		return new TurretAlienEntity {pos.x, pos.y, (int) evolution};
 	}
 
 	return randomAlien(margin, segment);
@@ -55,16 +63,18 @@ void Level::tick() {
 		age = 60;
 	}
 
+	biome_speed = manager.getBonusSpeed();
 	scroll -= getSpeed();
 	skip *= 0.95;
 
 	for (auto& segment : segments) {
 
 		// returns true when it is regenerated, populate with entities
-		if (segment.tick(scroll)) {
+		if (segment.tick(scroll, manager.getTerrain())) {
+			int count = manager.getEnemyCount();
 
 			// try adding enemies
-			for (int i = 0; i < 1; i ++) {
+			for (int i = 0; i < count; i ++) {
 				Entity* alien = randomAlien(1, segment);
 
 				if (alien) {
@@ -77,12 +87,16 @@ void Level::tick() {
 				}
 			}
 
-			while (randomInt(0, 40) == 0) {
+			// place powerups
+			while (randomInt(0, manager.getPowerUpRarity()) == 0) {
 				glm::ivec2 tile = segment.getRandomPos(6);
 				glm::vec2 entity = toEntityPos(tile.x, tile.y);
 
 				addEntity(new PowerUpEntity(entity.x, entity.y, PowerUpEntity::randomPick()));
 			}
+
+			// prepare for the next segment
+			manager.tick(++ total);
 		}
 	}
 
@@ -196,7 +210,8 @@ double Level::getScroll() const {
 }
 
 double Level::getSpeed() const {
-	return base_speed + skip * 4;
+	float v = std::min(1.0f, total * 0.01f);
+	return base_speed + skip * 4 + v * 2 + biome_speed;
 }
 
 Collision Level::checkCollision(Entity* self) {

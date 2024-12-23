@@ -38,13 +38,11 @@ class Segment {
 			writer.push({tx, ty, s.min_u, s.min_v, 255, 255, 255, 255});
 		}
 
-		void generate() {
+		void generate(float low, float high) {
 			memset(tiles, 0, W * H);
 
 			float slope = 16.0f;
 			float effect = (slope - std::max(0.0f, slope - index)) / slope;
-
-			int count = 3;
 
 			for (int x = 0; x < W; x ++) {
 				for (int y = 0; y < H; y ++) {
@@ -58,9 +56,6 @@ class Segment {
 					}
 
 					float nc = n1 + n2 + n3;
-
-					float low = 0.0;
-					float high = 0.25; // 0/0.25 0/0.33 0.1/0.4 0.25/0.4 0.4/0.5 0.45/0.8
 
 					if (nc < high && nc > low) {
 						float vein = glm::perlin(glm::vec2 {x * 0.05, (y + index * H) * 0.1f});
@@ -83,34 +78,19 @@ class Segment {
 				}
 			}
 
-			for (int i = 0; i < 100; i ++) {
-				int x = randomInt(2, W - 2);
-				int y = randomInt(2, H - 2);
-
-				uint8_t& tile = at(x, y);
-
-				if (tile == 1) {
-//					if (generateOre(x, y)) {
-//						count --;
-//					}
-				}
-
-				if (count == 0) {
-					break;
-				}
-			}
+			printf("Segment %d generated, low=%f, high=%f\n", index, low, high);
 		}
 
 	public:
 
 		Segment() {
 			index = next();
-			generate();
+			generate(0, 0.25);
 		}
 
 		glm::ivec2 getRandomPos(int margin) {
 			int x = randomInt(margin, W - margin);
-			int y = randomInt(0, H);
+			int y = randomInt(0, H - 1);
 
 			return {x, y + index * H};
 		}
@@ -142,7 +122,7 @@ class Segment {
 				}
 			}
 
-			printf("Failed to find matching\n");
+			printf("Failed to find turret placement spot!\n");
 			return {0, 0};
 		}
 
@@ -158,13 +138,12 @@ class Segment {
 			return at(sx, sy - index * H);
 		}
 
-		bool tick(double scroll) {
+		bool tick(double scroll, glm::vec2 terrain) {
 			double height = H * size();
 
 			if ((index + 1) * height + scroll < 0) {
 				index = next();
-				generate();
-				printf("Segment %d loaded\n", index);
+				generate(terrain.r, terrain.g);
 				return true;
 			}
 
