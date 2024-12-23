@@ -67,3 +67,31 @@ inline void randomBuffer(int* buffer, int size) {
 		std::swap(buffer[i], buffer[randomInt(0, i)]);
 	}
 }
+
+inline std::vector<glm::ivec2> trace(const glm::ivec2 start, const glm::ivec2 end) {
+	std::vector<glm::ivec2> points;
+
+	int dx = abs(end.x - start.x);
+	int dy = abs(end.y - start.y);
+	int sx = (start.x < end.x) ? 1 : -1;
+	int sy = (start.y < end.y) ? 1 : -1;
+	int err = dx - dy;
+
+	glm::ivec2 current = start;
+	while (true) {
+		points.push_back(current);
+		if (current == end) break;
+
+		int e2 = 2 * err;
+		if (e2 > -dy) {
+			err -= dy;
+			current.x += sx;
+		}
+		if (e2 < dx) {
+			err += dx;
+			current.y += sy;
+		}
+	}
+
+	return points;
+}

@@ -131,6 +131,22 @@ std::shared_ptr<Entity> BulletEntity::getParent() {
 	return parent;
 }
 
+bool BulletEntity::isTileProtected(Level& level, glm::ivec2 pos, int tx, int ty) {
+	glm::ivec2 end {tx, ty};
+
+	for (glm::ivec2 point : trace(pos, end)) {
+		if (level.get(point.x, point.y) == 2) {
+			if (point == pos || point == end) {
+				continue;
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void BulletEntity::tick(Level& level) {
 
 	x += velocity * cos(deg(270) - angle);
@@ -153,6 +169,8 @@ void BulletEntity::tick(Level& level) {
 		glm::ivec2 pos = level.toTilePos(x, y);
 		int radius = isCausedByPlayer() ? 5 : 4;
 
+		std::vector<glm::ivec2> broken;
+
 		for (int ox = -radius; ox <= radius; ox ++) {
 			for (int oy = -radius; oy <= radius; oy ++) {
 				if (sqrt(ox * ox + oy * oy) < radius) {
@@ -161,15 +179,22 @@ void BulletEntity::tick(Level& level) {
 					int ty = pos.y + oy;
 
 					uint8_t tile = level.get(tx, ty);
-					glm::ivec2 vec = level.toEntityPos(tx, ty);
 
-					if (tile) {
-						level.set(tx, ty, 0);
-						level.addEntity(new TileEntity(x, y, tile, vec.x, vec.y));
+					if (tile != 0) {
+						if (!isTileProtected(level, pos, tx, ty)) {
+							broken.emplace_back(tx, ty);
+						}
 					}
-
 				}
 			}
+		}
+
+		for (glm::ivec2 pos : broken) {
+			glm::ivec2 vec = level.toEntityPos(pos.x, pos.y);
+			uint8_t tile = level.get(pos.x, pos.y);
+
+			level.set(pos.x, pos.y, 0);
+			level.addEntity(new TileEntity(x, y, tile, vec.x, vec.y));
 		}
 
 		dead = true;

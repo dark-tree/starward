@@ -54,6 +54,8 @@ class BulletEntity : public Entity {
 		std::shared_ptr<Entity> parent;
 		float velocity;
 
+		bool isTileProtected(Level& level, glm::ivec2 pos, int tx, int ty);
+
 	public:
 
 		BulletEntity(float velocity, double x, double y, const std::shared_ptr<Entity>& except, float angle = deg(180));
