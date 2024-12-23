@@ -40,6 +40,10 @@ void Entity::clamp() {
 	}
 }
 
+bool Entity::checkPlacement(Level& level) {
+	return false;
+}
+
 bool Entity::shouldCollide(Entity* entity) {
 	float ts = this->size / 2;
 	float es = entity->size / 2;
@@ -335,6 +339,10 @@ SweeperAlienEntity::SweeperAlienEntity(double x, double y, int evolution)
 	this->health += evolution;
 }
 
+bool SweeperAlienEntity::checkPlacement(Level& level) {
+	return level.checkCollision(this).type == Collision::MISS;
+}
+
 void SweeperAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
 	if (damager && !damager->isCausedByPlayer()) {
 		facing *= -1;
@@ -372,6 +380,21 @@ void SweeperAlienEntity::tick(Level& level) {
 	this->cooldown -= 0.05f;
 
 	Collision collision = level.checkCollision(this);
+
+	if (collision.type == Collision::MISS) {
+		buried = 0;
+	}
+
+	if (collision.type == Collision::TILE) {
+		buried ++;
+
+		if (buried > 120) {
+			dead = true;
+			level.addEntity(new BlowEntity(x, y));
+			SoundSystem::getInstance().add(Sounds::getRandomBlow()).play();
+			return;
+		}
+	}
 
 	if ((x < 0) || (x > SW) || collision.type != Collision::MISS) {
 		facing *= -1;
@@ -426,10 +449,6 @@ void TileEntity::tick(Level& level) {
 	this->fx *= 0.9f;
 	this->fy *= 0.9f;
 
-//	if (!dead || level.checkCollision(this)) {
-//		dead = true;
-//	}
-
 	float max_age = 10;
 	this->a = 255 * (max_age - age) / max_age;
 
@@ -459,6 +478,10 @@ PowerUpEntity::Type PowerUpEntity::randomPick() {
 PowerUpEntity::PowerUpEntity(double x, double y, Type type)
 : Entity(1, 32, x, y), type(type) {
 
+}
+
+bool PowerUpEntity::checkPlacement(Level& level) {
+	return true;
 }
 
 void PowerUpEntity::applyEffect(Level& level, PlayerEntity* player) {
@@ -521,12 +544,37 @@ TurretAlienEntity::TurretAlienEntity(double x, double y, int evolution)
 	this->evolution = evolution;
 }
 
+bool TurretAlienEntity::checkPlacement(Level& level) {
+	Collision collision = level.checkCollision(this);
+
+	if (collision.type == Collision::ENTITY) {
+		return false;
+	}
+
+	return true;
+}
+
 void TurretAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
-	this->dead = true;
+	if (damager && damager->isCausedByPlayer()) {
+		level.addScore(100);
+		this->dead = true;
+	}
 }
 
 gls::Sprite TurretAlienEntity::sprite(gls::TileSet& tileset) {
 	return tileset.sprite(0, 6);
+}
+
+void TurretAlienEntity::shoot(Level& level, float speed, float radius, float offset) {
+
+	// calculate shooting position
+	float angle = deg(90) - head + offset;
+	float dx = radius * cos(angle);
+	float dy = radius * sin(angle);
+
+	// create bullet
+	level.addEntity(new BulletEntity {-speed, x + dx, y + dy, self(), head});
+
 }
 
 void TurretAlienEntity::tick(Level& level) {
@@ -535,22 +583,31 @@ void TurretAlienEntity::tick(Level& level) {
 	if (std::shared_ptr<PlayerEntity> player = level.getPlayer()) {
 		glm::vec2 dir {player->x - x, player->y - y};
 		float bullet = 5;
+		float radius = 32;
 
 		// try to be sneaky and target future position
-		float oy = level.getSpeed() * glm::length(dir) / bullet;
+		float oy = level.getSpeed() * (glm::length(dir) - radius) / bullet;
 		target = deg(90) - std::atan2(dir.y + oy, dir.x);
-		head = lerp(head, target, deg(1));
-
-		float angle = deg(90) - head;
-		float dx = 48 * cos(angle);
-		float dy = 48 * sin(angle);
+		head = lerp(head, target, deg(1 + evolution));
 
 		if (cooldown <= 0) {
-			cooldown = 4.0f - evolution;
-			level.addEntity(new BulletEntity {-bullet, x + dx, y + dy, self(), head});
-		} else {
-			this->cooldown -= 0.05f;
+			cooldown = 4.05f - evolution;
+
+			if (evolution >= 2) {
+				barrel = -barrel;
+				cooldown /= 2;
+
+				if (barrel == 1) {
+					shoot(level, bullet, radius, -deg(20));
+				} else {
+					shoot(level, bullet, radius, +deg(20));
+				}
+			} else {
+				shoot(level, bullet, radius, 0);
+			}
 		}
+
+		this->cooldown -= 0.05f;
 	}
 }
 
@@ -558,5 +615,5 @@ void TurretAlienEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWri
 	this->a = 200;
 	Entity::draw(level, tileset, writer);
 
-	emitSpriteQuad(writer, x, y + level.getScroll(), size, size, head, tileset.sprite(1, 6), r, g, b, 255);
+	emitSpriteQuad(writer, x, y + level.getScroll(), size, size, head, tileset.sprite(evolution + 1, 6), r, g, b, 255);
 }

@@ -36,12 +36,14 @@ struct Collision {
 
 class Level {
 
-	private:
+	public:
 
 		static constexpr int segment_width = 128;
 		static constexpr int segment_height = 32;
 
 		using LevelSegment = Segment<segment_width, segment_height>;
+
+	private:
 
 		GameState state = GameState::BEGIN;
 		int score = 0;
@@ -65,7 +67,7 @@ class Level {
 		glm::ivec2 toTilePos(int x, int y);
 		glm::vec2 toEntityPos(int x, int y);
 
-		Entity* randomAlien(glm::vec2);
+		Entity* randomAlien(int margin, LevelSegment& segment);
 		std::shared_ptr<PlayerEntity> getPlayer();
 
 		void addScore(int points);

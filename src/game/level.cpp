@@ -14,13 +14,28 @@ void Level::addEntity(Entity* entity) {
 	pending.emplace_back(entity);
 }
 
-Entity* Level::randomAlien(glm::vec2 pos) {
+Entity* Level::randomAlien(int margin, LevelSegment& segment) {
 	int pick = randomInt(0, 1);
 
-	if (pick == 0) return new SweeperAlienEntity {pos.x, pos.y, randomInt(0, 2)};
-	if (pick == 1) return new TurretAlienEntity {pos.x, pos.y, randomInt(0, 2)};
+	if (pick == 0) {
+		glm::ivec2 tile = segment.getRandomPos(margin);
+		glm::vec2 pos = toEntityPos(tile.x, tile.y);
 
-	return randomAlien(pos);
+		return new SweeperAlienEntity {pos.x, pos.y, randomInt(0, 2)};
+	}
+
+	if (pick == 1) {
+		glm::ivec2 tile = segment.getRandomTurretPos(margin);
+		glm::vec2 pos = toEntityPos(tile.x, tile.y);
+
+		if (tile.x == 0 && tile.y == 0) {
+			return nullptr;
+		}
+
+		return new TurretAlienEntity {pos.x, pos.y, randomInt(0, 2)};
+	}
+
+	return randomAlien(margin, segment);
 }
 
 std::shared_ptr<PlayerEntity> Level::getPlayer() {
@@ -50,18 +65,16 @@ void Level::tick() {
 
 			// try adding enemies
 			for (int i = 0; i < 1; i ++) {
-				glm::ivec2 tile = segment.getRandomPos(1);
-				glm::vec2 entity = toEntityPos(tile.x, tile.y);
+				Entity* alien = randomAlien(1, segment);
 
-				int level = randomInt(0, 2);
+				if (alien) {
+					if (!alien->checkPlacement(*this)) {
+						delete alien;
+						continue;
+					}
 
-				Entity* alien = randomAlien(entity);
-				if (checkCollision(alien).type != Collision::MISS) {
-					delete alien;
-					continue;
+					addEntity(alien);
 				}
-
-				addEntity(alien);
 			}
 
 			while (randomInt(0, 40) == 0) {

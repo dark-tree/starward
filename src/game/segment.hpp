@@ -115,6 +115,37 @@ class Segment {
 			return {x, y + index * H};
 		}
 
+		glm::ivec2 getRandomTurretPos(int margin) {
+
+			int column = 0;
+			int buffer[W];
+			randomBuffer(buffer, W);
+
+			while (column < W) {
+				int match = 0;
+				bool table[7] = {true, true, true, true, false, false, false};
+
+				int x = buffer[column ++];
+				if (x < margin) continue;
+				if (x > W - margin) break;
+
+				for (int y = 0; y < H; y++) {
+					bool air = (at(x, y) == 0);
+
+					if (air != table[match++]) {
+						match = 0;
+					}
+
+					if (match == 7) {
+						return {x, y + index * H - 4};
+					}
+				}
+			}
+
+			printf("Failed to find matching\n");
+			return {0, 0};
+		}
+
 		bool contains(int y) {
 			return (y >= index * H) && (y < (index + 1) * H);
 		}

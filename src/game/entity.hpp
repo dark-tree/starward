@@ -30,6 +30,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
 
 		void move(Level& level, float x, float y);
 		void clamp();
+		virtual bool checkPlacement(Level& level);
 
 		bool shouldRemove() const;
 		virtual bool shouldCollide(Entity* entity);
@@ -140,6 +141,8 @@ class PowerUpEntity : public Entity {
 
 		PowerUpEntity(double x, double y, Type type);
 
+		bool checkPlacement(Level& level) override;
+
 		void applyEffect(Level& level, PlayerEntity* player);
 		void onDamage(Level& level, int damage, Entity* damager) override;
 		gls::Sprite sprite(gls::TileSet& tileset) override;
@@ -157,10 +160,13 @@ class SweeperAlienEntity : public Entity {
 		int count = 0;
 		float facing = 1;
 		float cooldown = 1;
+		int buried = 0;
 
 	public:
 
 		SweeperAlienEntity(double x, double y, int evolution);
+
+		bool checkPlacement(Level& level) override;
 
 		void onDamage(Level& level, int damage, Entity* damager) override;
 		gls::Sprite sprite(gls::TileSet& tileset) override;
@@ -175,12 +181,17 @@ class TurretAlienEntity : public Entity {
 		int evolution; // 0, 1, 2
 		float cooldown = 1;
 
+		int barrel = 1;
 		float target = -deg(180); // desired rotation
 		float head = -deg(180); // current rotation
+
+		void shoot(Level& level, float speed, float radius, float angle);
 
 	public:
 
 		TurretAlienEntity(double x, double y, int evolution);
+
+		bool checkPlacement(Level& level) override;
 
 		void onDamage(Level& level, int damage, Entity* damager) override;
 		gls::Sprite sprite(gls::TileSet& tileset) override;

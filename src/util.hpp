@@ -56,3 +56,14 @@ constexpr float lerp(float a, float b, float speed) {
 	// move toward the target by speed
 	return a + (delta > 0 ? speed : -speed);
 }
+
+inline void randomBuffer(int* buffer, int size) {
+	for (int i = 0; i < size; ++i) {
+		buffer[i] = i;
+	}
+
+	// Perform Fisher-Yates shuffle
+	for (int i = size - 1; i > 0; i --) {
+		std::swap(buffer[i], buffer[randomInt(0, i)]);
+	}
+}
