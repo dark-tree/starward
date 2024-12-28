@@ -376,6 +376,7 @@ void SweeperAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
 
 	health --;
 	bump = 4;
+	attacked = true;
 
 	if (health <= 0) {
 		this->dead = true;
@@ -417,6 +418,11 @@ void SweeperAlienEntity::tick(Level& level) {
 			dead = true;
 			level.addEntity(new BlowEntity(x, y));
 			SoundSystem::getInstance().add(Sounds::getRandomBlow()).play();
+
+			if (attacked) {
+				level.addScore(200);
+			}
+
 			return;
 		}
 	}

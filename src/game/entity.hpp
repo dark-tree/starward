@@ -163,6 +163,7 @@ class SweeperAlienEntity : public Entity {
 		float facing = 1;
 		float cooldown = 1;
 		int buried = 0;
+		bool attacked = false;
 
 	public:
 
