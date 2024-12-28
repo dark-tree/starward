@@ -49,7 +49,9 @@ class Level {
 		BiomeManager& manager;
 
 		GameState state = GameState::BEGIN;
+		float aliveness = 1.0f;
 		int score = 0;
+		int hi = 0;
 		double base_speed = 0.8;
 		double scroll = 0;
 		float skip = 0;

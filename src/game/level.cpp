@@ -5,15 +5,30 @@
 
 Level::Level(BiomeManager& manager)
 : manager(manager) {
+	std::string hi_str = platform_read("hi");
+
+	if (hi_str.length() > 0) {
+		hi = std::stoi(hi_str);
+	}
+
 	manager.tick(0);
 }
 
 void Level::addScore(int points) {
-	this->score += points;
+	if (state != GameState::DEAD) {
+		this->score += points;
+	}
 }
 
 void Level::setState(GameState state) {
 	this->state = state;
+
+	if (state == GameState::DEAD) {
+		if (score > hi) {
+			printf("New hi-score set: %d points (was: %d points)!\n", score, hi);
+			platform_write("hi", std::to_string(score));
+		}
+	}
 }
 
 void Level::addEntity(Entity* entity) {
@@ -59,8 +74,11 @@ void Level::tick() {
 
 	if (state == GameState::DEAD) {
 		age ++;
+
+		aliveness = aliveness * 0.99f;
 	} else {
 		age = 60;
+		aliveness = 1.0f;
 	}
 
 	biome_speed = manager.getBonusSpeed();
@@ -96,7 +114,9 @@ void Level::tick() {
 			}
 
 			// prepare for the next segment
-			manager.tick(++ total);
+			if (state != GameState::DEAD) {
+				manager.tick(++total);
+			}
 		}
 	}
 
@@ -130,10 +150,6 @@ void Level::tick() {
 
 void Level::draw(gls::TileSet& font8x8, gls::BufferWriter<gls::Vert4f4b>& text_writer, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& game_writer) {
 
-	char str[20];
-	sprintf(str, "%d", score);
-	int chars = strlen(str);
-
 	for (auto& segment : segments) {
 		segment.draw(scroll, tileset, game_writer);
 	}
@@ -142,24 +158,26 @@ void Level::draw(gls::TileSet& font8x8, gls::BufferWriter<gls::Vert4f4b>& text_w
 		entity->draw(*this, tileset, game_writer);
 	}
 
-	for (int i = 0; i < chars; i ++) {
-		emitSpriteQuad(text_writer, SW - 32 - i * 24, SH - 32, -20, 20, 0, font8x8.sprite(str[chars - i - 1]), 255, 255, 0, 220);
+	if (state != GameState::DEAD) {
+		emitTextQuads(text_writer, SW - 32, SH - 32, 24, 20, font8x8, 255, 255, 0, 220, std::to_string(score), TextMode::RIGHT);
 	}
 
 	if (state == GameState::DEAD && (age % 120 < 60)) {
-		const char* over = "GAME OVER";
-		int length = strlen(over);
-
 		if (age % 120 == 0) {
 			SoundSystem::getInstance().add(Sounds::beep).play();
 		}
 
+		std::string over = "GAME OVER";
+
 		int spacing = 8;
 		int width = 48 + spacing;
-		int start = (SW - length * width) / 2;
+		int start = (SW - (over.length() - 1) * width) / 2;
 
-		for (int i = 0; i < length; i ++) {
-			emitSpriteQuad(text_writer, start + i * width, SH / 2 + 24, -48, 48, 0, font8x8.sprite(over[i]), 255, 255, 0, 220);
+		emitTextQuads(text_writer, start, SH / 2 + 24, width, 48, font8x8, 255, 255, 0, 220, over, TextMode::LEFT);
+		emitTextQuads(text_writer, start - 8, SH / 2 + 16 - 48, 24, 20, font8x8, 255, 255, 0, 220, "SCORE: " + std::to_string(score), TextMode::LEFT);
+
+		if ((score > hi) && (age % 10 < 5)) {
+			emitTextQuads(text_writer, start - 8, SH / 2 + 16 - 48 - 32, 24, 20, font8x8, 255, 255, 0, 220, "NEW HI-SCORE!", TextMode::LEFT);
 		}
 	}
 
@@ -211,7 +229,7 @@ double Level::getScroll() const {
 
 double Level::getSpeed() const {
 	float v = std::min(1.0f, total * 0.01f);
-	return base_speed + skip * 4 + v * 2 + biome_speed;
+	return base_speed * std::max(aliveness, 0.5f) + (skip * 4 + v * 2 + biome_speed) * aliveness;
 }
 
 Collision Level::checkCollision(Entity* self) {
