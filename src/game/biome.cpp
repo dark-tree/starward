@@ -89,6 +89,13 @@ BiomeBuilder BiomeBuilder::setTerrain(float low, float high) {
  * BiomeManager
  */
 
+void BiomeManager::reset() {
+	speed = 0;
+	low = -1;
+	high = -1;
+	index = 0;
+}
+
 const Biome& BiomeManager::current() {
 	return biomes[index];
 }

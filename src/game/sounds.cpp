@@ -16,6 +16,8 @@ void Sounds::load() {
 	death = SoundBuffer {"assets/sound/death.ogg"};
 	coin = SoundBuffer {"assets/sound/coin.ogg"};
 	beep = SoundBuffer {"assets/sound/beep.ogg"};
+	empty_1 = SoundBuffer {"assets/sound/empty-1.ogg"};
+	empty_2 = SoundBuffer {"assets/sound/empty-2.ogg"};
 }
 
 SoundBuffer& Sounds::getRandomBlow() {
@@ -33,6 +35,11 @@ SoundBuffer& Sounds::getRandomSoft() {
 	return *buffers[randomInt(0, 3)];
 }
 
+SoundBuffer& Sounds::getRandomEmpty() {
+	SoundBuffer* buffers[] = {&empty_1, &empty_2};
+	return *buffers[randomInt(0, 1)];
+}
+
 SoundBuffer Sounds::soft_1 {};
 SoundBuffer Sounds::soft_2 {};
 SoundBuffer Sounds::soft_3 {};
@@ -46,3 +53,5 @@ SoundBuffer Sounds::blow_2 {};
 SoundBuffer Sounds::death {};
 SoundBuffer Sounds::coin {};
 SoundBuffer Sounds::beep {};
+SoundBuffer Sounds::empty_1 {};
+SoundBuffer Sounds::empty_2 {};

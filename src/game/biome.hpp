@@ -78,6 +78,8 @@ class BiomeManager {
 
 	public:
 
+		void reset();
+
 		const Biome& current();
 		void tick(int segment);
 		BiomeBuilder beginBiome();

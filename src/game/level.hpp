@@ -69,6 +69,7 @@ class Level {
 	public:
 
 		Level(BiomeManager& manager);
+		void initial();
 
 //		double getLocalDifficulty();
 //		double getTotalDifficulty();

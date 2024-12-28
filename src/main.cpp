@@ -173,9 +173,7 @@ int main() {
 	loadBiomes(biomes);
 
 	Level level {biomes};
-	level.addEntity(new PlayerEntity {});
-	level.addEntity(new SweeperAlienEntity {100, 450, 0});
-	level.addEntity(new PowerUpEntity {200, 600, PowerUpEntity::LIVE});
+	level.initial();
 
 	gls::Framebuffer pass_1;
 	const gls::Framebuffer& pass_2 = gls::Framebuffer::main();

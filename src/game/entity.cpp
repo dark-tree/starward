@@ -293,12 +293,22 @@ gls::Sprite PlayerEntity::sprite(gls::TileSet& tileset) {
 void PlayerEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
 	Entity::draw(level, tileset, writer);
 
+	int magazines = ammo / 8;
+
 	for (int i = 0; i < lives; i ++) {
 		emitSpriteQuad(writer, 32 + i * 48, SH - 32, 32, 32, 0, tileset.sprite(0, 1), 255, 255, 255, 220);
+	}
+
+	for (int i = 0; i < magazines; i ++) {
+		emitSpriteQuad(writer, 16 + i * 16, 16, 6, 6, 0, tileset.sprite(0, 0), 155, 155, 255, 220);
 	}
 }
 
 void PlayerEntity::tick(Level& level) {
+
+	if (age % 20 == 0) {
+		if (ammo < 64) ammo ++;
+	}
 
 	this->y = 64 - level.getScroll() + level.getSkip() * 32;
 	this->cooldown -= 0.1f;
@@ -326,15 +336,22 @@ void PlayerEntity::tick(Level& level) {
 	this->angle = tilt * 0.2;
 
 	if ((cooldown <= 0) && gls::Input::is_pressed(Key::SPACE)) {
+		bool shot = false;
+		cooldown = 1;
+
 		if (double_barrel_ticks > 0) {
 			level.addEntity(new BulletEntity {11, x - 32, y + 30, self()});
 			level.addEntity(new BulletEntity {11, x + 32, y + 30, self()});
+			shot = true;
 		} else {
-			level.addEntity(new BulletEntity {11, x, y + 48, self()});
+			if (ammo > 0) {
+				ammo --;
+				level.addEntity(new BulletEntity {11, x, y + 48, self()});
+				shot = true;
+			}
 		}
 
-		SoundSystem::getInstance().add(Sounds::getRandomSoft()).play();
-		cooldown = 1;
+		SoundSystem::getInstance().add(shot ? Sounds::getRandomSoft() : Sounds::getRandomEmpty()).play();
 	}
 
 	if (invulnerable > 0) {
@@ -346,7 +363,7 @@ void PlayerEntity::tick(Level& level) {
 	}
 
 	clamp();
-
+	Entity::tick(level);
 }
 
 /*

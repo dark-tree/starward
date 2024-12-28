@@ -87,6 +87,7 @@ class PlayerEntity : public Entity {
 		int invulnerable = 0;
 		float cooldown = 0;
 		float tilt = 0;
+		int ammo = 32;
 
 	public:
 

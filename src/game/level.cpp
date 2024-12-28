@@ -14,6 +14,12 @@ Level::Level(BiomeManager& manager)
 	manager.tick(0);
 }
 
+void Level::initial() {
+	addEntity(new PlayerEntity {});
+	addEntity(new SweeperAlienEntity {100, 450, 0});
+	addEntity(new PowerUpEntity {200, 600, PowerUpEntity::LIVE});
+}
+
 void Level::addScore(int points) {
 	if (state != GameState::DEAD) {
 		this->score += points;
