@@ -4,6 +4,8 @@
 #include <rendering.hpp>
 #include "tile.hpp"
 
+extern int global_segment_id;
+
 template <size_t W, size_t H>
 class Segment {
 
@@ -17,8 +19,7 @@ class Segment {
 		}
 
 		int next() {
-			static int global = 0;
-			return global ++;
+			return global_segment_id ++;
 		}
 
 		void drawTile(gls::BufferWriter<gls::Vert4f4b>& writer, gls::Sprite s, int x, int y, int width, float scroll) {

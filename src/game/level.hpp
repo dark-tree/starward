@@ -57,7 +57,6 @@ class Level {
 		float skip = 0;
 		float biome_speed = 0;
 		int age = 0;
-
 		int total = 0;
 
 		std::array<LevelSegment, 4> segments;
@@ -66,10 +65,12 @@ class Level {
 		std::vector<std::shared_ptr<Entity>> entities;
 		std::shared_ptr<PlayerEntity> player;
 
+		void reset();
+
 	public:
 
 		Level(BiomeManager& manager);
-		void initial();
+		void spawnInitial();
 
 //		double getLocalDifficulty();
 //		double getTotalDifficulty();

@@ -3,6 +3,8 @@
 #include "emitter.hpp"
 #include "biome.hpp"
 
+int global_segment_id = 0;
+
 Level::Level(BiomeManager& manager)
 : manager(manager) {
 	std::string hi_str = platform_read("hi");
@@ -14,7 +16,27 @@ Level::Level(BiomeManager& manager)
 	manager.tick(0);
 }
 
-void Level::initial() {
+void Level::reset() {
+	printf("Resetting level...\n");
+
+	// we need to do this part manually
+	for (Entity* entity : pending) {
+		delete entity;
+	}
+
+	// reset world gen
+	manager.reset();
+	global_segment_id = 0;
+
+	// recreate level
+	this->~Level();
+	new (this) Level(manager);
+
+	// respawn player
+	spawnInitial();
+}
+
+void Level::spawnInitial() {
 	addEntity(new PlayerEntity {});
 	addEntity(new SweeperAlienEntity {100, 450, 0});
 	addEntity(new PowerUpEntity {200, 600, PowerUpEntity::LIVE});
@@ -151,6 +173,10 @@ void Level::tick() {
 		}
 
 		if (skip > 1) skip = 1;
+	} else {
+		if (gls::Input::is_pressed(Key::ENTER)) {
+			this->reset();
+		}
 	}
 }
 

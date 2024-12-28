@@ -173,7 +173,7 @@ int main() {
 	loadBiomes(biomes);
 
 	Level level {biomes};
-	level.initial();
+	level.spawnInitial();
 
 	gls::Framebuffer pass_1;
 	const gls::Framebuffer& pass_2 = gls::Framebuffer::main();
