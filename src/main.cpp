@@ -9,6 +9,7 @@
 
 // docs
 // https://emscripten.org/docs/api_reference/html5.h.html
+std::function<void()> __main_loop_func;
 
 // the function called by the javascript code
 extern "C" void EXPORTED_NATIVE toggle_background_color() {
@@ -60,10 +61,15 @@ void checkViewport(float ratio, const std::function<void(int, int, int, int, glm
 		pw = w;
 		ph = h;
 
-		on_resize(w, h, rw, rh, matrix);
+		int rwi = rw;
+		int rhi = rh;
 
-		printf("Screen resized to %dx%d (with region: %dx%d)\n", w, h, (int) rw, (int) rh);
+		// resolution needs to be divisible by 2, not gonna lie, i don't know why
+		if (rwi % 2 == 1) rwi ++;
+		if (rhi % 2 == 1) rhi ++;
 
+		on_resize(w, h, rwi, rhi, matrix);
+		printf("Screen resized to %dx%d (with region: [%d, %d], offset: [%f, %f], factor: [%f, %f])\n", w, h, rwi, rhi, ox, oy, fx * SW, fy * SH);
 	}
 
 }

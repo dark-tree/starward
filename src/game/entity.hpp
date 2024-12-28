@@ -86,7 +86,7 @@ class PlayerEntity : public Entity {
 		int lives = 2;
 		int invulnerable = 0;
 		float cooldown = 0;
-		float tilt;
+		float tilt = 0;
 
 	public:
 
@@ -100,9 +100,9 @@ class PlayerEntity : public Entity {
 		bool shouldCollide(Entity* entity) override;
 
 		bool isCausedByPlayer() override;
-		void onDamage(Level& level, int damage, Entity* damager);
+		void onDamage(Level& level, int damage, Entity* damager) override;
 		gls::Sprite sprite(gls::TileSet& tileset) override;
-		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer);
+		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) override;
 		void tick(Level& level) override;
 
 };

@@ -238,8 +238,8 @@ using PlatformLoopCallback = void(*)();
 		mkdir("./local", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
 		std::ofstream f;
-    	f.open("./local/" + path, std::ofstream::binary | std::ifstream::out);
-    	f.write(data.data(), data.size());
+		f.open("./local/" + path, std::ofstream::binary | std::ifstream::out);
+		f.write(data.data(), data.size());
 	}
 
 	inline std::string platform_read(std::string path) {
