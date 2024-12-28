@@ -22,6 +22,9 @@ struct PlatformKeyScope {
 		ESCAPE = 27,
 		TAB    = 9,
 		ENTER  = 13,
+		W      = 87,
+		A      = 65,
+		D      = 68,
 	};
 };
 
@@ -55,6 +58,9 @@ using PlatformLoopCallback = void(*)();
 			if (strcmp(key, "Escape") == 0) return Key::ESCAPE;
 			if (strcmp(key, "Tab") == 0) return Key::TAB;
 			if (strcmp(key, "Enter") == 0) return Key::ENTER;
+			if (strcmp(key, "KeyW") == 0) return Key::W;
+			if (strcmp(key, "KeyA") == 0) return Key::A;
+			if (strcmp(key, "KeyD") == 0) return Key::D;
 
 			return Key::UNDEF;
 		}
@@ -162,6 +168,9 @@ using PlatformLoopCallback = void(*)();
 			if (key == WXK_ESC) return Key::ESCAPE;
 			if (key == WXK_TAB) return Key::TAB;
 			if (key == WXK_ENTER) return Key::ENTER;
+			if (key == 'W' || key == 'w') return Key::W;
+			if (key == 'A' || key == 'a') return Key::A;
+			if (key == 'D' || key == 'd') return Key::D;
 
 			return Key::UNDEF;
 		}

@@ -313,12 +313,12 @@ void PlayerEntity::tick(Level& level) {
 
 	tilt *= 0.9;
 
-	if (gls::Input::is_pressed(Key::LEFT)) {
+	if (gls::Input::is_pressed(Key::LEFT) || gls::Input::is_pressed(Key::A)) {
 		move(level, -6, 0);
 		tilt -= 0.1;
 	}
 
-	if (gls::Input::is_pressed(Key::RIGHT)) {
+	if (gls::Input::is_pressed(Key::RIGHT) || gls::Input::is_pressed(Key::D)) {
 		move(level, +6, 0);
 		tilt += 0.1;
 	}

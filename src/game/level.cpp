@@ -140,7 +140,7 @@ void Level::tick() {
 
 	// player input
 	if (state != GameState::DEAD) {
-		if (gls::Input::is_pressed(Key::UP)) {
+		if (gls::Input::is_pressed(Key::UP) || gls::Input::is_pressed(Key::W)) {
 			skip += skip * 0.1 + 0.02;
 		}
 
