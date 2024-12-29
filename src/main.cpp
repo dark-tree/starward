@@ -4,7 +4,6 @@
 
 #include "const.hpp"
 #include "game/sounds.hpp"
-#include "game/entity.hpp"
 #include "game/level.hpp"
 
 // docs

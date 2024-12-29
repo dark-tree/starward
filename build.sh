@@ -61,8 +61,8 @@ if [ ! -d "emsdk" ]; then
 
 	git clone https://github.com/emscripten-core/emsdk.git .
 
-	./emsdk install latest
-	./emsdk activate latest
+	./emsdk install 3.1.54
+	./emsdk activate 3.1.54
 
 	# patch the compiler, yes, i'm not fucking kidding
 	sed -i 's/param ${ptrToString(param}/param ${ptrToString(param)}/g' upstream/emscripten/src/library_openal.js
@@ -88,7 +88,7 @@ if [ ! -f "deps.lock" ]; then
 	echo
 fi
 
-SOURCES="lib/source.cpp src/game/*.cpp src/main.cpp"
+SOURCES="lib/source.cpp src/game/*.cpp src/game/entity/*.cpp src/main.cpp"
 
 if [ "$TARGET" = "web" ]; then
 	# load emscripten SDK

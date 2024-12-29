@@ -4,7 +4,8 @@
 #include <rendering.hpp>
 
 #include "segment.hpp"
-#include "entity.hpp"
+#include "entity/entity.hpp"
+#include "entity/player.hpp"
 #include "biome.hpp"
 
 enum struct GameState {

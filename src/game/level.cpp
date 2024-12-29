@@ -2,6 +2,7 @@
 #include "sounds.hpp"
 #include "emitter.hpp"
 #include "biome.hpp"
+#include "entity/all.hpp"
 
 int global_segment_id = 0;
 
