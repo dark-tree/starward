@@ -293,7 +293,10 @@ gls::Sprite PlayerEntity::sprite(gls::TileSet& tileset) {
 void PlayerEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
 	Entity::draw(level, tileset, writer);
 
-	int magazines = ammo / 8;
+	int pack = 8;
+	int magazines = ammo / pack;
+	int modulo = ammo % pack;
+	int unit = 255 / pack * modulo;
 
 	for (int i = 0; i < lives; i ++) {
 		emitSpriteQuad(writer, 32 + i * 48, SH - 32, 32, 32, 0, tileset.sprite(0, 1), 255, 255, 255, 220);
@@ -301,6 +304,10 @@ void PlayerEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<g
 
 	for (int i = 0; i < magazines; i ++) {
 		emitSpriteQuad(writer, 16 + i * 16, 16, 6, 6, 0, tileset.sprite(0, 0), 155, 155, 255, 220);
+	}
+
+	if (modulo) {
+		emitSpriteQuad(writer, 16 + magazines * 16, 16, 6, 6, 0, tileset.sprite(0, 0), 155, 155, 255, unit);
 	}
 }
 
