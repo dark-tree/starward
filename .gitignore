@@ -2,3 +2,4 @@ build
 lib/*/
 !lib/glad/
 .vs
+local

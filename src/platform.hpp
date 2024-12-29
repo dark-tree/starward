@@ -22,6 +22,9 @@ struct PlatformKeyScope {
 		ESCAPE = 27,
 		TAB    = 9,
 		ENTER  = 13,
+		W      = 87,
+		A      = 65,
+		D      = 68,
 	};
 };
 
@@ -55,6 +58,9 @@ using PlatformLoopCallback = void(*)();
 			if (strcmp(key, "Escape") == 0) return Key::ESCAPE;
 			if (strcmp(key, "Tab") == 0) return Key::TAB;
 			if (strcmp(key, "Enter") == 0) return Key::ENTER;
+			if (strcmp(key, "KeyW") == 0) return Key::W;
+			if (strcmp(key, "KeyA") == 0) return Key::A;
+			if (strcmp(key, "KeyD") == 0) return Key::D;
 
 			return Key::UNDEF;
 		}
@@ -124,12 +130,23 @@ using PlatformLoopCallback = void(*)();
 		emscripten_webgl_make_context_current(context);
 	}
 
+	inline void platform_write(std::string path, std::string data) {
+		std::string code = "localStorage.setItem('" + path + "', '" + data + "');";
+		emscripten_run_script(code.data());
+	}
+
+	inline std::string platform_read(std::string path) {
+		std::string code = "localStorage.getItem('" + path + "');";
+		return emscripten_run_script_string(code.data());
+	}
+
 #elif defined(__linux__)
 
 	// sudo apt-get install libopenal-dev
 
 	#include <winx/winx.h>
 	#include <glad/glad.h>
+	#include <sys/stat.h>
 
 	#define EXPORTED_NATIVE
 
@@ -151,6 +168,9 @@ using PlatformLoopCallback = void(*)();
 			if (key == WXK_ESC) return Key::ESCAPE;
 			if (key == WXK_TAB) return Key::TAB;
 			if (key == WXK_ENTER) return Key::ENTER;
+			if (key == 'W' || key == 'w') return Key::W;
+			if (key == 'A' || key == 'a') return Key::A;
+			if (key == 'D' || key == 'd') return Key::D;
 
 			return Key::UNDEF;
 		}
@@ -221,6 +241,33 @@ using PlatformLoopCallback = void(*)();
 		winxSetCloseEventHandle(__impl::__platform_close_handler);
 		winxSetKeybordEventHandle(__impl::__platform_keyboard_handler);
 		winxSetResizeEventHandle(__impl::__platform_resize_handler);
+	}
+
+	inline void platform_write(std::string path, std::string data) {
+		mkdir("./local", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+		std::ofstream f;
+		f.open("./local/" + path, std::ofstream::binary | std::ifstream::out);
+		f.write(data.data(), data.size());
+	}
+
+	inline std::string platform_read(std::string path) {
+		std::ifstream f;
+		f.open("./local/" + path, std::ifstream::binary | std::ifstream::in);
+
+		if (!f.is_open()) {
+			return "";
+		}
+
+		f.seekg(0, std::ifstream::end);
+		const auto size = f.tellg();
+		f.seekg(0, std::ifstream::beg);
+
+		std::string buffer;
+		buffer.resize(size);
+		f.read(const_cast<char*>(buffer.data()), size);
+
+		return buffer;
 	}
 
 #endif

@@ -11,6 +11,10 @@
 #include <stdexcept>
 #include <list>
 #include <algorithm>
+#include <array>
+#include <random>
+#include <chrono>
+#include <fstream>
 
 // emscripten
 #include <platform.hpp>
@@ -22,6 +26,9 @@
 #include <stb/stb_vorbis.c>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/noise.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "util.hpp"
 
 using Runnable = std::function<void()>;

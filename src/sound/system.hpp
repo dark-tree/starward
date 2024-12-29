@@ -16,8 +16,6 @@ class SoundSystem {
 		std::list<std::unique_ptr<SoundSource>> sources;
 		SoundVolumes volumes;
 
-	public:
-
 		SoundSystem() {
 			ALCdevice* device = alcOpenDevice(nullptr);
 
@@ -40,6 +38,13 @@ class SoundSystem {
 			printf("Sound system engaged!\n");
 		}
 
+	public:
+
+		static SoundSystem& getInstance() {
+			static SoundSystem system;
+			return system;
+		}
+
 		void update() {
 			std::list<std::unique_ptr<SoundSource>>::iterator iter = sources.begin();
 
@@ -47,7 +52,6 @@ class SoundSystem {
 				bool drop = (*iter)->should_drop();
 
 				if (drop) {
-					printf("Dropped sound '%s', sound count: %d\n", (*iter)->identifier(), (int) sources.size() - 1);
 					iter = sources.erase(iter);
 				} else {
 					(*iter)->update();
@@ -61,7 +65,6 @@ class SoundSystem {
 		}
 
 		SoundSource& add(std::unique_ptr<SoundSource>&& source) {
-			printf("Added sound '%s', sound count: %d\n", source->identifier(), (int) sources.size() + 1);
 			sources.push_back(std::move(source));
 
 			return *sources.back();

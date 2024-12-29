@@ -1,121 +1,205 @@
 #pragma once
 
-#include "world.hpp"
-#include "physics.hpp"
-#include <iostream>
+#include <external.hpp>
+#include <rendering.hpp>
 
-int key_code = 0;
+class Level;
 
-struct Entity {
-
-	protected:
-
-		Transform transform;
-
-	public:
-
-		virtual ~Entity() {};
-		virtual void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) = 0;
-		virtual void tick(World& world) = 0;
-
-};
-
-
-class Player : public Entity {
+class Entity : public std::enable_shared_from_this<Entity> {
 
 	protected:
 
-		BoxCollider collider;
-		RigidBody rigid_body;
-		float coyote_timer = 0;
-		int move_direction_x = 0;
-		const float coyote_time = 0.2f;
+		float r, g, b, a;
+		float angle = 0;
+
+		bool visible = false;
+		bool dead = false;
+		long age = 0;
 
 	public:
 
-		Player() : Entity(), collider(16, 0, 32, 32, &transform), rigid_body(&collider, &transform) {
-			transform.position = { 100.0f, 100.0f };
-			collider.set_friction({ 0.0f, 1.0f });
-		}
+		const int tile_radius;
+		const double size;
+		double x;
+		double y;
 
-		void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) override {
-			gls::Sprite s = tileset.sprite(11);
+	public:
 
-			uint8_t v = collider.get_collision() ? 255 : 100;
-			float x = transform.position.x;
-			float y = transform.position.y;
+		Entity(int radius, double size, double x, double y);
+		virtual ~Entity();
 
-			buffer.push({x + 0,   0 + y,  s.min_u, s.min_v, 255, 255, v, 255});
-			buffer.push({x + 64,  0 + y,  s.max_u, s.min_v, 255, 255, v, 255});
-			buffer.push({x + 64, 64 + y,  s.max_u, s.max_v, 255, 255, v, 255});
-			buffer.push({x + 64, 64 + y,  s.max_u, s.max_v, 255, 255, v, 255});
-			buffer.push({x + 0,  64 + y,  s.min_u, s.max_v, 255, 255, v, 255});
-			buffer.push({x + 0,   0 + y,  s.min_u, s.min_v, 255, 255, v, 255});
-		}
+		void move(Level& level, float x, float y);
+		void clamp();
+		virtual bool checkPlacement(Level& level);
 
-		void tick(World& world) override {
-			float delta_time = Physics::get_deltatime();
+		bool shouldRemove() const;
+		virtual bool shouldCollide(Entity* entity);
+		virtual void onDamage(Level& level, int damage, Entity* damager);
 
-			coyote_timer = std::max(0.0f, coyote_timer - delta_time);
+		virtual bool isCausedByPlayer();
+		virtual std::shared_ptr<Entity> getParent();
 
-			bool left = gls::Input::is_pressed(Key::LEFT);
-			bool right = gls::Input::is_pressed(Key::RIGHT);
+		virtual gls::Sprite sprite(gls::TileSet& tileset);
+		virtual void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer);
+		virtual void tick(Level& level);
 
-			if (left) {
-				rigid_body.get_velocity().x = -3;
-				if (collider.get_collision()) {
-					coyote_timer = coyote_time;
-				}
-			}
-			if (right) {
-				rigid_body.get_velocity().x = 3;
-				if (collider.get_collision()) {
-					coyote_timer = coyote_time;
-				}
-			}
-
-			// jump
-			if (gls::Input::is_typed(Key::SPACE)) {
-				bool on_ground = collider.get_collision_y();
-				bool coyote = coyote_timer > 0.0f;
-				// if is on groun or just left the ground/wall and is moving to the side and is not going up too fast
-				if (on_ground || (coyote && !collider.get_collision_x() && (left || right) && rigid_body.get_velocity().y < 2.0f)) {
-					rigid_body.get_velocity().y = 8;
-					coyote_timer = 0.0f;
-				}
-			}
-		}
+		std::shared_ptr<Entity> self();
 
 };
 
-class Box : public Entity {
-protected:
+class BulletEntity : public Entity {
 
-	BoxCollider collider;
-	RigidBody rigid_body;
+	private:
 
-public:
+		std::shared_ptr<Entity> parent;
+		float velocity;
 
-	Box(const glm::vec2& position) : Entity(), collider(16, 0, 32, 32, &transform), rigid_body(&collider, &transform) {
-		transform.position = position;
-	}
+		bool isTileProtected(Level& level, glm::ivec2 pos, int tx, int ty);
 
-	void render(gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& buffer) override {
-		gls::Sprite s = tileset.sprite(11);
+	public:
 
-		uint8_t v = 255;
-		float x = transform.position.x;
-		float y = transform.position.y;
+		BulletEntity(float velocity, double x, double y, const std::shared_ptr<Entity>& except, float angle = deg(180));
 
-		buffer.push({ x + 0,   0 + y,  s.min_u, s.min_v, 255, 255, v, 255 });
-		buffer.push({ x + 64,  0 + y,  s.max_u, s.min_v, 255, 255, v, 255 });
-		buffer.push({ x + 64, 64 + y,  s.max_u, s.max_v, 255, 255, v, 255 });
-		buffer.push({ x + 64, 64 + y,  s.max_u, s.max_v, 255, 255, v, 255 });
-		buffer.push({ x + 0,  64 + y,  s.min_u, s.max_v, 255, 255, v, 255 });
-		buffer.push({ x + 0,   0 + y,  s.min_u, s.min_v, 255, 255, v, 255 });
-	}
+		bool isCausedByPlayer() override;
+		std::shared_ptr<Entity> getParent() override;
+		void tick(Level& level) override;
 
-	void tick(World& world) override {
+};
 
-	}
+class BlowEntity : public Entity {
+
+	public:
+
+		BlowEntity(double x, double y);
+
+		bool shouldCollide(Entity* entity) override;
+
+		gls::Sprite sprite(gls::TileSet& tileset) override;
+		void tick(Level& level) override;
+
+};
+
+class PlayerEntity : public Entity {
+
+	private:
+
+		int lives = 2;
+		int invulnerable = 0;
+		float cooldown = 0;
+		float tilt = 0;
+		int ammo = 32;
+
+	public:
+
+		// bonuses
+		int double_barrel_ticks = 0;
+
+	public:
+
+		PlayerEntity();
+
+		bool shouldCollide(Entity* entity) override;
+
+		bool isCausedByPlayer() override;
+		void onDamage(Level& level, int damage, Entity* damager) override;
+		gls::Sprite sprite(gls::TileSet& tileset) override;
+		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) override;
+		void tick(Level& level) override;
+
+};
+
+class TileEntity : public Entity {
+
+	private:
+
+		double fx;
+		double fy;
+		uint8_t tile;
+
+	public:
+
+		TileEntity(double x, double y, uint8_t tile, int tx, int ty);
+
+		gls::Sprite sprite(gls::TileSet& tileset) override;
+		void tick(Level& level) override;
+
+};
+
+class PowerUpEntity : public Entity {
+
+	public:
+
+		enum Type {
+			LIVE = 0,
+			DOUBLE_BARREL = 1,
+		};
+
+		static Type randomPick();
+
+	private:
+
+		Type type;
+
+	public:
+
+		PowerUpEntity(double x, double y, Type type);
+
+		bool checkPlacement(Level& level) override;
+
+		void applyEffect(Level& level, PlayerEntity* player);
+		void onDamage(Level& level, int damage, Entity* damager) override;
+		gls::Sprite sprite(gls::TileSet& tileset) override;
+		void tick(Level& level) override;
+
+};
+
+class SweeperAlienEntity : public Entity {
+
+	private:
+
+		int evolution; // 0, 1, 2
+		float bump = 0;
+		int health = 2;
+		int count = 0;
+		float facing = 1;
+		float cooldown = 1;
+		int buried = 0;
+		bool attacked = false;
+
+	public:
+
+		SweeperAlienEntity(double x, double y, int evolution);
+
+		bool checkPlacement(Level& level) override;
+
+		void onDamage(Level& level, int damage, Entity* damager) override;
+		gls::Sprite sprite(gls::TileSet& tileset) override;
+		void tick(Level& level) override;
+
+};
+
+class TurretAlienEntity : public Entity {
+
+	private:
+
+		int evolution; // 0, 1, 2
+		float cooldown = 1;
+
+		int barrel = 1;
+		float target = -deg(180); // desired rotation
+		float head = -deg(180); // current rotation
+
+		void shoot(Level& level, float speed, float radius, float angle);
+
+	public:
+
+		TurretAlienEntity(double x, double y, int evolution);
+
+		bool checkPlacement(Level& level) override;
+
+		void onDamage(Level& level, int damage, Entity* damager) override;
+		gls::Sprite sprite(gls::TileSet& tileset) override;
+		void tick(Level& level) override;
+		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) override;
+
 };

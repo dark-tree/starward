@@ -32,7 +32,7 @@ class Field {
 
 		T& at(int x, int y) {
 			if (x < 0 || y < 0 || x > width || y > height) {
-				fault("Reqested element (%d, %d) is out of bounds (%u, %u)\n", x, y, width, height);
+				fault("Requested element (%d, %d) is out of bounds (%u, %u)\n", x, y, width, height);
 			}
 
 			return tiles[y * width + x];
