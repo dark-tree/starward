@@ -95,4 +95,6 @@ class Level {
 		Collision checkCollision(Entity* self);
 		void setState(GameState state);
 
+		std::vector<std::shared_ptr<Entity>>& getEntities();
+
 };

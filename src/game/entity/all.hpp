@@ -7,3 +7,4 @@
 #include "turret.hpp"
 #include "blow.hpp"
 #include "tile.hpp"
+#include "fighter.hpp"

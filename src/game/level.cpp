@@ -39,7 +39,7 @@ void Level::reset() {
 
 void Level::spawnInitial() {
 	addEntity(new PlayerEntity {});
-	addEntity(new SweeperAlienEntity {100, 450, 0});
+	addEntity(new FighterAlienEntity {100, 450, 0});
 	addEntity(new PowerUpEntity {200, 600, PowerUpEntity::LIVE});
 }
 
@@ -303,4 +303,8 @@ Collision Level::checkCollision(Entity* self) {
 	}
 
 	return {};
+}
+
+std::vector<std::shared_ptr<Entity>>& Level::getEntities() {
+	return entities;
 }
