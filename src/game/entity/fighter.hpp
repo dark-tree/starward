@@ -16,6 +16,7 @@ class FighterAlienEntity : public Entity {
 		int evolution; // 0, 1, 2
 		float cooldown = 1;
 
+		bool escape = false;
 		bool underhung = false;
 		bool down = false;
 

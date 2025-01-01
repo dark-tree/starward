@@ -144,6 +144,23 @@ void FighterAlienEntity::tick(Level& level) {
 	float ax = 0;
 	float ay = 0;
 
+	// make sure we only have one fighter at once
+	for (auto& entity : level.getEntities()) {
+		if (FighterAlienEntity* fighter = dynamic_cast<FighterAlienEntity*>(entity.get())) {
+			if (!fighter->escape && (fighter != this)) {
+				float dx = fighter->x - this->x;
+				float dy = fighter->y - this->y;
+
+				float len = sqrt(dx * dx + dy * dy);
+
+				if (len < 100) {
+					this->escape = true;
+					break;
+				}
+			}
+		}
+	}
+
 	forEachDanger(level, [&] (BulletEntity* bullet, float dx, float dy) {
 		// otherwise try to avoid
 		ax -= signum(dx) * 2;
@@ -183,10 +200,16 @@ void FighterAlienEntity::tick(Level& level) {
 //			}
 		}
 
-		this->vx = std::lerp(dx + px, vx, 0.99f);
-		this->vy = std::lerp(dy + py, vy, 0.99f);
+		if (!escape) {
+			this->vx = std::lerp(dx + px, vx, 0.99f);
+			this->vy = std::lerp(dy + py, vy, 0.99f);
+		}
 
 	} else {
+		escape = true;
+	}
+
+	if (escape) {
 
 		// move off-screen
 		int half = SW / 2;
@@ -235,6 +258,11 @@ void FighterAlienEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWr
 		if (underhung) {
 			ox += 24;
 			emitSpriteQuad(writer, tx + ox, ty - 16, 16, 16, angle, tileset.sprite(0, 0), 255, 0, 0, 255);
+		}
+
+		if (escape) {
+			ox += 24;
+			emitSpriteQuad(writer, tx + ox, ty - 16, 16, 16, angle, tileset.sprite(0, 0), 0, 0, 255, 255);
 		}
 	}
 
