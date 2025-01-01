@@ -25,10 +25,6 @@ FighterAlienEntity::FighterAlienEntity(double x, double y, int evolution)
 	this->evolution = evolution;
 }
 
-void FighterAlienEntity::updateTask() {
-
-}
-
 void FighterAlienEntity::forEachDanger(Level& level, const std::function<void(BulletEntity*, float, float)>& callback) {
 
 	for (auto& entity : level.getEntities()) {
@@ -63,7 +59,7 @@ bool FighterAlienEntity::tickMovement(Level& level) {
 	}
 
 	float ox = signum(vx) * std::min(abx, 2.0f);
-	float oy = signum(vy) * std::min(aby, 1.5f);
+	float oy = signum(vy) * std::min(aby, 2.0f);
 
 	float px = this->x;
 	float py = this->y;
@@ -141,10 +137,6 @@ void FighterAlienEntity::tick(Level& level) {
 	this->cooldown -= 0.05f;
 	auto player = level.getPlayer();
 
-	if (age % 10 == 0) {
-		updateTask();
-	}
-
 	if (avoiding > 0) {
 		avoiding --;
 	}
@@ -210,7 +202,7 @@ void FighterAlienEntity::tick(Level& level) {
 	}
 
 	if ((cooldown <= 0) && (avoiding <= 0)) {
-		cooldown = 0.8;
+		cooldown = 1;
 
 		if (visible) {
 			level.addEntity(new BulletEntity{-3, x, y - 24, self()});

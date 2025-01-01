@@ -19,7 +19,6 @@ class FighterAlienEntity : public Entity {
 		bool underhung = false;
 		bool down = false;
 
-		void updateTask();
 		void forEachDanger(Level& level, const std::function<void(BulletEntity*, float, float)>& callback);
 		bool tickMovement(Level& level);
 

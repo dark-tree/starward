@@ -39,7 +39,7 @@ void Level::reset() {
 
 void Level::spawnInitial() {
 	addEntity(new PlayerEntity {});
-	addEntity(new FighterAlienEntity {100, 450, 0});
+	addEntity(new SweeperAlienEntity {100, 450, 0});
 	addEntity(new PowerUpEntity {200, 600, PowerUpEntity::LIVE});
 }
 
@@ -73,6 +73,13 @@ Entity* Level::randomAlien(int margin, LevelSegment& segment) {
 		glm::vec2 pos = toEntityPos(tile.x, tile.y);
 
 		return new SweeperAlienEntity {pos.x, pos.y, (int) evolution};
+	}
+
+	if (alien == Alien::FIGHTER) {
+		glm::ivec2 tile = segment.getRandomPos(margin);
+		glm::vec2 pos = toEntityPos(tile.x, tile.y);
+
+		return new FighterAlienEntity {pos.x, pos.y, (int) evolution};
 	}
 
 	if (alien == Alien::TURRET) {

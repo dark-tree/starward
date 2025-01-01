@@ -77,6 +77,7 @@ void loadBiomes(BiomeManager& biomes) {
 	biomes.beginBiome() // start
 		.setTerrain(0.0, 0.25)
 		.addAlien(Alien::SWEEPER, 1)
+		.addAlien(Alien::FIGHTER, 1)
 		.addEvolution(Evolution::LOW, 10)
 		.addEvolution(Evolution::MEDIUM, 1)
 		.addEnemyPlacer(1, 1)

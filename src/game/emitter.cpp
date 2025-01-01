@@ -36,22 +36,12 @@ void emitLineQuad(gls::BufferWriter<gls::Vert4f4b>& writer, float x1, float y1, 
 	dy *= width;
 
 	writer.push({x1 + dx, y1 + dy, s.min_u, s.min_v, r, g, b, a});
-//	drawVertex(pa + pp, blank.u1, blank.v1);
-
 	writer.push({x2 - dx, y2 - dy, s.max_u, s.max_v, r, g, b, a});
-//	drawVertex(pb - pp, blank.u2, blank.v2);
-
 	writer.push({x2 + dx, y2 + dy, s.min_u, s.max_v, r, g, b, a});
-//	drawVertex(pb + pp, blank.u1, blank.v2);
 
 	writer.push({x1 + dx, y1 + dy, s.min_u, s.min_v, r, g, b, a});
-//	drawVertex(pa + pp, blank.u1, blank.v1);
-
 	writer.push({x1 - dx, y1 - dy, s.max_u, s.min_v, r, g, b, a});
-//	drawVertex(pa - pp, blank.u2, blank.v1);
-
 	writer.push({x2 - dx, y2 - dy, s.max_u, s.max_v, r, g, b, a});
-//	drawVertex(pb - pp, blank.u2, blank.v2);
 }
 
 void emitTextQuads(gls::BufferWriter<gls::Vert4f4b>& text_writer, float x, float y, float spacing, float size, gls::TileSet& font, uint8_t r, uint8_t g, uint8_t b, uint8_t a, const std::string& str, TextMode mode) {
