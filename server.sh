@@ -1,5 +1,5 @@
 if [ ! -d "build" ]; then
-	mkdir build
+	./build.sh
 fi
 
 cd build
