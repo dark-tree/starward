@@ -172,7 +172,12 @@ int main() {
 	BiomeManager biomes;
 	loadBiomes(biomes);
 
+	printf("Hello 0\n");
+
 	Level level {biomes};
+
+	printf("Hello 1\n");
+
 	level.spawnInitial();
 
 	gls::Framebuffer pass_1;

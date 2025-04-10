@@ -8,7 +8,7 @@ int global_segment_id = 0;
 
 Level::Level(BiomeManager& manager)
 : manager(manager) {
-	std::string hi_str = platform_read("hi");
+	std::string hi_str = platform_read_string("hi");
 
 	if (hi_str.length() > 0) {
 		hi = std::stoi(hi_str);
@@ -55,7 +55,7 @@ void Level::setState(GameState state) {
 	if (state == GameState::DEAD) {
 		if (score > hi) {
 			printf("New hi-score set: %d points (was: %d points)!\n", score, hi);
-			platform_write("hi", std::to_string(score));
+			platform_write_string("hi", std::to_string(score));
 		}
 	}
 }
