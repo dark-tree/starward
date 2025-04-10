@@ -10,7 +10,7 @@ class SoundBuffer {
 		friend class SoundSource;
 
 		uint32_t buffer;
-		const char* path;
+		std::string path;
 
 		uint32_t format_of(uint32_t channels) {
 			return (channels > 1) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
@@ -31,8 +31,6 @@ class SoundBuffer {
 
 			uint32_t count = stb_vorbis_decode_filename(path, &channels, &samples, &data);
 
-			printf("Uploading sound: '%s', count: %d, channels: %d, freq: %d\n", path, count, channels, samples);
-
 			if (count == -1) {
 				fault("Failed to load sound: '%s'\n", path);
 			}
@@ -51,12 +49,12 @@ class SoundBuffer {
 			free(data);
 		}
 
-		void close() {
-			alDeleteBuffers(1, &buffer);
-			debug::openal::check_error("alDeleteBuffers");
-		}
+		// ~SoundBuffer() {
+		// 	alDeleteBuffers(1, &buffer);
+		// 	debug::openal::check_error("alDeleteBuffers");
+		// }
 
-		const char* identifier() const {
+		const std::string& identifier() const {
 			return path;
 		}
 };

@@ -15,6 +15,8 @@
 #include <random>
 #include <chrono>
 #include <fstream>
+#include <filesystem>
+#include <regex>
 
 // emscripten
 #include <platform.hpp>

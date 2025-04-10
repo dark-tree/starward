@@ -68,7 +68,7 @@ void BulletEntity::tick(Level& level) {
 
 	if (collision.type != Collision::MISS) {
 		level.addEntity(new BlowEntity(x, y));
-		SoundSystem::getInstance().add(Sounds::getRandomDamage()).play();
+		SoundSystem::getInstance().add(Sounds::damage).play();
 
 		if (collision.entity) {
 			collision.entity->onDamage(level, 1, this);

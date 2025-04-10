@@ -41,7 +41,7 @@ void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
 				Entity::onDamage(level, damage, damager);
 			}
 
-			SoundSystem::getInstance().add(Sounds::getRandomBlow()).play();
+			SoundSystem::getInstance().add(Sounds::blow).play();
 			lives--;
 			invulnerable = 300;
 		}
@@ -140,7 +140,7 @@ void PlayerEntity::tick(Level& level) {
 			}
 		}
 
-		SoundSystem::getInstance().add(shot ? Sounds::getRandomSoft() : Sounds::getRandomEmpty()).play();
+		SoundSystem::getInstance().add(shot ? Sounds::soft : Sounds::empty).play();
 	}
 
 	if (invulnerable > 0) {

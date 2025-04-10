@@ -76,7 +76,7 @@ void SweeperAlienEntity::tick(Level& level) {
 		if (buried > 120) {
 			dead = true;
 			level.addEntity(new BlowEntity(x, y));
-			SoundSystem::getInstance().add(Sounds::getRandomBlow()).play();
+			SoundSystem::getInstance().add(Sounds::blow).play();
 
 			if (attacked) {
 				level.addScore(200);

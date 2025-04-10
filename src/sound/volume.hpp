@@ -2,7 +2,7 @@
 
 #include <external.hpp>
 
-enum struct SoundGroup {
+enum struct SoundChannel {
 	MASTER,
 	MUSIC,
 	GAME,
@@ -13,19 +13,19 @@ class SoundVolumes {
 
 	private:
 
-		std::unordered_map<SoundGroup, float> volumes;
+		std::unordered_map<SoundChannel, float> volumes;
 
 	public:
 
-		float get(SoundGroup group) {
-			if (group == SoundGroup::MASTER) {
+		float get(SoundChannel group) {
+			if (group == SoundChannel::MASTER) {
 				return 1.0f;
 			}
 
 			return volumes[group];
 		}
 
-		void set(SoundGroup group, float value) {
+		void set(SoundChannel group, float value) {
 			volumes[group] = value;
 		}
 

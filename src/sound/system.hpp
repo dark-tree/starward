@@ -5,6 +5,7 @@
 #include <sound/buffer.hpp>
 #include <sound/source.hpp>
 #include <sound/listener.hpp>
+#include <sound/group.hpp>
 
 // to learn all the Audio api quirks
 // see: https://emscripten.org/docs/porting/Audio.html
@@ -60,6 +61,10 @@ class SoundSystem {
 			}
 		}
 
+		SoundSource& add(const SoundGroup& group) {
+			return add(group.pick());
+		}
+
 		SoundSource& add(const SoundBuffer& buffer) {
 			return add(std::make_unique<SoundSource>(buffer, volumes));
 		}
@@ -79,9 +84,9 @@ class SoundSystem {
 		}
 
 		// stop all sounds in the given group
-		void stop(SoundGroup group = SoundGroup::MASTER) {
+		void stop(SoundChannel channel = SoundChannel::MASTER) {
 			for (auto& source : sources) {
-				if (source->group == group || group == SoundGroup::MASTER) {
+				if (source->channel == channel || channel == SoundChannel::MASTER) {
 					source->drop();
 				}
 			}

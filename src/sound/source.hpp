@@ -12,14 +12,14 @@ class SoundSource {
 		friend class SoundSystem;
 
 		uint32_t source;
-		const char* path;
+		const std::string path;
 		std::list<SoundEvent> events;
-		SoundGroup group = SoundGroup::MASTER;
+		SoundChannel channel = SoundChannel::MASTER;
 		SoundVolumes& volumes;
 		float gain;
 
 		void flush() {
-			alSourcef(source, AL_GAIN, gain * volumes.get(group));
+			alSourcef(source, AL_GAIN, gain * volumes.get(channel));
 			debug::openal::check_error("alSourcef");
 		}
 
@@ -43,7 +43,7 @@ class SoundSource {
 			debug::openal::check_error("alDeleteSources");
 		}
 
-		const char* identifier() const {
+		const std::string& identifier() const {
 			return path;
 		}
 
@@ -94,8 +94,8 @@ class SoundSource {
 	// source properties
 	public:
 
-		SoundSource& in(SoundGroup group) {
-			this->group = group;
+		SoundSource& in(SoundChannel channel) {
+			this->channel = channel;
 			return *this;
 		}
 

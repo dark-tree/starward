@@ -4,27 +4,15 @@
 
 namespace Sounds {
 
+	/// Sounds are loaded by this method, call it before trying to play any sound
 	void load();
 
-	extern SoundBuffer soft_1;
-	extern SoundBuffer soft_2;
-	extern SoundBuffer soft_3;
-	extern SoundBuffer soft_4;
-	extern SoundBuffer damage_1;
-	extern SoundBuffer damage_2;
-	extern SoundBuffer damage_3;
-	extern SoundBuffer damage_4;
-	extern SoundBuffer blow_1;
-	extern SoundBuffer blow_2;
-	extern SoundBuffer death;
-	extern SoundBuffer coin;
-	extern SoundBuffer beep;
-	extern SoundBuffer empty_1;
-	extern SoundBuffer empty_2;
-
-	SoundBuffer& getRandomBlow();
-	SoundBuffer& getRandomDamage();
-	SoundBuffer& getRandomSoft();
-	SoundBuffer& getRandomEmpty();
+	extern SoundGroup beep;   // Death screen beep
+	extern SoundGroup blow;   // Large explosion
+	extern SoundGroup coin;   // Bonus pickup
+	extern SoundGroup damage; // Damage (to player or enemy)
+	extern SoundGroup death;  // Game over
+	extern SoundGroup empty;  // Out of ammo trigger
+	extern SoundGroup soft;   // Player shoot
 
 };
