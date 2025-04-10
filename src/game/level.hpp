@@ -4,7 +4,8 @@
 #include <rendering.hpp>
 
 #include "segment.hpp"
-#include "entity.hpp"
+#include "entity/entity.hpp"
+#include "entity/player.hpp"
 #include "biome.hpp"
 
 enum struct GameState {
@@ -93,5 +94,7 @@ class Level {
 		uint8_t get(int x, int y);
 		Collision checkCollision(Entity* self);
 		void setState(GameState state);
+
+		std::vector<std::shared_ptr<Entity>>& getEntities();
 
 };

@@ -3,66 +3,27 @@ CYAN=`tput setaf 6`
 BOLD=`tput bold`
 NONE=`tput sgr0`
 
-ROOT_DIR=`pwd`
-BUILD_DIR="$ROOT_DIR/build"
-
-TARGET="web"
-RUN="false"
-
-while [[ $# -gt 0 ]]; do
-	case "$1" in
-		--clean)
-			if [ -d "build" ]; then
-				rm -rf build
-			fi
-			shift
-			;;
-		--native)
-			TARGET="native"
-			shift
-			;;
-		--web)
-			TARGET="web"
-			shift
-			;;
-	  --run)
-	    RUN="true"
-	    shift
-	    ;;
-		--help)
-			echo "C/C++ Builder"
-			echo "Usage: script.sh [options]"
-			echo "Options:"
-			echo "  --clean           (re-)generate build system"
-			echo "  --native          Build for native linux"
-			echo "  --web             Build for emscripten"
-			echo "  --run             Execute the native executable"
-			echo "  --help            display this help message"
-			exit
-			;;
-		*)
-			shift
-			;;
-	esac
-done
+ROOT_DIR="$(pwd)"
+BUILD_DIR="${ROOT_DIR}/build"
 
 if [ ! -d "build" ]; then
 	mkdir build
 fi
 
 # check if emscripten SDK is present
-cd "$BUILD_DIR"
-if [ ! -d "emsdk" ]; then
+if [ ! -d "$BUILD_DIR/emsdk" ]; then
 	printf "${BOLD}Emscripten SDK not present, installing...\n${NONE}"
 	sleep 1
 
+  cd "$BUILD_DIR" || exit
 	mkdir emsdk
 	cd emsdk
 
 	git clone https://github.com/emscripten-core/emsdk.git .
 
-	./emsdk install latest
-	./emsdk activate latest
+	./emsdk install 3.1.54
+	./emsdk activate 3.1.54
+	echo "${BOLD}Emscripten SDK installed!${NONE}"
 
 	# patch the compiler, yes, i'm not fucking kidding
 	sed -i 's/param ${ptrToString(param}/param ${ptrToString(param)}/g' upstream/emscripten/src/library_openal.js
@@ -75,39 +36,19 @@ if [ ! -d "emsdk" ]; then
 	echo
 fi
 
-# check if library lock file is present
-cd "$BUILD_DIR"
-if [ ! -f "deps.lock" ]; then
-	printf "${BOLD}Synchronizing dependencies, this can take some time...\n${NONE}"
-	sleep 1
+# Load emscripten SDK
+cd "${BUILD_DIR}" || exit
+export EMSDK_QUIET=1
+source ./emsdk/emsdk_env.sh
 
-	touch deps.lock
+#cd "$ROOT_DIR" || exit
+#emcc -sRUNTIME_DEBUG -sOPENAL_DEBUG -lopenal -std=c++20 -Wno-c++17-extensions $SOURCES -I./src -I./lib -I./lib/glm -I. -s WASM=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -O3 -o build/index.js --preload-file assets
 
-	cd "$ROOT_DIR/lib"
-	source ./git-sync-deps
-	echo
-fi
+cd "${ROOT_DIR}" || exit
+emcmake cmake . -B build
+cmake --build build/
 
-SOURCES="lib/source.cpp src/game/*.cpp src/main.cpp"
+# Copy index file
+rm -f -- build/index.html
+cp index.html build/index.html
 
-if [ "$TARGET" = "web" ]; then
-	# load emscripten SDK
-	cd "$BUILD_DIR"
-	export EMSDK_QUIET=1
-	source ./emsdk/emsdk_env.sh
-
-	cd "$ROOT_DIR"
-	emcc -sRUNTIME_DEBUG -sOPENAL_DEBUG -lopenal -std=c++20 -Wno-c++17-extensions $SOURCES -I./src -I./lib -I./lib/glm -I. -s WASM=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -O3 -o build/index.js --preload-file assets
-	rm -f -- build/index.html
-	cp index.html build/index.html
-fi
-
-if [ "$TARGET" = "native" ]; then
-	cd "$ROOT_DIR"
-	rm build/main
-	g++ -g -Wno-volatile -std=c++20 src/platform.cpp lib/winx/winx.c lib/glad/glad.c $SOURCES -I./src -I./lib -I./lib/glm -I. -ldl -lGL -lX11 -lXcursor -lopenal -o build/main
-fi
-
-if [ "$RUN" = "true" ]; then
-    ./build/main
-fi

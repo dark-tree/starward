@@ -57,6 +57,11 @@ constexpr float slerp(float a, float b, float speed) {
 	return a + (delta > 0 ? speed : -speed);
 }
 
+template <typename T>
+int signum(T val) {
+	return (T(0) < val) - (val < T(0));
+}
+
 inline void randomBuffer(int* buffer, int size) {
 	for (int i = 0; i < size; ++i) {
 		buffer[i] = i;

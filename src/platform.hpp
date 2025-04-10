@@ -80,6 +80,16 @@ using PlatformLoopCallback = void(*)();
 			return true;
 		}
 
+		inline void __platform_write_string(std::string path, std::string data) {
+			std::string code = "localStorage.setItem('" + path + "', '" + data + "');";
+			emscripten_run_script(code.data());
+		}
+
+		inline std::string __platform_read_string(std::string path) {
+			std::string code = "localStorage.getItem('" + path + "') || '';";
+			return emscripten_run_script_string(code.data());
+		}
+
 	}
 
 	[[noreturn]] inline void platform_exit(int code) {
@@ -144,7 +154,7 @@ using PlatformLoopCallback = void(*)();
 
 	// sudo apt-get install libopenal-dev
 
-	#include <winx/winx.h>
+	#include <winx.h>
 	#include <glad/glad.h>
 	#include <sys/stat.h>
 
@@ -194,6 +204,37 @@ using PlatformLoopCallback = void(*)();
 			__screen_height = height;
 		}
 
+		inline void __platform_write_string(std::string path, std::string data) {
+			printf("Writing state 'local/%s'\n", path.c_str());
+
+			mkdir("./local", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+			std::ofstream f;
+			f.open("./local/" + path, std::ofstream::binary | std::ifstream::out);
+			f.write(data.data(), data.size());
+		}
+
+		inline std::string __platform_read_string(std::string path) {
+			printf("Reading state 'local/%s'\n", path.c_str());
+
+			std::ifstream f;
+			f.open("./local/" + path, std::ifstream::binary | std::ifstream::in);
+
+			if (!f.is_open()) {
+				return "";
+			}
+
+			f.seekg(0, std::ifstream::end);
+			const auto size = f.tellg();
+			f.seekg(0, std::ifstream::beg);
+
+			std::string buffer;
+			buffer.resize(size);
+			f.read(const_cast<char*>(buffer.data()), size);
+
+			return buffer;
+		}
+
 	}
 
 	[[noreturn]] inline void platform_exit(int code) {
@@ -239,35 +280,17 @@ using PlatformLoopCallback = void(*)();
 		__impl::__screen_height = GAME_NATIVE_HEIGHT;
 
 		winxSetCloseEventHandle(__impl::__platform_close_handler);
-		winxSetKeybordEventHandle(__impl::__platform_keyboard_handler);
+		winxSetKeyboardEventHandle(__impl::__platform_keyboard_handler);
 		winxSetResizeEventHandle(__impl::__platform_resize_handler);
 	}
 
-	inline void platform_write(std::string path, std::string data) {
-		mkdir("./local", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-
-		std::ofstream f;
-		f.open("./local/" + path, std::ofstream::binary | std::ifstream::out);
-		f.write(data.data(), data.size());
-	}
-
-	inline std::string platform_read(std::string path) {
-		std::ifstream f;
-		f.open("./local/" + path, std::ifstream::binary | std::ifstream::in);
-
-		if (!f.is_open()) {
-			return "";
-		}
-
-		f.seekg(0, std::ifstream::end);
-		const auto size = f.tellg();
-		f.seekg(0, std::ifstream::beg);
-
-		std::string buffer;
-		buffer.resize(size);
-		f.read(const_cast<char*>(buffer.data()), size);
-
-		return buffer;
-	}
-
 #endif
+
+// shared
+inline void platform_write_string(std::string path, std::string data) {
+	__impl::__platform_write_string(path, data);
+}
+
+inline std::string platform_read_string(std::string path) {
+	return __impl::__platform_read_string(path);
+}
