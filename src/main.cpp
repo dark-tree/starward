@@ -1,6 +1,7 @@
 
 #include <external.hpp>
 #include <rendering.hpp>
+#include <gls/layout.hpp>
 
 #include "const.hpp"
 #include "game/sounds.hpp"
@@ -203,19 +204,19 @@ int main() {
 	gls::Layout screen_layout;
 	screen_layout.attribute(degrade_shader.attribute("iPos"), 2, GL_FLOAT);
 
-	gls::Buffer blit_buffer {screen_layout, GL_STATIC_DRAW};
+	gls::VertexBuffer blit_buffer {screen_layout, GL_STATIC_DRAW};
 	blit_buffer.upload((uint8_t*) vertices_quad, sizeof(vertices_quad));
 
 	gls::TileSet font8x8 {"assets/font8x8.png", 8};
 	gls::TileSet tileset {"assets/tileset.png", 16};
 
-	gls::Buffer game_buffer {geometry_layout, GL_DYNAMIC_DRAW};
+	gls::VertexBuffer game_buffer {geometry_layout, GL_DYNAMIC_DRAW};
 	gls::BufferWriter<gls::Vert4f4b> game_writer {game_buffer};
 
-	gls::Buffer text_buffer {geometry_layout, GL_DYNAMIC_DRAW};
+	gls::VertexBuffer text_buffer {geometry_layout, GL_DYNAMIC_DRAW};
 	gls::BufferWriter<gls::Vert4f4b> text_writer {text_buffer};
 
-	gls::blend(true);
+	gls::setBlend(true);
 
 	printf("System ready!\n");
 

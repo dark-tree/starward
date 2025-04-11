@@ -13,34 +13,27 @@ namespace gls {
 
 		public:
 
-			Shader(const std::string& base_path) {
-				std::string vertex_source = readFile(base_path + ".vert");
-				std::string fragment_source = readFile(base_path + ".frag");
+			Shader(const std::string& base_path);
+			~Shader();
 
-				GLuint vert = gls::compile_shader(GL_VERTEX_SHADER, vertex_source.c_str());
-				GLuint frag = gls::compile_shader(GL_FRAGMENT_SHADER, fragment_source.c_str());
-				this->program = gls::link_shaders(vert, frag);
+			Shader(const Shader& buffer) = delete;
+			Shader(Shader&& buffer) = default;
 
-				glDeleteShader(vert);
-				glDeleteShader(frag);
-			}
+			/// Get uniform location by name
+			int uniform(const char* name);
 
-			~Shader() {
-				glDeleteProgram(program);
-			}
+			/// Get attribute location by name
+			int attribute(const char* name);
 
-			int uniform(const char* name) {
-				return glGetUniformLocation(program, name);
-			}
-
-			int attribute(const char* name) {
-				return glGetAttribLocation(program, name);
-			}
-
-			void use() {
-				glUseProgram(program);
-			}
+			/// Bind shader
+			void use();
 
 	};
+
+	/// Compile shader from GLSL string
+	GLuint compileShaderSource(GLenum type, const char* source);
+
+	/// link shader program from two shader modules
+	GLuint linkShaderProgram(GLuint vertex, GLuint fragment);
 
 }

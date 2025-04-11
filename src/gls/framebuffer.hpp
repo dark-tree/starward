@@ -13,39 +13,26 @@ namespace gls {
 
 		public:
 
-			Framebuffer() {
-				glGenFramebuffers(1, &fbo);
-			}
+			Framebuffer();
+			Framebuffer(unsigned int fbo);
+			~Framebuffer();
 
-			Framebuffer(unsigned int fbo) {
-				this->fbo = fbo;
-			}
+			Framebuffer(const Framebuffer& buffer) = delete;
+			Framebuffer(Framebuffer&& buffer) = default;
 
-			~Framebuffer() {
-				if (fbo != 0) {
-					glDeleteFramebuffers(1, &fbo);  
-				}
-			}
+			/// Add a pixel buffer to back this framebuffer
+			void attach(const PixelBuffer& buffer, GLenum attachment);
 
-			void attach(const PixelBuffer& buffer, GLenum attachment) {
-				use();
-				buffer.framebuffer(attachment);
-			}
+			/// Bind this framebuffer
+			void use() const;
 
-			void use() const {
-				glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-			}
-
-			void clear(GLbitfield mask = GL_COLOR_BUFFER_BIT) const {
-				glClear(mask);
-			}
+			/// Clear this framebuffer
+			void clear(GLbitfield mask = GL_COLOR_BUFFER_BIT) const;
 
 		public:
 
-			static const Framebuffer& main() {
-				static Framebuffer fb {0};
-				return fb;
-			}
+			/// Get reference to the main screen framebuffer
+			static const Framebuffer& main();
 
 	};
 

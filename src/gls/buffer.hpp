@@ -1,12 +1,12 @@
 #pragma once
 
 #include <external.hpp>
-#include "wrapper.hpp"
-#include "layout.hpp"
 
 namespace gls {
 
-	class Buffer {
+	class Layout;
+
+	class VertexBuffer {
 
 		private:
 
@@ -18,37 +18,17 @@ namespace gls {
 
 		public:
 
-			Buffer(const Layout& layout, GLenum type) {
-				// create and bind VAO
-				glGenVertexArrays(1, &vao);
-				glBindVertexArray(vao);
+			VertexBuffer(const Layout& layout, GLenum type);
+			~VertexBuffer();
 
-				// create and bind VBO
-				glGenBuffers(1, &vbo);
-				glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			VertexBuffer(const VertexBuffer& buffer) = delete;
+			VertexBuffer(VertexBuffer&& buffer) = default;
 
-				// configure VAO
-				this->stride = layout.apply();
-				this->type = type;
-			}
+			/// Upload given data to the GPU
+			void upload(uint8_t* data, size_t size);
 
-			~Buffer() {
-				glDeleteVertexArrays(1, &vao);
-				glDeleteBuffers(1, &vbo);
-			}
-
-			void upload(uint8_t* data, size_t size) {
-				glBindBuffer(GL_ARRAY_BUFFER, vbo);
-				glBufferData(GL_ARRAY_BUFFER, size, data, type);
-				vertices = size / stride;
-
-//				printf("stride=%d size=%d vertices=%d\n", stride, (int) size, vertices);
-			}
-
-			void draw() {
-				glBindVertexArray(vao);
-				glDrawArrays(GL_TRIANGLES, 0, vertices);
-			}
+			/// Draw buffer data using bound shader
+			void draw();
 
 	};
 
@@ -58,17 +38,19 @@ namespace gls {
 		private:
 
 			std::vector<V> vertices;
-			Buffer& buffer;
+			VertexBuffer& buffer;
 
 		public:
 
-			BufferWriter(Buffer& buffer)
+			BufferWriter(VertexBuffer& buffer)
 			: buffer(buffer) {}
 
+			/// Write vertex to buffer
 			void push(V vertex) {
 				vertices.push_back(vertex);
 			}
 
+			/// Upload written data to the underlying buffer
 			void upload() {
 				buffer.upload((uint8_t*) vertices.data(), vertices.size() * sizeof(V));
 				vertices.clear();

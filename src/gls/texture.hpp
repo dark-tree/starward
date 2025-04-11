@@ -1,10 +1,12 @@
 #pragma once
 
 #include <external.hpp>
-#include <util.hpp>
+#include "sprite.hpp"
 
 namespace gls {
 
+
+	/// Generic pixel buffer
 	class PixelBuffer {
 
 		private:
@@ -15,14 +17,22 @@ namespace gls {
 		public:
 
 			virtual ~PixelBuffer() {}
+
+			/// Try to resize the buffer, if possible
 			virtual void resize(int w, int h, GLenum internal_format, GLenum format) = 0;
 
+			/// Bind this pixel buffer
 			virtual void use() const = 0;
+
+			/// Get width in pixels
 			virtual uint32_t width() const = 0;
+
+			/// get height in pixels
 			virtual uint32_t height() const = 0;
 
 	};
 
+	/// A pixel buffer that can be sampled
 	class Texture : public PixelBuffer {
 
 		protected:
@@ -33,81 +43,32 @@ namespace gls {
 			uint32_t w = 0;
 			uint32_t h = 0;
 
-			GLenum format_of(int channels) {
-				switch (channels) {
-					case 4: return GL_RGBA;
-					case 3: return GL_RGB;
-					case 1: return GL_ALPHA;
-				}
+			GLenum format(int channels);
 
-				fault("Unsuported texture channel count: %d!\n", channels);
-			}
-
-			void framebuffer(GLenum attachment) const override {
-				glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, tid, 0);
-			}
+			void framebuffer(GLenum attachment) const override;
 
 		public:
 
-			Texture(const char* path)
-			: Texture() {
-				int32_t width, height, channels;
-				uint8_t* data = stbi_load(path, &width, &height, &channels, 4);
+			Texture(const char* path);
+			Texture();
+			~Texture();
 
-				if (data == nullptr) {
-					fault("Failed to load texture: '%s'!\n", path);
-				}
+			Texture(const Texture& buffer) = delete;
+			Texture(Texture&& buffer) = default;
 
-				upload(data, width, height, 4);
-				stbi_image_free(data);
-			}
+			void upload(unsigned char* data, int width, int height, int channels);
 
-			Texture() {
-				glGenTextures(1, &tid);
-				use();
+			void resize(int width, int height, GLenum internal_format, GLenum format) override;
 
-				// set texture wrapping
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			void use() const override;
 
-				// set texture filtering
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			}
+			uint32_t width() const override;
 
-			~Texture() {
-				glDeleteTextures(1, &tid);
-			}
-
-			void upload(unsigned char* data, int width, int height, int channels) {
-				use();
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format_of(channels), GL_UNSIGNED_BYTE, data);
-				w = width;
-				h = height;
-			}
-
-			void resize(int width, int height, GLenum internal_format, GLenum format) override {
-				use();
-				glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
-				w = width;
-				h = height;
-			}
-
-			void use() const override {
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, tid);
-			}
-
-			uint32_t width() const override {
-				return w;
-			}
-
-			uint32_t height() const override {
-				return h;
-			}
+			uint32_t height() const override;
 
 	};
 
+	/// A pixel buffer that can be written to, but not read from
 	class RenderBuffer : public PixelBuffer {
 
 		private:
@@ -116,57 +77,24 @@ namespace gls {
 			uint32_t w = 0;
 			uint32_t h = 0;
 
-			void framebuffer(GLenum attachment) const override {
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, rbo);
-			}
+			void framebuffer(GLenum attachment) const override;
 
 		public:
 
-			RenderBuffer() {
-				glGenRenderbuffers(1, &rbo);
-				glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-			}
+			RenderBuffer();
+			~RenderBuffer();
 
-			~RenderBuffer() {
-				glDeleteRenderbuffers(1, &rbo);
-			}
+			void resize(int width, int height, GLenum internal_format, GLenum format) override;
 
-			void resize(int width, int height, GLenum internal_format, GLenum format) override {
-				use();
-				glRenderbufferStorage(GL_RENDERBUFFER, internal_format, width, height);
-				w = width;
-				h = height;
-			}
+			void use() const override;
 
-			void use() const override {
-				glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-			}
+			uint32_t width() const override;
 
-			uint32_t width() const override {
-				return w;
-			}
-
-			uint32_t height() const override {
-				return h;
-			}
+			uint32_t height() const override;
 
 	};
 
-	class Sprite {
-
-		public:
-
-			float min_u, min_v, max_u, max_v;
-
-		public:
-
-			Sprite(float min_u, float min_v, float max_u, float max_v)
-			: min_u(min_u), min_v(min_v), max_u(max_u), max_v(max_v) {
-//				printf("min_u=%f min_v=%f max_u=%f max_v=%f\n", min_u, min_v, max_u, max_v);
-			}
-
-	};
-
+	/// Managed texture build from smaller regions called sprites
 	class TileSet : public PixelBuffer {
 
 		private:
@@ -174,68 +102,31 @@ namespace gls {
 			Texture texture;
 			int tw, th, line, column;
 
-			void framebuffer(GLenum attachment) const override {
-				texture.framebuffer(attachment);
-			}
+			void framebuffer(GLenum attachment) const override;
 
 		public:
 
-			TileSet(const char* path, uint32_t tile)
-			: TileSet(path, tile, tile) {}
+			TileSet(const char* path, uint32_t tile);
 
-			TileSet(const char* path, uint32_t tw, uint32_t th)
-			: texture(path), tw(tw), th(th), line(texture.width() / tw), column(texture.height() / th) {
-				if (texture.width() % tw != 0 || texture.height() % th != 0) {
-					fault("Unable to neatly divide tileset! Texture width: %d tile width: %d\n", texture.width(), tw);
-				}
-			}
+			TileSet(const char* path, uint32_t tw, uint32_t th);
 
-			void resize(int w, int h, GLenum internal_format, GLenum format) override {
-				fault("Can't resize tileset, operation forbidden!");
-			}
+			void resize(int w, int h, GLenum internal_format, GLenum format) override;
 
-			void use() const override {
-				texture.use();
-			}
+			void use() const override;
 
-			uint32_t width() const override {
-				return texture.width();
-			}
+			uint32_t width() const override;
 
-			uint32_t height() const override {
-				return texture.height();
-			}
+			uint32_t height() const override;
 
-			uint32_t tiles_in_line() const {
-				return line;
-			}
+			uint32_t columns() const;
 
-			uint32_t tiles_in_column() const {
-				return column;
-			}
+			uint32_t rows() const;
 
 		public:
 
-			Sprite sprite(int x, int y) {
-				const int min_x = x * tw;
-				const int min_y = y * th;
-				const int max_x = min_x + tw;
-				const int max_y = min_y + th;
+			Sprite sprite(int x, int y);
 
-				return {
-					(min_x + 0.01f) / (float) width(),
-					(min_y + 0.01f) / (float) height(),
-					(max_x - 0.01f) / (float) width(),
-					(max_y - 0.01f) / (float) height()
-				};
-			}
-
-			Sprite sprite(int index) {
-				int x = index % line;
-				int y = column - (index / line) - 1;
-
-				return sprite(x, y);
-			}
+			Sprite sprite(int index);
 
 	};
 

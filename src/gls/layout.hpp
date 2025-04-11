@@ -18,11 +18,10 @@ namespace gls {
 				if (type == GL_UNSIGNED_INT) return sizeof(uint32_t);
 				if (type == GL_FLOAT) return sizeof(float);
 
-				// invalid type given
-				return 0;
+				fault("Invalid OpenGL data type!\n");
 			}
 
-			friend class Buffer;
+			friend class VertexBuffer;
 
 			struct Attribute {
 				int index;
