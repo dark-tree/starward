@@ -20,10 +20,6 @@ TileEntity::TileEntity(double x, double y, uint8_t tile, int tx, int ty)
 	this->fy = std::clamp(1 / (1 + dy), -8.0f, 8.0f);
 }
 
-gls::Sprite TileEntity::sprite(gls::TileSet& tileset) {
-	return getTileSprite(tileset, tile);
-}
-
 void TileEntity::tick(Level& level) {
 
 	this->x += fx;
@@ -31,9 +27,6 @@ void TileEntity::tick(Level& level) {
 
 	this->fx *= 0.9f;
 	this->fy *= 0.9f;
-
-	float max_age = 10;
-	this->a = 255 * (max_age - age) / max_age;
 
 	if (age >= max_age) {
 		dead = true;
@@ -44,4 +37,9 @@ void TileEntity::tick(Level& level) {
 	}
 
 	age ++;
+}
+
+void TileEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+	Color color = Color::white().withAlpha(255 * (max_age - age) / max_age);
+	emitEntityQuad(level, writer, getTileSprite(tileset, tile), size, angle, color);
 }

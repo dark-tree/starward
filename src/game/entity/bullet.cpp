@@ -17,18 +17,6 @@ BulletEntity::BulletEntity(float velocity, double x, double y, const std::shared
 	this->parent = parent;
 	this->velocity = velocity;
 	this->angle = angle;
-
-	if (velocity < 0) {
-		this->r = 255;
-		this->g = 50;
-		this->b = 50;
-		this->a = 255;
-	} else {
-		this->r = 50;
-		this->g = 50;
-		this->b = 255;
-		this->a = 255;
-	}
 }
 
 bool BulletEntity::isCausedByPlayer() {
@@ -109,4 +97,9 @@ void BulletEntity::tick(Level& level) {
 	}
 
 	Entity::tick(level);
+}
+
+void BulletEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+	Color color = velocity < 0 ? Color::red() : Color::blue();
+	emitEntityQuad(level, writer, tileset.sprite(0, 0), size, angle, color);
 }

@@ -18,5 +18,6 @@ class BulletEntity : public Entity {
 		bool isCausedByPlayer() override;
 		std::shared_ptr<Entity> getParent() override;
 		void tick(Level& level) override;
+		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) override;
 
 };

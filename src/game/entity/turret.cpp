@@ -13,11 +13,6 @@
 
 TurretAlienEntity::TurretAlienEntity(double x, double y, int evolution)
 : Entity(2, 32, x, y) {
-	this->r = 255;
-	this->g = 50;
-	this->b = 50;
-	this->a = 255;
-
 	this->evolution = evolution;
 }
 
@@ -36,10 +31,6 @@ void TurretAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
 		level.addScore(100);
 		this->dead = true;
 	}
-}
-
-gls::Sprite TurretAlienEntity::sprite(gls::TileSet& tileset) {
-	return tileset.sprite(0, 6);
 }
 
 void TurretAlienEntity::shoot(Level& level, float speed, float radius, float offset) {
@@ -89,8 +80,6 @@ void TurretAlienEntity::tick(Level& level) {
 }
 
 void TurretAlienEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
-	this->a = 200;
-	Entity::draw(level, tileset, writer);
-
-	emitSpriteQuad(writer, x, y + level.getScroll(), size, size, head, tileset.sprite(evolution + 1, 6), r, g, b, 255);
+	emitEntityQuad(level, writer, tileset.sprite(0, 6), size, angle, Color::red());
+	emitEntityQuad(level, writer, tileset.sprite(evolution + 1, 6), size, head, Color::red());
 }

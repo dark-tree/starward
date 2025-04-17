@@ -14,10 +14,7 @@
 
 PlayerEntity::PlayerEntity()
 : Entity(2, 64, SW / 2, 0) {
-	this->r = 255;
-	this->g = 255;
-	this->b = 255;
-	this->a = 255;
+
 }
 
 bool PlayerEntity::isCausedByPlayer() {
@@ -55,41 +52,6 @@ void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
 		} else {
 			level.addScore(1000);
 		}
-	}
-}
-
-gls::Sprite PlayerEntity::sprite(gls::TileSet& tileset) {
-	if (invulnerable > 0) {
-		this->a = 180;
-	} else {
-		this->a = 255;
-	}
-
-	if (invulnerable > 0) {
-		return tileset.sprite(3 - (invulnerable & 0b1000 ? 1 : 0), 0);
-	}
-
-	return tileset.sprite(2, 0);
-}
-
-void PlayerEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
-	Entity::draw(level, tileset, writer);
-
-	int pack = 8;
-	int magazines = ammo / pack;
-	int modulo = ammo % pack;
-	int unit = 255 / pack * modulo;
-
-	for (int i = 0; i < lives; i ++) {
-		emitSpriteQuad(writer, 32 + i * 48, SH - 32, 32, 32, 0, tileset.sprite(0, 1), 255, 255, 255, 220);
-	}
-
-	for (int i = 0; i < magazines; i ++) {
-		emitSpriteQuad(writer, 16 + i * 16, 16, 6, 6, 0, tileset.sprite(0, 0), 155, 155, 255, 220);
-	}
-
-	if (modulo) {
-		emitSpriteQuad(writer, 16 + magazines * 16, 16, 6, 6, 0, tileset.sprite(0, 0), 155, 155, 255, unit);
 	}
 }
 
@@ -153,4 +115,32 @@ void PlayerEntity::tick(Level& level) {
 
 	clamp();
 	Entity::tick(level);
+}
+
+void PlayerEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+
+	gls::Sprite sprite = tileset.sprite(2, 0);
+
+	if (invulnerable > 0) {
+		sprite = tileset.sprite(3 - (invulnerable & 0b1000 ? 1 : 0), 0);
+	}
+
+	emitEntityQuad(level, writer, sprite, size, angle, Color::white().withAlpha(invulnerable > 0 ? 180 : 255));
+
+	int pack = 8;
+	int magazines = ammo / pack;
+	int modulo = ammo % pack;
+	int unit = 255 / pack * modulo;
+
+	for (int i = 0; i < lives; i ++) {
+		emitSpriteQuad(writer, 32 + i * 48, SH - 32, 32, 32, 0, tileset.sprite(0, 1), 255, 255, 255, 220);
+	}
+
+	for (int i = 0; i < magazines; i ++) {
+		emitSpriteQuad(writer, 16 + i * 16, 16, 6, 6, 0, tileset.sprite(0, 0), 155, 155, 255, 220);
+	}
+
+	if (modulo) {
+		emitSpriteQuad(writer, 16 + magazines * 16, 16, 6, 6, 0, tileset.sprite(0, 0), 155, 155, 255, unit);
+	}
 }

@@ -17,14 +17,14 @@ bool BlowEntity::shouldCollide(Entity* entity) {
 	return false;
 }
 
-gls::Sprite BlowEntity::sprite(gls::TileSet& tileset) {
-	return tileset.sprite((int) age / 5, 2);
-}
-
 void BlowEntity::tick(Level& level) {
 	Entity::tick(level);
 
 	if (age >= 5 * 4) {
 		dead = true;
 	}
+}
+
+void BlowEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+	emitEntityQuad(level, writer, tileset.sprite((int) age / 5, 2), size, angle, Color::white());
 }

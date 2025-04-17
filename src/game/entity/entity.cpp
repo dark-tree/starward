@@ -9,15 +9,14 @@
  * Entity
  */
 
+void Entity::emitEntityQuad(Level& level, gls::BufferWriter<gls::Vert4f4b>& writer, gls::Sprite sprite, float size, float angle, Color color) const {
+	emitSpriteQuad(writer, x, y + level.getScroll(), size, size, angle, sprite, color.r, color.g, color.b, color.a);
+}
+
 Entity::Entity(int radius, double size, double x, double y)
 : tile_radius(radius), size(size) {
 	this->x = x;
 	this->y = y;
-
-	this->r = 255;
-	this->g = 255;
-	this->b = 255;
-	this->a = 255;
 }
 
 Entity::~Entity() {}
@@ -72,14 +71,6 @@ bool Entity::isCausedByPlayer() {
 
 std::shared_ptr<Entity> Entity::getParent() {
 	return nullptr;
-}
-
-gls::Sprite Entity::sprite(gls::TileSet& tileset) {
-	return tileset.sprite(0, 0);
-}
-
-void Entity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
-	emitSpriteQuad(writer, x, y + level.getScroll(), size, size, angle, sprite(tileset), r, g, b, a);
 }
 
 void Entity::tick(Level& level) {

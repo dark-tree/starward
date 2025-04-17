@@ -6,6 +6,8 @@ class TileEntity : public Entity {
 
 	private:
 
+		const float max_age = 10;
+
 		double fx;
 		double fy;
 		uint8_t tile;
@@ -14,7 +16,7 @@ class TileEntity : public Entity {
 
 		TileEntity(double x, double y, uint8_t tile, int tx, int ty);
 
-		gls::Sprite sprite(gls::TileSet& tileset) override;
 		void tick(Level& level) override;
+		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) override;
 
 };

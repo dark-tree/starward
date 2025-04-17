@@ -2,6 +2,7 @@
 
 #include <external.hpp>
 #include <rendering.hpp>
+#include <game/color.hpp>
 
 class Level;
 
@@ -9,12 +10,13 @@ class Entity : public std::enable_shared_from_this<Entity> {
 
 	protected:
 
-		float r, g, b, a;
 		float angle = 0;
 
 		bool visible = false;
 		bool dead = false;
 		long age = 0;
+
+		void emitEntityQuad(Level& level, gls::BufferWriter<gls::Vert4f4b>& writer, gls::Sprite sprite, float size, float angle, Color color) const;
 
 	public:
 
@@ -39,9 +41,8 @@ class Entity : public std::enable_shared_from_this<Entity> {
 		virtual bool isCausedByPlayer();
 		virtual std::shared_ptr<Entity> getParent();
 
-		virtual gls::Sprite sprite(gls::TileSet& tileset);
-		virtual void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer);
 		virtual void tick(Level& level);
+		virtual void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) = 0;
 
 		std::shared_ptr<Entity> self();
 

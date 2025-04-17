@@ -14,11 +14,6 @@
 
 SweeperAlienEntity::SweeperAlienEntity(double x, double y, int evolution)
 : Entity(2, 32, x, y) {
-	this->r = 255;
-	this->g = 50;
-	this->b = 50;
-	this->a = 255;
-
 	this->evolution = evolution;
 	this->health += evolution;
 }
@@ -36,6 +31,7 @@ void SweeperAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
 	health --;
 	bump = 4;
 	attacked = true;
+	flash = 4;
 
 	if (health <= 0) {
 		this->dead = true;
@@ -44,10 +40,6 @@ void SweeperAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
 			level.addScore(100);
 		}
 	}
-}
-
-gls::Sprite SweeperAlienEntity::sprite(gls::TileSet& tileset) {
-	return tileset.sprite(evolution, 5);
 }
 
 void SweeperAlienEntity::tick(Level& level) {
@@ -60,6 +52,10 @@ void SweeperAlienEntity::tick(Level& level) {
 		this->bump -= 0.1;
 	} else {
 		this->bump = 0;
+	}
+
+	if (flash) {
+		flash --;
 	}
 
 	this->cooldown -= 0.05f;
@@ -111,4 +107,8 @@ void SweeperAlienEntity::tick(Level& level) {
 	}
 
 	Entity::tick(level);
+}
+
+void SweeperAlienEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+	emitEntityQuad(level, writer, tileset.sprite(evolution, 5), size, angle, Color::red(flash || (buried % 10 > 5)));
 }

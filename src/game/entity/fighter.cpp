@@ -13,10 +13,6 @@
 
 FighterAlienEntity::FighterAlienEntity(double x, double y, int evolution)
 : Entity(2, 32, x, y) {
-	this->r = 255;
-	this->g = 50;
-	this->b = 50;
-	this->a = 255;
 
 	// player offset targets
 	this->px = -80;
@@ -128,10 +124,6 @@ void FighterAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
 	}
 }
 
-gls::Sprite FighterAlienEntity::sprite(gls::TileSet& tileset) {
-	return tileset.sprite(evolution, 7);
-}
-
 void FighterAlienEntity::tick(Level& level) {
 
 	this->cooldown -= 0.05f;
@@ -237,7 +229,7 @@ void FighterAlienEntity::tick(Level& level) {
 }
 
 void FighterAlienEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
-	Entity::draw(level, tileset, writer);
+	emitEntityQuad(level, writer, tileset.sprite(evolution, 7), size, angle, Color::red());
 
 	auto player = level.getPlayer();
 

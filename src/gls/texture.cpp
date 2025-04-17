@@ -116,6 +116,10 @@ uint32_t gls::RenderBuffer::height() const {
  * TileSet
  */
 
+gls::TileSet::Ref gls::TileSet::of(int x, int y) {
+	return {x, y};
+}
+
 void gls::TileSet::framebuffer(GLenum attachment) const {
 	texture.framebuffer(attachment);
 }
@@ -173,4 +177,8 @@ gls::Sprite gls::TileSet::sprite(int index) {
 	int y = column - (index / line) - 1;
 
 	return sprite(x, y);
+}
+
+gls::Sprite gls::TileSet::sprite(Ref ref) {
+	return sprite(ref.x, ref.y);
 }

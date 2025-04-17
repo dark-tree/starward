@@ -53,10 +53,6 @@ void PowerUpEntity::onDamage(Level& level, int damage, Entity* damager) {
 	}
 }
 
-gls::Sprite PowerUpEntity::sprite(gls::TileSet& tileset) {
-	return tileset.sprite((int) type, 1);
-}
-
 void PowerUpEntity::tick(Level& level) {
 	this->angle = sin(this->age * 0.07f) * 0.5;
 
@@ -73,4 +69,8 @@ void PowerUpEntity::tick(Level& level) {
 	}
 
 	Entity::tick(level);
+}
+
+void PowerUpEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+	emitEntityQuad(level, writer, tileset.sprite((int) type, 1), size, angle, Color::white());
 }

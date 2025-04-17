@@ -5,7 +5,6 @@
 
 namespace gls {
 
-
 	/// Generic pixel buffer
 	class PixelBuffer {
 
@@ -43,6 +42,7 @@ namespace gls {
 			uint32_t w = 0;
 			uint32_t h = 0;
 
+			/// Convert channel count to OpenGL enum
 			GLenum format(int channels);
 
 			void framebuffer(GLenum attachment) const override;
@@ -56,14 +56,19 @@ namespace gls {
 			Texture(const Texture& buffer) = delete;
 			Texture(Texture&& buffer) = default;
 
+			/// Initialize texture of given size and contents
 			void upload(unsigned char* data, int width, int height, int channels);
 
+			/// Initialize texture of given size, with undefined contents
 			void resize(int width, int height, GLenum internal_format, GLenum format) override;
 
+			/// Bind this texture
 			void use() const override;
 
+			/// Get current width in pixels
 			uint32_t width() const override;
 
+			/// Get current height in pixels
 			uint32_t height() const override;
 
 	};
@@ -97,6 +102,16 @@ namespace gls {
 	/// Managed texture build from smaller regions called sprites
 	class TileSet : public PixelBuffer {
 
+		public:
+
+			struct Ref {
+				const int x;
+				const int y;
+			};
+
+			/// Create reference for tile [x, y]
+			static Ref of(int x, int y);
+
 		private:
 
 			Texture texture;
@@ -114,19 +129,28 @@ namespace gls {
 
 			void use() const override;
 
+			/// Get current atlas width in pixels
 			uint32_t width() const override;
 
+			/// Get current atlas height in pixels
 			uint32_t height() const override;
 
+			/// Get the number of sprite columns in atlas
 			uint32_t columns() const;
 
+			/// Get the number of sprite rows in atlas
 			uint32_t rows() const;
 
 		public:
 
+			/// Get given tile from atlas
 			Sprite sprite(int x, int y);
 
+			/// Get Nth sprite from atlas
 			Sprite sprite(int index);
+
+			/// Get sprite by sprite reference
+			Sprite sprite(Ref ref);
 
 	};
 

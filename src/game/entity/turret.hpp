@@ -22,7 +22,6 @@ class TurretAlienEntity : public Entity {
 		bool checkPlacement(Level& level) override;
 
 		void onDamage(Level& level, int damage, Entity* damager) override;
-		gls::Sprite sprite(gls::TileSet& tileset) override;
 		void tick(Level& level) override;
 		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) override;
 
