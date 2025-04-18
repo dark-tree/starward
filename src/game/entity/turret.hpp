@@ -1,13 +1,10 @@
 #pragma once
 
-#include "entity.hpp"
+#include "alien.hpp"
 
-class TurretAlienEntity : public Entity {
+class TurretAlienEntity : public AlienEntity {
 
 	private:
-
-		int evolution; // 0, 1, 2
-		float cooldown = 1;
 
 		int barrel = 1;
 		float target = -deg(180); // desired rotation
@@ -21,7 +18,6 @@ class TurretAlienEntity : public Entity {
 
 		bool checkPlacement(Level& level) override;
 
-		void onDamage(Level& level, int damage, Entity* damager) override;
 		void tick(Level& level) override;
 		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) override;
 

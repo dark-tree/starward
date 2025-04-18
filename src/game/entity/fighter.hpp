@@ -1,10 +1,10 @@
 #pragma once
 
-#include "entity.hpp"
+#include "alien.hpp"
 
 class BulletEntity;
 
-class FighterAlienEntity : public Entity {
+class FighterAlienEntity : public AlienEntity {
 
 	private:
 
@@ -13,8 +13,6 @@ class FighterAlienEntity : public Entity {
 
 		int count = 0;
 		int avoiding = 0;
-		int evolution; // 0, 1, 2
-		float cooldown = 1;
 
 		bool escape = false;
 		bool underhung = false;
@@ -29,7 +27,7 @@ class FighterAlienEntity : public Entity {
 
 		bool checkPlacement(Level& level) override;
 
-		void onDamage(Level& level, int damage, Entity* damager) override;
+		void onKilled(Level& level) override;
 		void tick(Level& level) override;
 		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) override;
 

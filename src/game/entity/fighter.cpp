@@ -12,13 +12,11 @@
  */
 
 FighterAlienEntity::FighterAlienEntity(double x, double y, int evolution)
-: Entity(2, 32, x, y) {
+: AlienEntity(x, y, evolution) {
 
 	// player offset targets
 	this->px = -80;
 	this->py = 220;
-
-	this->evolution = evolution;
 }
 
 void FighterAlienEntity::forEachDanger(Level& level, const std::function<void(BulletEntity*, float, float)>& callback) {
@@ -113,15 +111,9 @@ bool FighterAlienEntity::checkPlacement(Level& level) {
 	return level.checkCollision(this).type == Collision::MISS;
 }
 
-void FighterAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
-	if (damager && !damager->isCausedByPlayer()) {
-		return;
-	}
-
-	if (damager && damager->isCausedByPlayer()) {
-		this->dead = true;
-		level.addScore(200);
-	}
+void FighterAlienEntity::onKilled(Level& level) {
+	spawnParticles(level, 5, 10);
+	level.addScore(200);
 }
 
 void FighterAlienEntity::tick(Level& level) {
@@ -225,11 +217,11 @@ void FighterAlienEntity::tick(Level& level) {
 	}
 
 	tickMovement(level);
-	Entity::tick(level);
+	AlienEntity::tick(level);
 }
 
 void FighterAlienEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
-	emitEntityQuad(level, writer, tileset.sprite(evolution, 7), size, angle, Color::red());
+	emitEntityQuad(level, writer, tileset.sprite(evolution, 7), size, angle, Color::red(damage_ticks));
 
 	auto player = level.getPlayer();
 

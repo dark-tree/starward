@@ -1,6 +1,7 @@
 
 #include "turret.hpp"
 #include "bullet.hpp"
+#include "dust.hpp"
 
 #include "game/level.hpp"
 #include "game/tile.hpp"
@@ -12,7 +13,7 @@
  */
 
 TurretAlienEntity::TurretAlienEntity(double x, double y, int evolution)
-: Entity(2, 32, x, y) {
+: AlienEntity(x, y, evolution) {
 	this->evolution = evolution;
 }
 
@@ -26,27 +27,27 @@ bool TurretAlienEntity::checkPlacement(Level& level) {
 	return true;
 }
 
-void TurretAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
-	if (damager && damager->isCausedByPlayer()) {
-		level.addScore(100);
-		this->dead = true;
-	}
-}
-
 void TurretAlienEntity::shoot(Level& level, float speed, float radius, float offset) {
 
 	// calculate shooting position
 	float angle = deg(90) - head + offset;
-	float dx = radius * cos(angle);
-	float dy = radius * sin(angle);
+	float ax = cos(angle);
+	float ay = sin(angle);
+
+	float effect = radius - 8;
 
 	// create bullet
-	level.addEntity(new BulletEntity {-speed, x + dx, y + dy, self(), head});
+	level.addEntity(new BulletEntity {-speed, x + radius * ax, y + radius * ay, self(), head});
+
+	// particle effect
+	for (int i = randomInt(2, 5); i > 0; i--) {
+		level.addEntity(new DustEntity {x + effect * ax, y + effect * ay, ax, ay, head, 1, 0.5, 20, Color::red()});
+	}
 
 }
 
 void TurretAlienEntity::tick(Level& level) {
-	Entity::tick(level);
+	AlienEntity::tick(level);
 
 	if (std::shared_ptr<PlayerEntity> player = level.getPlayer()) {
 		glm::vec2 dir {player->x - x, player->y - y};
@@ -80,6 +81,8 @@ void TurretAlienEntity::tick(Level& level) {
 }
 
 void TurretAlienEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
-	emitEntityQuad(level, writer, tileset.sprite(0, 6), size, angle, Color::red());
-	emitEntityQuad(level, writer, tileset.sprite(evolution + 1, 6), size, head, Color::red());
+	const Color color = Color::red(damage_ticks);
+
+	emitEntityQuad(level, writer, tileset.sprite(0, 6), size, angle, color);
+	emitEntityQuad(level, writer, tileset.sprite(evolution + 1, 6), size, head, color);
 }

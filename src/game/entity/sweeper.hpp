@@ -1,20 +1,15 @@
 #pragma once
 
-#include "entity.hpp"
+#include "alien.hpp"
 
-class SweeperAlienEntity : public Entity {
+class SweeperAlienEntity : public AlienEntity {
 
 	private:
 
-		int evolution; // 0, 1, 2
 		float bump = 0;
-		int health = 2;
 		int count = 0;
 		float facing = 1;
-		float cooldown = 1;
 		int buried = 0;
-		bool attacked = false;
-		int flash = 0;
 
 	public:
 
@@ -22,7 +17,9 @@ class SweeperAlienEntity : public Entity {
 
 		bool checkPlacement(Level& level) override;
 
+		void onDamaged(Level& level) override;
 		void onDamage(Level& level, int damage, Entity* damager) override;
+
 		void tick(Level& level) override;
 		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) override;
 };

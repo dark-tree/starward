@@ -14,12 +14,21 @@ template <typename... Args>
 #pragma clang diagnostic pop
 #pragma GCC diagnostic pop
 
-inline int randomInt(int min, int max) {
+inline std::mt19937& getRandomGenerator() {
 	static std::random_device device;
 	static std::mt19937 generator(device());
 
-	std::uniform_int_distribution<std::mt19937::result_type> distribution(min, max);
-	return distribution(generator);
+	return generator;
+}
+
+inline int randomInt(int min, int max) {
+	std::uniform_int_distribution distribution(min, max);
+	return distribution(getRandomGenerator());
+}
+
+inline float randomFloat(float min, float max) {
+	std::uniform_real_distribution distribution(min, max);
+	return distribution(getRandomGenerator());
 }
 
 inline std::string readFile(const std::string& path) {

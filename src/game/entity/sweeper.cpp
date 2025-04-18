@@ -2,6 +2,7 @@
 #include "sweeper.hpp"
 #include "bullet.hpp"
 #include "blow.hpp"
+#include "dust.hpp"
 
 #include "game/level.hpp"
 #include "game/tile.hpp"
@@ -13,32 +14,25 @@
  */
 
 SweeperAlienEntity::SweeperAlienEntity(double x, double y, int evolution)
-: Entity(2, 32, x, y) {
-	this->evolution = evolution;
-	this->health += evolution;
+: AlienEntity(x, y, evolution) {
+	this->health += 2 + evolution;
 }
 
 bool SweeperAlienEntity::checkPlacement(Level& level) {
 	return level.checkCollision(this).type == Collision::MISS;
 }
 
+void SweeperAlienEntity::onDamaged(Level& level) {
+	AlienEntity::onDamaged(level);
+
+	bump = 4;
+}
+
 void SweeperAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
+	AlienEntity::onDamage(level, damage, damager);
+
 	if (damager && !damager->isCausedByPlayer()) {
 		facing *= -1;
-		return;
-	}
-
-	health --;
-	bump = 4;
-	attacked = true;
-	flash = 4;
-
-	if (health <= 0) {
-		this->dead = true;
-
-		if (damager && damager->isCausedByPlayer()) {
-			level.addScore(100);
-		}
 	}
 }
 
@@ -52,10 +46,6 @@ void SweeperAlienEntity::tick(Level& level) {
 		this->bump -= 0.1;
 	} else {
 		this->bump = 0;
-	}
-
-	if (flash) {
-		flash --;
 	}
 
 	this->cooldown -= 0.05f;
@@ -74,7 +64,7 @@ void SweeperAlienEntity::tick(Level& level) {
 			level.addEntity(new BlowEntity(x, y));
 			SoundSystem::getInstance().add(Sounds::blow).play();
 
-			if (attacked) {
+			if (wasAttacked()) {
 				level.addScore(200);
 			}
 
@@ -106,9 +96,9 @@ void SweeperAlienEntity::tick(Level& level) {
 		}
 	}
 
-	Entity::tick(level);
+	AlienEntity::tick(level);
 }
 
 void SweeperAlienEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
-	emitEntityQuad(level, writer, tileset.sprite(evolution, 5), size, angle, Color::red(flash || (buried % 10 > 5)));
+	emitEntityQuad(level, writer, tileset.sprite(evolution, 5), size, angle, Color::red(damage_ticks || (buried % 10 > 5)));
 }

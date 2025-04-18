@@ -1,6 +1,7 @@
 
 #include "player.hpp"
 #include "bullet.hpp"
+#include "dust.hpp"
 #include "powerup.hpp"
 
 #include "game/level.hpp"
@@ -36,6 +37,12 @@ void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
 				level.setState(GameState::DEAD);
 				SoundSystem::getInstance().add(Sounds::death).play();
 				Entity::onDamage(level, damage, damager);
+
+				for (int i = randomInt(50, 80); i > 0; i--) {
+					int brightness = randomInt(50, 100);
+					Color color = Color::of(brightness, brightness, 255);
+					level.addEntity(new DustEntity {x, y, randomFloat(-1, 1), randomFloat(-1, 1), 1, 1, 1, 60, color});
+				}
 			}
 
 			SoundSystem::getInstance().add(Sounds::blow).play();
@@ -61,8 +68,15 @@ void PlayerEntity::tick(Level& level) {
 		if (ammo < 64) ammo ++;
 	}
 
-	this->y = 64 - level.getScroll() + level.getSkip() * 32;
+	this->y = 64 - level.getScroll() + level.getSkip() * 40;
 	this->cooldown -= 0.1f;
+
+	if (level.getSkip() > 0.5) {
+		float spread = randomFloat(-10, 10);
+		int brightness = randomInt(50, 100);
+		Color color = Color::of(brightness, brightness, 255);
+		level.addEntity(new DustEntity(x + spread, y - 42, 0, -1, 0, 1, 2, 20, color));
+	}
 
 	if (invulnerable == 0) {
 		Collision collision = level.checkCollision(this);
@@ -125,7 +139,9 @@ void PlayerEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<g
 		sprite = tileset.sprite(3 - (invulnerable & 0b1000 ? 1 : 0), 0);
 	}
 
-	emitEntityQuad(level, writer, sprite, size, angle, Color::white().withAlpha(invulnerable > 0 ? 180 : 255));
+	const float vert = size + level.getSkip() * 8;
+	Color c = Color::white().withAlpha(invulnerable > 0 ? 180 : 255);
+	emitSpriteQuad(writer, x, y + level.getScroll(), size, vert, angle, sprite, c.r, c.g, c.b, c.a);
 
 	int pack = 8;
 	int magazines = ammo / pack;
