@@ -11,6 +11,10 @@ class PlayerEntity : public Entity {
 		float cooldown = 0;
 		float tilt = 0;
 		int ammo = 32;
+		Box bumper;
+
+		/// get the left (side == -1) or right (side == +1) bumper box
+		Box getBoxBumper(int side) const;
 
 	public:
 
@@ -27,5 +31,6 @@ class PlayerEntity : public Entity {
 		void onDamage(Level& level, int damage, Entity* damager) override;
 		void tick(Level& level) override;
 		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) override;
+		void debugDraw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) override;
 
 };

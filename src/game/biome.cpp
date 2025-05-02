@@ -151,3 +151,7 @@ int BiomeManager::getPowerUpRarity() {
 glm::vec2 BiomeManager::getTerrain() {
 	return {low, high};
 }
+
+int BiomeManager::getBiomeIndex() {
+	return index;
+}

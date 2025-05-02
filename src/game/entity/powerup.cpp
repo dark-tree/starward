@@ -21,7 +21,7 @@ PowerUpEntity::Type PowerUpEntity::randomPick() {
 }
 
 PowerUpEntity::PowerUpEntity(double x, double y, Type type)
-: Entity(1, 32, x, y), type(type) {
+: Entity(32, x, y), type(type) {
 
 }
 

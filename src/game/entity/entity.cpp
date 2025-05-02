@@ -13,10 +13,18 @@ void Entity::emitEntityQuad(Level& level, gls::BufferWriter<gls::Vert4f4b>& writ
 	emitSpriteQuad(writer, x, y + level.getScroll(), size, size, angle, sprite, color.r, color.g, color.b, color.a);
 }
 
-Entity::Entity(int radius, double size, double x, double y)
-: tile_radius(radius), size(size) {
+void Entity::emitBoxWireframe(Box box, gls::BufferWriter<gls::Vert4f4b>& writer, gls::Sprite sprite, float width, Color color) const {
+	emitLineQuad(writer, box.x, box.y, box.x, box.y + box.h, width, sprite, color.r, color.g, color.b, color.a);
+	emitLineQuad(writer, box.x, box.y, box.x + box.w, box.y, width, sprite, color.r, color.g, color.b, color.a);
+	emitLineQuad(writer, box.x + box.w, box.y, box.x + box.w, box.y + box.h, width, sprite, color.r, color.g, color.b, color.a);
+	emitLineQuad(writer, box.x, box.y + box.h, box.x + box.w, box.y + box.h, width, sprite, color.r, color.g, color.b, color.a);
+}
+
+Entity::Entity(float size, float x, float y)
+: size(size) {
 	this->x = x;
 	this->y = y;
+	this->collider = Box {-size/2, -size/2, size, size};
 }
 
 Entity::~Entity() {}
@@ -40,23 +48,16 @@ void Entity::clamp() {
 	}
 }
 
+void Entity::debugDraw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+	emitBoxWireframe(getBoxCollider().withOffset(0, level.getScroll()), writer, tileset.sprite(0, 0), 1, Color::white());
+}
+
 bool Entity::checkPlacement(Level& level) {
 	return false;
 }
 
 bool Entity::shouldCollide(Entity* entity) {
-	float ts = this->size / 2;
-	float es = entity->size / 2;
-
-	if (this->x + ts < entity->x - es || this->x - ts > entity->x + es) {
-		return false;
-	}
-
-	if (this->y + ts < entity->y - es || this->y - ts > entity->y + es) {
-		return false;
-	}
-
-	return true;
+	return getBoxCollider().intersects(entity->getBoxCollider());
 }
 
 void Entity::onDamage(Level& level, int damage, Entity* damager) {
@@ -90,4 +91,8 @@ void Entity::tick(Level& level) {
 
 std::shared_ptr<Entity> Entity::self() {
 	return shared_from_this();
+}
+
+Box Entity::getBoxCollider() const {
+	return collider.withOffset(x, y);
 }

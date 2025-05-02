@@ -7,6 +7,7 @@
 #include "entity/entity.hpp"
 #include "entity/player.hpp"
 #include "biome.hpp"
+#include "level/box.hpp"
 
 enum struct GameState {
 	BEGIN,
@@ -22,9 +23,9 @@ struct Collision {
 		ENTITY
 	};
 
-	const Type type;
-	Entity* const entity = nullptr;
-	const int x, y;
+	Type type;
+	Entity* entity = nullptr;
+	int x, y;
 
 	Collision()
 	: type(MISS), entity(nullptr), x(0), y(0) {}
@@ -34,6 +35,7 @@ struct Collision {
 
 	Collision(Entity* entity)
 	: type(ENTITY), entity(entity), x(0), y(0) {}
+
 };
 
 class Level {
@@ -60,6 +62,10 @@ class Level {
 		int age = 0;
 		int total = 0;
 
+		int timer = 0;
+		int konami = 0;
+		bool debug = false;
+
 		std::array<LevelSegment, 4> segments;
 
 		std::vector<Entity*> pending;
@@ -73,15 +79,12 @@ class Level {
 		Level(BiomeManager& manager);
 		void spawnInitial();
 
-//		double getLocalDifficulty();
-//		double getTotalDifficulty();
+		float getSkip() const;
+		float getScroll() const;
+		float getSpeed() const;
 
-		double getSkip() const;
-		double getScroll() const;
-		double getSpeed() const;
-
-		glm::ivec2 toTilePos(int x, int y);
-		glm::vec2 toEntityPos(int x, int y);
+		glm::vec2 toTilePos(int x, int y) const;
+		glm::vec2 toEntityPos(int x, int y) const;
 
 		Entity* randomAlien(int margin, LevelSegment& segment);
 		std::shared_ptr<PlayerEntity> getPlayer();
@@ -90,8 +93,13 @@ class Level {
 		void addEntity(Entity* entity);
 		void tick();
 		void draw(gls::TileSet& font8x8, gls::BufferWriter<gls::Vert4f4b>& text_writer, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& game_writer);
-		void set(int x, int y, uint8_t tile);
-		uint8_t get(int x, int y);
+		void setTile(int x, int y, uint8_t tile);
+		uint8_t getTile(int x, int y) const;
+
+		Collision checkTileCollision(const Box& collider) const;
+		Collision checkEntityCollision(Entity* self) const;
+		Collision checkCollision(const Box& collider);
+
 		Collision checkCollision(Entity* self);
 		void setState(GameState state);
 

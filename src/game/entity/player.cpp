@@ -13,9 +13,14 @@
  * PlayerEntity
  */
 
-PlayerEntity::PlayerEntity()
-: Entity(2, 64, SW / 2, 0) {
+Box PlayerEntity::getBoxBumper(int side) const {
+	return bumper.withOffset(side * 32, 0).withOffset(x, y);
+}
 
+PlayerEntity::PlayerEntity()
+: Entity(64, SW / 2, 0) {
+	this->bumper = Box(-5, -32, 10, 64);
+	this->collider = Box {-24, -24, 48, 48};
 }
 
 bool PlayerEntity::isCausedByPlayer() {
@@ -64,6 +69,9 @@ void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
 
 void PlayerEntity::tick(Level& level) {
 
+	int avoidance = 0;
+
+	// regenerate ammo
 	if (age % 20 == 0) {
 		if (ammo < 64) ammo ++;
 	}
@@ -71,6 +79,7 @@ void PlayerEntity::tick(Level& level) {
 	this->y = 64 - level.getScroll() + level.getSkip() * 40;
 	this->cooldown -= 0.1f;
 
+	// spawn engine ploom particles
 	if (level.getSkip() > 0.5) {
 		float spread = randomFloat(-10, 10);
 		int brightness = randomInt(50, 100);
@@ -79,21 +88,28 @@ void PlayerEntity::tick(Level& level) {
 	}
 
 	if (invulnerable == 0) {
-		Collision collision = level.checkCollision(this);
+		Collision collision = level.checkTileCollision(getBoxCollider());
 
 		if (collision.type == Collision::TILE) {
 			onDamage(level, 10, this);
+		} else {
+			Collision left = level.checkTileCollision(getBoxBumper(-1));
+			Collision right = level.checkTileCollision(getBoxBumper(+1));
+
+			if (left.type == Collision::TILE) avoidance += 1;
+			if (right.type == Collision::TILE) avoidance -= 1;
 		}
 	}
 
 	tilt *= 0.9;
+	this->x += avoidance * 0.4;
 
-	if (gls::Input::is_pressed(Key::LEFT) || gls::Input::is_pressed(Key::A)) {
+	if ((avoidance <= 0) && gls::Input::is_pressed(Key::LEFT) || gls::Input::is_pressed(Key::A)) {
 		move(level, -6, 0);
 		tilt -= 0.1;
 	}
 
-	if (gls::Input::is_pressed(Key::RIGHT) || gls::Input::is_pressed(Key::D)) {
+	if ((avoidance >= 0) && gls::Input::is_pressed(Key::RIGHT) || gls::Input::is_pressed(Key::D)) {
 		move(level, +6, 0);
 		tilt += 0.1;
 	}
@@ -159,4 +175,11 @@ void PlayerEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<g
 	if (modulo) {
 		emitSpriteQuad(writer, 16 + magazines * 16, 16, 6, 6, 0, tileset.sprite(0, 0), 155, 155, 255, unit);
 	}
+}
+
+void PlayerEntity::debugDraw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+	Entity::debugDraw(level, tileset, writer);
+
+	emitBoxWireframe(getBoxBumper(-1).withOffset(0, level.getScroll()), writer, tileset.sprite(0, 0), 1, Color::white());
+	emitBoxWireframe(getBoxBumper(+1).withOffset(0, level.getScroll()), writer, tileset.sprite(0, 0), 1, Color::white());
 }

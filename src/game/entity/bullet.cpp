@@ -13,7 +13,7 @@
  */
 
 BulletEntity::BulletEntity(float velocity, double x, double y, const std::shared_ptr<Entity>& parent, float angle)
-: Entity(1, 8, x, y) {
+: Entity(8, x, y) {
 	this->parent = parent;
 	this->velocity = velocity;
 	this->angle = angle;
@@ -31,7 +31,7 @@ bool BulletEntity::isTileProtected(Level& level, glm::ivec2 pos, int tx, int ty)
 	glm::ivec2 end {tx, ty};
 
 	for (glm::ivec2 point : trace(pos, end)) {
-		if (level.get(point.x, point.y) == 2) {
+		if (level.getTile(point.x, point.y) == 2) {
 			if (point == pos || point == end) {
 				continue;
 			}
@@ -74,7 +74,7 @@ void BulletEntity::tick(Level& level) {
 					int tx = pos.x + ox;
 					int ty = pos.y + oy;
 
-					uint8_t tile = level.get(tx, ty);
+					uint8_t tile = level.getTile(tx, ty);
 
 					if (tile != 0) {
 						if (!isTileProtected(level, pos, tx, ty)) {
@@ -87,9 +87,9 @@ void BulletEntity::tick(Level& level) {
 
 		for (glm::ivec2 pos : broken) {
 			glm::ivec2 vec = level.toEntityPos(pos.x, pos.y);
-			uint8_t tile = level.get(pos.x, pos.y);
+			uint8_t tile = level.getTile(pos.x, pos.y);
 
-			level.set(pos.x, pos.y, 0);
+			level.setTile(pos.x, pos.y, 0);
 			level.addEntity(new TileEntity(x, y, tile, vec.x, vec.y));
 		}
 

@@ -5,7 +5,7 @@
  */
 
 DustEntity::DustEntity(double x, double y, float fx, float fy, float angle, float rotation, float jitter, int lifetime, Color color)
-: Entity(0, 4, x, y), lifetime(lifetime), fx(fx), fy(fy), scalar(jitter), color(color) {
+: Entity(4, x, y), lifetime(lifetime), fx(fx), fy(fy), scalar(jitter), color(color) {
 
 	this->angle = angle;
 	this->fx += randomFloat(-1, 1) * jitter;

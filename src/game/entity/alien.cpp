@@ -8,14 +8,14 @@
  */
 
 AlienEntity::AlienEntity(float x, float y, int evolution)
-: Entity(2, 32, x, y) {
+: Entity(32, x, y) {
 	this->evolution = evolution;
 }
 
-void AlienEntity::spawnParticles(Level& level, int min, int max) {
+void AlienEntity::spawnParticles(Level& level, int min, int max, float ovx, float ovy) {
 	for (int i = randomInt(min, max); i > 0; i--) {
-		float vx = randomFloat(-1, 1);
-		float vy = randomFloat(-1, 1);
+		float vx = randomFloat(-1, 1) + ovx;
+		float vy = randomFloat(-1, 1) + ovy;
 
 		level.addEntity(new DustEntity {x, y, vx, vy, 1, 1, 1, 30, Color::red()});
 	}
@@ -25,7 +25,12 @@ bool AlienEntity::wasAttacked() const {
 	return attacked;
 }
 
-void AlienEntity::onDamage(Level& level, int damage, Entity* damager) {
+void AlienEntity::onDamage(Level& level, int damage, NULLABLE Entity* damager) {
+	if (damage <= 0) {
+		this->damage_ticks = 4;
+		return;
+	}
+
 	if (damager && damager->isCausedByPlayer()) {
 
 		this->attacked = true;

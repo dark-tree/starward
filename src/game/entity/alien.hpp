@@ -18,7 +18,7 @@ class AlienEntity : public Entity {
 		AlienEntity(float x, float y, int evolution);
 
 		/// Spawn death/disintegrate particle cloud
-		void spawnParticles(Level& level, int min, int max);
+		void spawnParticles(Level& level, int min, int max, float vx = 0, float vy = 0);
 
 		/// Check if this entity was hit by the player before
 		bool wasAttacked() const;

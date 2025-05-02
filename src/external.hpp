@@ -33,4 +33,7 @@
 
 #include "util.hpp"
 
+/// Can be used to mark pointers that can be null
+#define NULLABLE
+
 using Runnable = std::function<void()>;

@@ -127,7 +127,7 @@ class Segment {
 			return {0, 0};
 		}
 
-		bool contains(int y) {
+		bool contains(int y) const {
 			return (y >= index * H) && (y < (index + 1) * H);
 		}
 
@@ -135,7 +135,15 @@ class Segment {
 			return tiles[sx + sy * W];
 		}
 
+		const uint8_t& at(int sx, int sy) const {
+			return tiles[sx + sy * W];
+		}
+
 		uint8_t& atWorldPos(int sx, int sy) {
+			return at(sx, sy - index * H);
+		}
+
+		const uint8_t& atWorldPos(int sx, int sy) const {
 			return at(sx, sy - index * H);
 		}
 

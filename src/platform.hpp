@@ -25,6 +25,7 @@ struct PlatformKeyScope {
 		W      = 87,
 		A      = 65,
 		D      = 68,
+		B      = 66,
 	};
 };
 
@@ -61,6 +62,7 @@ using PlatformLoopCallback = void(*)();
 			if (strcmp(key, "KeyW") == 0) return Key::W;
 			if (strcmp(key, "KeyA") == 0) return Key::A;
 			if (strcmp(key, "KeyD") == 0) return Key::D;
+			if (strcmp(key, "KeyB") == 0) return Key::B;
 
 			return Key::UNDEF;
 		}
@@ -181,6 +183,7 @@ using PlatformLoopCallback = void(*)();
 			if (key == 'W' || key == 'w') return Key::W;
 			if (key == 'A' || key == 'a') return Key::A;
 			if (key == 'D' || key == 'd') return Key::D;
+			if (key == 'B' || key == 'b') return Key::B;
 
 			return Key::UNDEF;
 		}

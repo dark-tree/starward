@@ -11,7 +11,7 @@
  */
 
 TileEntity::TileEntity(double x, double y, uint8_t tile, int tx, int ty)
-: Entity(0, 4, tx, ty) {
+: Entity(4, tx, ty) {
 	float dx = x - tx;
 	float dy = y - ty;
 

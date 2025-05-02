@@ -11,7 +11,7 @@
  */
 
 BlowEntity::BlowEntity(double x, double y)
-: Entity(1, 64, x, y) {}
+: Entity(64, x, y) {}
 
 bool BlowEntity::shouldCollide(Entity* entity) {
 	return false;

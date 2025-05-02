@@ -174,6 +174,30 @@ void Level::tick() {
 
 	pending.clear();
 
+	if (timer > 0) {
+		timer --;
+
+		if (timer == 0) {
+			konami = 0;
+		}
+	}
+
+	if (gls::Input::is_pressed(Key::UP) && (konami == 0)) {
+		konami = 1;
+		timer = 60 * 4;
+	} else if (gls::Input::is_pressed(Key::UP) && (konami == 1)) konami = 2;
+	else if (gls::Input::is_pressed(Key::DOWN) && (konami == 2)) konami = 3;
+	else if (gls::Input::is_pressed(Key::DOWN) && (konami == 3)) konami = 4;
+	else if (gls::Input::is_pressed(Key::LEFT) && (konami == 4)) konami = 5;
+	else if (gls::Input::is_pressed(Key::RIGHT) && (konami == 5)) konami = 6;
+	else if (gls::Input::is_pressed(Key::LEFT) && (konami == 6)) konami = 7;
+	else if (gls::Input::is_pressed(Key::RIGHT) && (konami == 7)) konami = 8;
+	else if (gls::Input::is_pressed(Key::B) && (konami == 8)) konami = 9;
+	else if (gls::Input::is_pressed(Key::A) && (konami == 9)) {
+		konami = 0;
+		debug = !debug;
+	}
+
 	// player input
 	if (state != GameState::DEAD) {
 		if (gls::Input::is_pressed(Key::UP) || gls::Input::is_pressed(Key::W)) {
@@ -196,6 +220,15 @@ void Level::draw(gls::TileSet& font8x8, gls::BufferWriter<gls::Vert4f4b>& text_w
 
 	for (auto& entity : entities) {
 		entity->draw(*this, tileset, game_writer);
+	}
+
+	if (debug) {
+		for (auto& entity : entities) {
+			entity->debugDraw(*this, tileset, game_writer);
+		}
+
+		emitTextQuads(text_writer, 16, SH - 64, 20, 16, font8x8, 255, 255, 0, 220, "Seg: " + std::to_string(total), TextMode::LEFT);
+		emitTextQuads(text_writer, 16, SH - 96, 20, 16, font8x8, 255, 255, 0, 220, "Bio: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
 	}
 
 	if (state != GameState::DEAD) {
@@ -223,22 +256,22 @@ void Level::draw(gls::TileSet& font8x8, gls::BufferWriter<gls::Vert4f4b>& text_w
 
 }
 
-glm::ivec2 Level::toTilePos(int x, int y) {
+glm::vec2 Level::toTilePos(int x, int y) const {
 	const float pixels = SW / segment_width;
 	return glm::vec2 {x, y} / pixels;
 }
 
-glm::vec2 Level::toEntityPos(int x, int y) {
+glm::vec2 Level::toEntityPos(int x, int y) const {
 	const float pixels = SW / segment_width;
 	return (glm::vec2 {x, y} + 0.5f) * pixels;
 }
 
-uint8_t Level::get(int tx, int ty) {
+uint8_t Level::getTile(int tx, int ty) const {
 	if (tx < 0 || tx >= segment_width) {
 		return 0;
 	}
 
-	for (auto& segment : segments) {
+	for (const auto& segment : segments) {
 		if (segment.contains(ty)) {
 			return segment.atWorldPos(tx, ty);
 		}
@@ -247,7 +280,7 @@ uint8_t Level::get(int tx, int ty) {
 	return 0;
 }
 
-void Level::set(int tx, int ty, uint8_t tile) {
+void Level::setTile(int tx, int ty, uint8_t tile) {
 	if (tx < 0 || tx >= segment_width) {
 		return;
 	}
@@ -259,57 +292,84 @@ void Level::set(int tx, int ty, uint8_t tile) {
 	}
 }
 
-double Level::getSkip() const {
+float Level::getSkip() const {
 	return skip;
 }
 
-double Level::getScroll() const {
+float Level::getScroll() const {
 	return scroll;
 }
 
-double Level::getSpeed() const {
+float Level::getSpeed() const {
 	float v = std::min(1.0f, total * 0.01f);
 	return base_speed * std::max(aliveness, 0.5f) + (skip * 4 + v * 2 + biome_speed) * aliveness;
 }
 
-Collision Level::checkCollision(Entity* self) {
-	float x = self->x;
-	float y = self->y;
-	float size = self->size;
+Collision Level::checkTileCollision(const Box& box) const {
 
-	if (x + size < 0 || x - size > SW) {
+	// check if the collider is outside level bounds
+	// we only check it horizontally as some terrain can be off-screen vertically
+	if (box.x + box.w < 0 || box.x > SW) {
 		return {};
 	}
 
-	float pixels = SW / segment_width;
+	// convert position to tile space
+	glm::vec2 xyt = toTilePos(box.x, box.y);
+	glm::vec2 wht = toTilePos(box.w, box.h);
 
-	int radius = self->tile_radius;
-	int tx = round(x / pixels);
-	int ty = round(y / pixels);
+	// convert to integers after addition for better precision
+	glm::ivec2 pos = xyt;
+	glm::ivec2 end = xyt + wht;
 
-	for (int ox = - radius; ox <= radius; ox ++) {
-		for (int oy = - radius; oy <= radius; oy ++) {
-			uint8_t tile = get(tx + ox, ty + oy);
+	// check tiles in box
+	for (int x = pos.x; x < end.x; x++) {
+		for (int y = pos.y; y < end.y; y++) {
+			uint8_t tile = getTile(x, y);
 
 			if (tile) {
-				return {tx + ox, ty + oy};
+				return {x, y};
 			}
 		}
 	}
 
-	for (auto& entity : entities) {
+	// no collision found
+	return {};
+
+}
+
+Collision Level::checkEntityCollision(Entity* self) const {
+
+	for (const auto& entity : entities) {
 		Entity* pointer = entity.get();
 
-		if (pointer == self) {
+		// skip invalid collisions
+		if (pointer == self || pointer == nullptr) {
 			continue;
 		}
 
-		if (entity->shouldCollide(self)) {
+		// entity collisions are handled by entities
+		if (pointer->shouldCollide(self)) {
 			return {pointer};
 		}
 	}
 
+	// no collision found
 	return {};
+
+}
+
+Collision Level::checkCollision(Entity* self) {
+
+	// check for terrain collision first as it is faster
+	Collision collision = checkTileCollision(self->getBoxCollider());
+
+	// if terrain check fail, try checking for entity collision
+	if (collision.type == Collision::MISS) {
+		collision = checkEntityCollision(self);
+	}
+
+	return collision;
+
 }
 
 std::vector<std::shared_ptr<Entity>>& Level::getEntities() {

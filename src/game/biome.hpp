@@ -91,6 +91,7 @@ class BiomeManager {
 		float getBonusSpeed();
 		int getPowerUpRarity();
 		glm::vec2 getTerrain();
+		int getBiomeIndex();
 
 };
 
