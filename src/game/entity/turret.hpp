@@ -19,6 +19,6 @@ class TurretAlienEntity : public AlienEntity {
 		bool checkPlacement(Level& level) override;
 
 		void tick(Level& level) override;
-		void draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) override;
+		void draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) override;
 
 };

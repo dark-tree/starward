@@ -3,37 +3,33 @@
 #include <external.hpp>
 #include "texture.hpp"
 
-namespace gls {
+class Framebuffer {
 
-	class Framebuffer {
+	private:
 
-		private:
+		unsigned int fbo;
 
-			unsigned int fbo;
+	public:
 
-		public:
+		Framebuffer();
+		Framebuffer(unsigned int fbo);
+		~Framebuffer();
 
-			Framebuffer();
-			Framebuffer(unsigned int fbo);
-			~Framebuffer();
+		Framebuffer(const Framebuffer& buffer) = delete;
+		Framebuffer(Framebuffer&& buffer) = default;
 
-			Framebuffer(const Framebuffer& buffer) = delete;
-			Framebuffer(Framebuffer&& buffer) = default;
+		/// Add a pixel buffer to back this framebuffer
+		void attach(const PixelBuffer& buffer, GLenum attachment);
 
-			/// Add a pixel buffer to back this framebuffer
-			void attach(const PixelBuffer& buffer, GLenum attachment);
+		/// Bind this framebuffer
+		void use() const;
 
-			/// Bind this framebuffer
-			void use() const;
+		/// Clear this framebuffer
+		void clear(GLbitfield mask = GL_COLOR_BUFFER_BIT) const;
 
-			/// Clear this framebuffer
-			void clear(GLbitfield mask = GL_COLOR_BUFFER_BIT) const;
+	public:
 
-		public:
+		/// Get reference to the main screen framebuffer
+		static const Framebuffer& main();
 
-			/// Get reference to the main screen framebuffer
-			static const Framebuffer& main();
-
-	};
-
-}
+};

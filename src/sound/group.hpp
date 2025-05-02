@@ -8,7 +8,7 @@ class SoundGroup {
 	private:
 
 		std::string name;
-		std::vector<SoundBuffer> buffers;
+		std::vector<std::unique_ptr<SoundBuffer>> buffers;
 
 	public:
 

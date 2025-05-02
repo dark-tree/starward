@@ -39,7 +39,7 @@ void TileEntity::tick(Level& level) {
 	age ++;
 }
 
-void TileEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+void TileEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
 	Color color = Color::white().withAlpha(255 * (max_age - age) / max_age);
 	emitEntityQuad(level, writer, getTileSprite(tileset, tile), size, angle, color);
 }

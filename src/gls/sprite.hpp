@@ -2,18 +2,14 @@
 
 #include <external.hpp>
 
-namespace gls {
+class Sprite {
 
-	class Sprite {
+	public:
 
-		public:
+		float min_u, min_v, max_u, max_v;
 
-			float min_u, min_v, max_u, max_v;
+	public:
 
-		public:
+		Sprite(float min_u, float min_v, float max_u, float max_v);
 
-			Sprite(float min_u, float min_v, float max_u, float max_v);
-
-	};
-
-}
+};

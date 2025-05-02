@@ -5,7 +5,7 @@
  * Shader
  */
 
-gls::Shader::Shader(const std::string& base_path) {
+Shader::Shader(const std::string& base_path) {
 	std::string vertex_source = readFile(base_path + ".vert");
 	std::string fragment_source = readFile(base_path + ".frag");
 
@@ -17,27 +17,23 @@ gls::Shader::Shader(const std::string& base_path) {
 	glDeleteShader(frag);
 }
 
-gls::Shader::~Shader() {
+Shader::~Shader() {
 	glDeleteProgram(program);
 }
 
-int gls::Shader::uniform(const char* name) {
+int Shader::uniform(const char* name) {
 	return glGetUniformLocation(program, name);
 }
 
-int gls::Shader::attribute(const char* name) {
+int Shader::attribute(const char* name) {
 	return glGetAttribLocation(program, name);
 }
 
-void gls::Shader::use() {
+void Shader::use() {
 	glUseProgram(program);
 }
 
-/*
- * gls
- */
-
-GLuint gls::compileShaderSource(GLenum type, const char* source) {
+GLuint Shader::compileShaderSource(GLenum type, const char* source) {
 
 	// create shader
 	GLuint shader = glCreateShader(type);
@@ -61,7 +57,7 @@ GLuint gls::compileShaderSource(GLenum type, const char* source) {
 	return shader;
 }
 
-GLuint gls::linkShaderProgram(GLuint vertex, GLuint fragment) {
+GLuint Shader::linkShaderProgram(GLuint vertex, GLuint fragment) {
 
 	// create shader program
 	GLuint program = glCreateProgram();

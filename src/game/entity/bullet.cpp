@@ -99,7 +99,7 @@ void BulletEntity::tick(Level& level) {
 	Entity::tick(level);
 }
 
-void BulletEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+void BulletEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
 	Color color = velocity < 0 ? Color::red() : Color::blue();
 	emitEntityQuad(level, writer, tileset.sprite(0, 0), size, angle, color);
 }

@@ -9,7 +9,6 @@
 
 // docs
 // https://emscripten.org/docs/api_reference/html5.h.html
-std::function<void()> __main_loop_func;
 
 // the function called by the javascript code
 extern "C" void EXPORTED_NATIVE toggle_background_color() {
@@ -21,7 +20,7 @@ void checkViewport(float ratio, const std::function<void(int, int, int, int, glm
 	static int pw = 0;
 	static int ph = 0;
 
-	const auto [w, h] = gls::get_canvas_size();
+	const auto [w, h] = getCanvasSize();
 
 	if (w != pw || h != ph) {
 
@@ -157,7 +156,7 @@ int main() {
 
 	auto begin_time = std::chrono::steady_clock::now();
 
-	gls::Vert2f vertices_quad[] = {
+	Vert2f vertices_quad[] = {
 		{0, 0},
 		{1, 0},
 		{1, 1},
@@ -166,9 +165,11 @@ int main() {
 		{0, 0}
 	};
 
-    gls::init();
-	SoundSystem::getInstance();
+    initVideoSystem();
+	SoundSystem& system = SoundSystem::getInstance();
 	Sounds::load();
+
+	system.setMasterVolume(0.3f);
 
 	BiomeManager biomes;
 	loadBiomes(biomes);
@@ -176,13 +177,13 @@ int main() {
 	Level level {biomes};
 	level.spawnInitial();
 
-	gls::Framebuffer pass_1;
-	const gls::Framebuffer& pass_2 = gls::Framebuffer::main();
+	Framebuffer pass_1;
+	const Framebuffer& pass_2 = Framebuffer::main();
 
-	gls::Texture color_att;
+	Texture color_att;
 	color_att.resize(SW, SH, GL_RGBA, GL_RGBA);
 
-	gls::RenderBuffer depth_att;
+	RenderBuffer depth_att;
 	depth_att.resize(SW, SH, GL_DEPTH24_STENCIL8, GL_DEPTH24_STENCIL8);
 
 	color_att.use();
@@ -192,31 +193,31 @@ int main() {
 	pass_1.attach(depth_att, GL_DEPTH_STENCIL_ATTACHMENT);
 
 	// Create and compile the shader program
-	gls::Shader level_shader {"assets/shader/level"};
-	gls::Shader degrade_shader {"assets/shader/degrade"};
+	Shader level_shader {"assets/shader/level"};
+	Shader degrade_shader {"assets/shader/degrade"};
 
 	// Create buffer layout
-	gls::Layout geometry_layout;
+	Layout geometry_layout;
 	geometry_layout.attribute(level_shader.attribute("iPos"), 2, GL_FLOAT);
 	geometry_layout.attribute(level_shader.attribute("iTex"), 2, GL_FLOAT);
 	geometry_layout.attribute(level_shader.attribute("iCol"), 4, GL_UNSIGNED_BYTE, true);
 
-	gls::Layout screen_layout;
+	Layout screen_layout;
 	screen_layout.attribute(degrade_shader.attribute("iPos"), 2, GL_FLOAT);
 
-	gls::VertexBuffer blit_buffer {screen_layout, GL_STATIC_DRAW};
+	VertexBuffer blit_buffer {screen_layout, GL_STATIC_DRAW};
 	blit_buffer.upload((uint8_t*) vertices_quad, sizeof(vertices_quad));
 
-	gls::TileSet font8x8 {"assets/font8x8.png", 8};
-	gls::TileSet tileset {"assets/tileset.png", 16};
+	TileSet font8x8 {"assets/font8x8.png", 8};
+	TileSet tileset {"assets/tileset.png", 16};
 
-	gls::VertexBuffer game_buffer {geometry_layout, GL_DYNAMIC_DRAW};
-	gls::BufferWriter<gls::Vert4f4b> game_writer {game_buffer};
+	VertexBuffer game_buffer {geometry_layout, GL_DYNAMIC_DRAW};
+	BufferWriter<Vert4f4b> game_writer {game_buffer};
 
-	gls::VertexBuffer text_buffer {geometry_layout, GL_DYNAMIC_DRAW};
-	gls::BufferWriter<gls::Vert4f4b> text_writer {text_buffer};
+	VertexBuffer text_buffer {geometry_layout, GL_DYNAMIC_DRAW};
+	BufferWriter<Vert4f4b> text_writer {text_buffer};
 
-	gls::setBlend(true);
+	setBlend(true);
 
 	printf("System ready!\n");
 
@@ -226,7 +227,7 @@ int main() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	gls::main_loop([&] {
+	setMainLoop([&] {
 
 		level.tick();
 
@@ -282,7 +283,7 @@ int main() {
 		blit_buffer.draw();
 
 		SoundSystem::getInstance().update();
-		gls::Input::clear();
+		Input::clear();
 
 	});
 

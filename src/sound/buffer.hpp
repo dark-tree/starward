@@ -12,7 +12,7 @@ class SoundBuffer {
 		uint32_t buffer;
 		std::string path;
 
-		uint32_t format_of(uint32_t channels) {
+		uint32_t formatOf(uint32_t channels) {
 			return (channels > 1) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 		}
 
@@ -36,7 +36,7 @@ class SoundBuffer {
 			}
 
 			uint32_t length = count * channels * sizeof(short);
-			alBufferData(buffer, format_of(channels), data, length, samples);
+			alBufferData(buffer, formatOf(channels), data, length, samples);
 			debug::openal::check_error("alBufferData");
 
 			if (format == AL_FORMAT_STEREO16) {
@@ -49,10 +49,10 @@ class SoundBuffer {
 			free(data);
 		}
 
-		// ~SoundBuffer() {
-		// 	alDeleteBuffers(1, &buffer);
-		// 	debug::openal::check_error("alDeleteBuffers");
-		// }
+		~SoundBuffer() {
+			alDeleteBuffers(1, &buffer);
+			debug::openal::check_error("alDeleteBuffers");
+		}
 
 		const std::string& identifier() const {
 			return path;

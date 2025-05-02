@@ -3,7 +3,7 @@
 #include <external.hpp>
 #include <sound/debug.hpp>
 #include <sound/event.hpp>
-#include <sound/volume.hpp>
+#include <sound/buffer.hpp>
 
 class SoundSource {
 
@@ -14,19 +14,14 @@ class SoundSource {
 		uint32_t source;
 		const std::string path;
 		std::list<SoundEvent> events;
-		SoundChannel channel = SoundChannel::MASTER;
-		SoundVolumes& volumes;
 		float gain;
 
-		void flush() {
-			alSourcef(source, AL_GAIN, gain * volumes.get(channel));
-			debug::openal::check_error("alSourcef");
-		}
+		void flush();
 
 	public:
 
-		SoundSource(const SoundBuffer& sound, SoundVolumes& volumes)
-		: path(sound.identifier()), volumes(volumes) {
+		SoundSource(const SoundBuffer& sound)
+		: path(sound.identifier()) {
 			alGenSources(1, &source);
 			debug::openal::check_error("alGenSources");
 
@@ -47,7 +42,7 @@ class SoundSource {
 			return path;
 		}
 
-		bool should_drop() const {
+		bool shouldDrop() const {
 			int state;
 			alGetSourcei(source, AL_SOURCE_STATE, &state);
 
@@ -94,11 +89,6 @@ class SoundSource {
 	// source properties
 	public:
 
-		SoundSource& in(SoundChannel channel) {
-			this->channel = channel;
-			return *this;
-		}
-
 		SoundSource& loop(bool value = true) {
 			alSourcei(source, AL_LOOPING, value);
 			debug::openal::check_error("alSourcei");
@@ -107,6 +97,7 @@ class SoundSource {
 
 		SoundSource& volume(float value) {
 			this->gain = value;
+			flush();
 			return *this;
 		}
 

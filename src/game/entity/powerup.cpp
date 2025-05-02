@@ -71,6 +71,6 @@ void PowerUpEntity::tick(Level& level) {
 	Entity::tick(level);
 }
 
-void PowerUpEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
-	emitEntityQuad(level, writer, tileset.sprite((int) type, 1), size, angle, Color::white());
+void PowerUpEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
+	emitEntityQuad(level, writer, tileset.sprite(type, 1), size, angle, Color::white());
 }

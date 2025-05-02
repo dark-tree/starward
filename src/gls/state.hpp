@@ -2,11 +2,7 @@
 
 #include <external.hpp>
 
-namespace gls {
-
-	void setViewportArea(int w, int h);
-	void setScissorArea(int x, int y, int w, int h);
-	void setScissor(bool enable);
-	void setBlend(bool enable);
-
-}
+void setViewportArea(int w, int h);
+void setScissorArea(int x, int y, int w, int h);
+void setScissor(bool enable);
+void setBlend(bool enable);

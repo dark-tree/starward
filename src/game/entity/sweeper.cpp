@@ -99,6 +99,6 @@ void SweeperAlienEntity::tick(Level& level) {
 	AlienEntity::tick(level);
 }
 
-void SweeperAlienEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+void SweeperAlienEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
 	emitEntityQuad(level, writer, tileset.sprite(evolution, 5), size, angle, Color::red(damage_ticks || (buried % 10 > 5)));
 }

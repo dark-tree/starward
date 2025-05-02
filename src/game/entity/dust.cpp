@@ -30,7 +30,7 @@ void DustEntity::tick(Level& level) {
 	age ++;
 }
 
-void DustEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+void DustEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
 	float delta = age / (float) lifetime;
 
 	float radius = size + 5 * delta;

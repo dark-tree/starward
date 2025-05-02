@@ -1,35 +1,35 @@
 
 #include "framebuffer.hpp"
 
-gls::Framebuffer::Framebuffer() {
+Framebuffer::Framebuffer() {
 	glGenFramebuffers(1, &fbo);
 }
 
-gls::Framebuffer::Framebuffer(unsigned int fbo) {
+Framebuffer::Framebuffer(unsigned int fbo) {
 	this->fbo = fbo;
 }
 
-gls::Framebuffer::~Framebuffer() {
+Framebuffer::~Framebuffer() {
 	if (fbo != 0) {
 		glDeleteFramebuffers(1, &fbo);
 	}
 }
 
-void gls::Framebuffer::attach(const PixelBuffer& buffer, GLenum attachment) {
+void Framebuffer::attach(const PixelBuffer& buffer, GLenum attachment) {
 	use();
 	buffer.framebuffer(attachment);
 }
 
-void gls::Framebuffer::use() const {
+void Framebuffer::use() const {
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 }
 
-void gls::Framebuffer::clear(GLbitfield mask) const {
+void Framebuffer::clear(GLbitfield mask) const {
 	use();
 	glClear(mask);
 }
 
-const gls::Framebuffer& gls::Framebuffer::main() {
+const Framebuffer& Framebuffer::main() {
 	static Framebuffer fb {0};
 	return fb;
 }

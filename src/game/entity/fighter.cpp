@@ -220,11 +220,11 @@ void FighterAlienEntity::tick(Level& level) {
 	AlienEntity::tick(level);
 }
 
-void FighterAlienEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+void FighterAlienEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
 	emitEntityQuad(level, writer, tileset.sprite(evolution, 7), size, angle, Color::red(damage_ticks));
 }
 
-void FighterAlienEntity::debugDraw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+void FighterAlienEntity::debugDraw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
 	auto player = level.getPlayer();
 
 	if (player) {

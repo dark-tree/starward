@@ -3,4 +3,4 @@
 #include "external.hpp"
 #include "rendering.hpp"
 
-gls::Sprite getTileSprite(gls::TileSet& tileset, uint8_t tile);
+Sprite getTileSprite(TileSet& tileset, uint8_t tile);

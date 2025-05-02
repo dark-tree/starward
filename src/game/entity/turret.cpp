@@ -80,7 +80,7 @@ void TurretAlienEntity::tick(Level& level) {
 	}
 }
 
-void TurretAlienEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+void TurretAlienEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
 	const Color color = Color::red(damage_ticks);
 
 	emitEntityQuad(level, writer, tileset.sprite(0, 6), size, angle, color);

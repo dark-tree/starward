@@ -3,37 +3,36 @@
 #include <external.hpp>
 #include "wrapper.hpp"
 
-namespace gls {
+class Shader {
 
-	class Shader {
+	private:
 
-		private:
+		GLuint program;
 
-			GLuint program;
+	public:
 
-		public:
+		Shader(const std::string& base_path);
+		~Shader();
 
-			Shader(const std::string& base_path);
-			~Shader();
+		Shader(const Shader& buffer) = delete;
+		Shader(Shader&& buffer) = default;
 
-			Shader(const Shader& buffer) = delete;
-			Shader(Shader&& buffer) = default;
+		/// Get uniform location by name
+		int uniform(const char* name);
 
-			/// Get uniform location by name
-			int uniform(const char* name);
+		/// Get attribute location by name
+		int attribute(const char* name);
 
-			/// Get attribute location by name
-			int attribute(const char* name);
+		/// Bind shader
+		void use();
 
-			/// Bind shader
-			void use();
+	public:
 
-	};
+		/// Compile shader from GLSL string
+		static GLuint compileShaderSource(GLenum type, const char* source);
 
-	/// Compile shader from GLSL string
-	GLuint compileShaderSource(GLenum type, const char* source);
+		/// link shader program from two shader modules
+		static GLuint linkShaderProgram(GLuint vertex, GLuint fragment);
 
-	/// link shader program from two shader modules
-	GLuint linkShaderProgram(GLuint vertex, GLuint fragment);
+};
 
-}

@@ -14,17 +14,20 @@ class SoundSystem {
 
 	private:
 
+		ALCdevice* device;
+		ALCcontext* context;
+
 		std::list<std::unique_ptr<SoundSource>> sources;
-		SoundVolumes volumes;
+		float volume = 1.0f;
 
 		SoundSystem() {
-			ALCdevice* device = alcOpenDevice(nullptr);
+			device = alcOpenDevice(nullptr);
 
 			if (device == nullptr) {
 				fault("Sound system failed to start, unable to open device!\n");
 			}
 
-			ALCcontext* context = alcCreateContext(device, nullptr);
+			context = alcCreateContext(device, nullptr);
 
 			if (context == nullptr) {
 				fault("Sound system failed to start, unable to create context!\n");
@@ -36,7 +39,17 @@ class SoundSystem {
 			glm::vec3 origin {0, 0, 0};
 			listener().position(origin).velocity(origin).gain(1.0f);
 
-			printf("Sound system engaged!\n");
+			printf("Sound system started!\n");
+		}
+
+		~SoundSystem() {
+			// we can't close the Sound System as the buffers are stored in static arrays
+			// and don't get deleted before Sound System closes itself...
+
+			// alcMakeContextCurrent(nullptr);
+			// alcDestroyContext(context);
+			// alcCloseDevice(device);
+			// printf("Sound system stopped!\n");
 		}
 
 	public:
@@ -46,11 +59,20 @@ class SoundSystem {
 			return system;
 		}
 
+		void setMasterVolume(float volume) {
+			this->volume = volume;
+			flush();
+		}
+
+		float getMasterVolume() {
+			return volume;
+		}
+
 		void update() {
 			std::list<std::unique_ptr<SoundSource>>::iterator iter = sources.begin();
 
 			while (iter != sources.end()) {
-				bool drop = (*iter)->should_drop();
+				bool drop = (*iter)->shouldDrop();
 
 				if (drop) {
 					iter = sources.erase(iter);
@@ -66,7 +88,7 @@ class SoundSystem {
 		}
 
 		SoundSource& add(const SoundBuffer& buffer) {
-			return add(std::make_unique<SoundSource>(buffer, volumes));
+			return add(std::make_unique<SoundSource>(buffer));
 		}
 
 		SoundSource& add(std::unique_ptr<SoundSource>&& source) {
@@ -75,20 +97,13 @@ class SoundSystem {
 			return *sources.back();
 		}
 
-		SoundVolumes& volume() {
-			return volumes;
-		}
-
 		SoundListener listener() {
 			return {};
 		}
 
-		// stop all sounds in the given group
-		void stop(SoundChannel channel = SoundChannel::MASTER) {
+		void stop() {
 			for (auto& source : sources) {
-				if (source->channel == channel || channel == SoundChannel::MASTER) {
-					source->drop();
-				}
+				source->drop();
 			}
 		}
 

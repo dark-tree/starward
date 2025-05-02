@@ -1,7 +1,7 @@
 
 #include "emitter.hpp"
 
-void emitSpriteQuad(gls::BufferWriter<gls::Vert4f4b>& writer, float tx, float ty, float sx, float sy, float angle, const gls::Sprite& s, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void emitSpriteQuad(BufferWriter<Vert4f4b>& writer, float tx, float ty, float sx, float sy, float angle, const Sprite& s, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 	double quarter = M_PI / 2;
 	double start = M_PI / 4 + M_PI / 2 + angle;
 
@@ -23,7 +23,7 @@ void emitSpriteQuad(gls::BufferWriter<gls::Vert4f4b>& writer, float tx, float ty
 	writer.push({tx + v0.x, v0.y + ty, s.min_u, s.min_v, r, g, b, a});
 }
 
-void emitLineQuad(gls::BufferWriter<gls::Vert4f4b>& writer, float x1, float y1, float x2, float y2, float width, const gls::Sprite& s, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void emitLineQuad(BufferWriter<Vert4f4b>& writer, float x1, float y1, float x2, float y2, float width, const Sprite& s, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 
 	float dx = y1 - y2;
 	float dy = x2 - x1;
@@ -44,7 +44,7 @@ void emitLineQuad(gls::BufferWriter<gls::Vert4f4b>& writer, float x1, float y1, 
 	writer.push({x2 - dx, y2 - dy, s.max_u, s.max_v, r, g, b, a});
 }
 
-void emitTextQuads(gls::BufferWriter<gls::Vert4f4b>& text_writer, float x, float y, float spacing, float size, gls::TileSet& font, uint8_t r, uint8_t g, uint8_t b, uint8_t a, const std::string& str, TextMode mode) {
+void emitTextQuads(BufferWriter<Vert4f4b>& text_writer, float x, float y, float spacing, float size, TileSet& font, uint8_t r, uint8_t g, uint8_t b, uint8_t a, const std::string& str, TextMode mode) {
 	int len = str.length();
 
 	if (mode == TextMode::RIGHT) {

@@ -22,7 +22,7 @@ class Segment {
 			return global_segment_id ++;
 		}
 
-		void drawTile(gls::BufferWriter<gls::Vert4f4b>& writer, gls::Sprite s, int x, int y, int width, float scroll) {
+		void drawTile(BufferWriter<Vert4f4b>& writer, Sprite s, int x, int y, int width, float scroll) {
 			const float unit = SW / width;
 
 			const float tx = x * unit;
@@ -159,7 +159,7 @@ class Segment {
 			return false;
 		}
 
-		void draw(double scroll, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+		void draw(double scroll, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
 			float width = size();
 
 			for (int x = 0; x < W; x++) {

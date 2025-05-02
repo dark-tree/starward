@@ -104,19 +104,19 @@ void PlayerEntity::tick(Level& level) {
 	tilt *= 0.9;
 	this->x += avoidance * 0.4;
 
-	if ((avoidance <= 0) && gls::Input::is_pressed(Key::LEFT) || gls::Input::is_pressed(Key::A)) {
+	if ((avoidance <= 0) && Input::is_pressed(Key::LEFT) || Input::is_pressed(Key::A)) {
 		move(level, -6, 0);
 		tilt -= 0.1;
 	}
 
-	if ((avoidance >= 0) && gls::Input::is_pressed(Key::RIGHT) || gls::Input::is_pressed(Key::D)) {
+	if ((avoidance >= 0) && Input::is_pressed(Key::RIGHT) || Input::is_pressed(Key::D)) {
 		move(level, +6, 0);
 		tilt += 0.1;
 	}
 
 	this->angle = tilt * 0.2;
 
-	if ((cooldown <= 0) && gls::Input::is_pressed(Key::SPACE)) {
+	if ((cooldown <= 0) && Input::is_pressed(Key::SPACE)) {
 		bool shot = false;
 		cooldown = 1;
 
@@ -132,7 +132,7 @@ void PlayerEntity::tick(Level& level) {
 			}
 		}
 
-		SoundSystem::getInstance().add(shot ? Sounds::soft : Sounds::empty).play();
+		SoundSystem::getInstance().add(shot ? Sounds::soft : Sounds::empty).play().volume(shot ? 0.8 : 1);
 	}
 
 	if (invulnerable > 0) {
@@ -147,9 +147,9 @@ void PlayerEntity::tick(Level& level) {
 	Entity::tick(level);
 }
 
-void PlayerEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+void PlayerEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
 
-	gls::Sprite sprite = tileset.sprite(2, 0);
+	Sprite sprite = tileset.sprite(2, 0);
 
 	if (invulnerable > 0) {
 		sprite = tileset.sprite(3 - (invulnerable & 0b1000 ? 1 : 0), 0);
@@ -177,7 +177,7 @@ void PlayerEntity::draw(Level& level, gls::TileSet& tileset, gls::BufferWriter<g
 	}
 }
 
-void PlayerEntity::debugDraw(Level& level, gls::TileSet& tileset, gls::BufferWriter<gls::Vert4f4b>& writer) {
+void PlayerEntity::debugDraw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
 	Entity::debugDraw(level, tileset, writer);
 
 	emitBoxWireframe(getBoxBumper(-1).withOffset(0, level.getScroll()), writer, tileset.sprite(0, 0), 1, Color::white());
