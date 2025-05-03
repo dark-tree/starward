@@ -31,8 +31,6 @@ class Entity : public std::enable_shared_from_this<Entity> {
 
 		Entity(float size, float x, float y);
 		virtual ~Entity();
-
-		void move(Level& level, float x, float y);
 		void clamp();
 
 		bool shouldRemove() const;

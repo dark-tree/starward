@@ -7,6 +7,7 @@ enum struct Alien {
 	SWEEPER = 0,
 	TURRET = 1,
 	FIGHTER = 2,
+	VERTICAL = 3,
 };
 
 enum struct Evolution {

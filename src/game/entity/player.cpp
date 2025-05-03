@@ -109,12 +109,12 @@ void PlayerEntity::tick(Level& level) {
 	this->x += avoidance * 0.4;
 
 	if ((avoidance <= 0) && Input::is_pressed(Key::LEFT) || Input::is_pressed(Key::A)) {
-		move(level, -6, 0);
+		this->x -= 6;
 		tilt -= 0.1;
 	}
 
 	if ((avoidance >= 0) && Input::is_pressed(Key::RIGHT) || Input::is_pressed(Key::D)) {
-		move(level, +6, 0);
+		this->x += 6;
 		tilt += 0.1;
 	}
 

@@ -38,9 +38,7 @@ void SweeperAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
 
 void SweeperAlienEntity::tick(Level& level) {
 
-	float speed = evolution > 1 ? 2 : 1;
-
-	move(level, facing * speed, bump);
+	tickMovement();
 
 	if (this->bump > 0) {
 		this->bump -= 0.1;
@@ -85,14 +83,8 @@ void SweeperAlienEntity::tick(Level& level) {
 			cooldown = 5 - evolution;
 		}
 
-		float bx = x;
-
-		if (evolution >= 2) {
-			bx += (count % 2 == 1 ? -size : size) * 0.3f;
-		}
-
 		if (visible) {
-			level.addEntity(new BulletEntity{-3, bx, y - 24, self()});
+			tickShooting(level);
 		}
 	}
 
@@ -101,4 +93,20 @@ void SweeperAlienEntity::tick(Level& level) {
 
 void SweeperAlienEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
 	emitEntityQuad(level, writer, tileset.sprite(evolution, 5), size, angle, Color::red(damage_ticks || (buried % 10 > 5)));
+}
+
+void SweeperAlienEntity::tickShooting(Level& level) {
+	float bx = x;
+
+	if (evolution >= 2) {
+		bx += (count % 2 == 1 ? -size : size) * 0.3f;
+	}
+
+	level.addEntity(new BulletEntity{-3, bx, y - 24, self()});
+}
+
+void SweeperAlienEntity::tickMovement() {
+	const float speed = evolution > 1 ? 2 : 1;
+	this->x += facing * speed;
+	this->y += bump;
 }

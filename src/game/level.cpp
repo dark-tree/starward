@@ -3,6 +3,7 @@
 #include "emitter.hpp"
 #include "biome.hpp"
 #include "entity/all.hpp"
+#include "entity/vertical.hpp"
 
 int global_segment_id = 0;
 
@@ -73,6 +74,13 @@ Entity* Level::randomAlien(int margin, LevelSegment& segment) {
 		glm::vec2 pos = toEntityPos(tile.x, tile.y);
 
 		return new SweeperAlienEntity {pos.x, pos.y, (int) evolution};
+	}
+
+	if (alien == Alien::VERTICAL) {
+		glm::ivec2 tile = segment.getRandomPos(margin);
+		glm::vec2 pos = toEntityPos(tile.x, tile.y);
+
+		return new VerticalAlienEntity {pos.x, pos.y, (int) evolution};
 	}
 
 	if (alien == Alien::FIGHTER) {

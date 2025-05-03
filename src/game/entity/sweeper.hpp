@@ -4,7 +4,7 @@
 
 class SweeperAlienEntity : public AlienEntity {
 
-	private:
+	protected:
 
 		float bump = 0;
 		int count = 0;
@@ -22,4 +22,7 @@ class SweeperAlienEntity : public AlienEntity {
 
 		void tick(Level& level) override;
 		void draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) override;
+
+		virtual void tickShooting(Level& level);
+		virtual void tickMovement();
 };

@@ -33,11 +33,6 @@ bool Entity::shouldRemove() const {
 	return dead;
 }
 
-void Entity::move(Level& level, float x, float y) {
-	this->x += x;
-	this->y += y;
-}
-
 void Entity::clamp() {
 	if (this->x < 0) {
 		this->x = 0;
