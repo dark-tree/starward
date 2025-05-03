@@ -37,6 +37,10 @@ bool PlayerEntity::shouldCollide(Entity* entity) {
 
 void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
 	if (damage > 0) {
+		if (level.isDebug()) {
+			return;
+		}
+
 		if (invulnerable <= 0) {
 			if (lives <= 0) {
 				level.setState(GameState::DEAD);

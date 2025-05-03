@@ -305,6 +305,10 @@ float Level::getSpeed() const {
 	return base_speed * std::max(aliveness, 0.5f) + (skip * 4 + v * 2 + biome_speed) * aliveness;
 }
 
+bool Level::isDebug() const {
+	return debug;
+}
+
 Collision Level::checkTileCollision(const Box& box) const {
 
 	// check if the collider is outside level bounds

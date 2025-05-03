@@ -82,6 +82,7 @@ class Level {
 		float getSkip() const;
 		float getScroll() const;
 		float getSpeed() const;
+		bool isDebug() const;
 
 		glm::vec2 toTilePos(int x, int y) const;
 		glm::vec2 toEntityPos(int x, int y) const;

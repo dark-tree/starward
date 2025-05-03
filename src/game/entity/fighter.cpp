@@ -44,7 +44,6 @@ void FighterAlienEntity::forEachDanger(Level& level, const std::function<void(Bu
 }
 
 bool FighterAlienEntity::tickMovement(Level& level) {
-
 	float abx = std::abs(vx);
 	float aby = std::abs(vy);
 
@@ -74,6 +73,17 @@ bool FighterAlienEntity::tickMovement(Level& level) {
 
 		return true;
 	};
+
+	// try to make the movement more digital
+	// if (abs(ox) > abs(oy) - (affinity * 0.6)) {
+	// 	affinity = 1;
+	// 	oy /= 2;
+	// 	ox = signum(ox) * (2);
+	// } else {
+	// 	affinity = -1;
+	// 	ox = 0;
+	// 	oy = signum(oy) * (2);
+	// }
 
 	if (apply(ox, oy)) {
 		down = false;
@@ -176,12 +186,6 @@ void FighterAlienEntity::tick(Level& level) {
 
 		if ((std::abs(tx) < 4) && (avoiding <= 0)) {
 			this->px *= -1;
-
-//			if (px > 0) {
-//				this->px = -100;
-//			} else {
-//				this->px = +100;
-//			}
 		}
 
 		if (!escape) {

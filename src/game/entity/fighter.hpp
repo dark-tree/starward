@@ -8,6 +8,8 @@ class FighterAlienEntity : public AlienEntity {
 
 	private:
 
+		int affinity = 1;
+
 		float vx = 0, vy = 0;
 		float px = 0, py = 0;
 
