@@ -76,7 +76,7 @@ void checkViewport(float ratio, const std::function<void(int, int, int, int, glm
 void loadBiomes(BiomeManager& biomes) {
 	biomes.beginBiome() // start
 		.setTerrain(0.0, 0.25)
-		.addAlien(Alien::VERTICAL, 1)
+		.addAlien(Alien::MINE, 1)
 		//.addAlien(Alien::FIGHTER, 1)
 		.addEvolution(Evolution::LOW, 1)
 		.addEvolution(Evolution::MEDIUM, 1)

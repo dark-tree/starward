@@ -83,6 +83,13 @@ Entity* Level::randomAlien(int margin, LevelSegment& segment) {
 		return new VerticalAlienEntity {pos.x, pos.y, (int) evolution};
 	}
 
+	if (alien == Alien::MINE) {
+		glm::ivec2 tile = segment.getRandomPos(margin);
+		glm::vec2 pos = toEntityPos(tile.x, tile.y);
+
+		return new MineAlienEntity {pos.x, pos.y};
+	}
+
 	if (alien == Alien::FIGHTER) {
 		glm::ivec2 tile = segment.getRandomPos(margin);
 		glm::vec2 pos = toEntityPos(tile.x, tile.y);
@@ -326,8 +333,8 @@ Collision Level::checkTileCollision(const Box& box) const {
 	}
 
 	// convert position to tile space
-	glm::vec2 xyt = toTilePos(box.x, box.y);
-	glm::vec2 wht = toTilePos(box.w, box.h);
+	glm::vec2 xyt = floor(toTilePos(box.x, box.y));
+	glm::vec2 wht = ceil(toTilePos(box.w, box.h));
 
 	// convert to integers after addition for better precision
 	glm::ivec2 pos = xyt;

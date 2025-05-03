@@ -48,7 +48,7 @@ void BulletEntity::tick(Level& level) {
 	x += velocity * cos(deg(270) - angle);
 	y += velocity * sin(deg(270) - angle);
 
-	if (age > 60 * 4) {
+	if (age > 60 * 6) {
 		dead = true;
 	}
 

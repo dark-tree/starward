@@ -8,3 +8,5 @@
 #include "blow.hpp"
 #include "tile.hpp"
 #include "fighter.hpp"
+#include "mine.hpp"
+#include "vertical.hpp"
