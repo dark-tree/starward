@@ -333,12 +333,12 @@ Collision Level::checkTileCollision(const Box& box) const {
 	}
 
 	// convert position to tile space
-	glm::vec2 xyt = floor(toTilePos(box.x, box.y));
+	glm::vec2 xyt = toTilePos(box.x, box.y);
 	glm::vec2 wht = ceil(toTilePos(box.w, box.h));
 
 	// convert to integers after addition for better precision
-	glm::ivec2 pos = xyt;
-	glm::ivec2 end = xyt + wht;
+	glm::ivec2 pos = floor(xyt);
+	glm::ivec2 end = ceil(xyt + wht);
 
 	// check tiles in box
 	for (int x = pos.x; x < end.x; x++) {
