@@ -35,7 +35,7 @@ void PowerUpEntity::applyEffect(Level& level, PlayerEntity* player) {
 	}
 
 	if (type == Type::DOUBLE_BARREL) {
-		player->double_barrel_ticks = 600;
+		player->double_barrel_ticks += 50;
 	}
 }
 

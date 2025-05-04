@@ -17,6 +17,7 @@ BulletEntity::BulletEntity(float velocity, double x, double y, const std::shared
 	this->parent = parent;
 	this->velocity = velocity;
 	this->angle = angle;
+	this->time = 60 * 6;
 }
 
 bool BulletEntity::isCausedByPlayer() {
@@ -48,8 +49,10 @@ void BulletEntity::tick(Level& level) {
 	x += velocity * cos(deg(270) - angle);
 	y += velocity * sin(deg(270) - angle);
 
-	if (age > 60 * 6) {
+	if (time <= 0) {
 		dead = true;
+	} else {
+		time --;
 	}
 
 	Collision collision = level.checkCollision(this);
@@ -101,5 +104,11 @@ void BulletEntity::tick(Level& level) {
 
 void BulletEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
 	Color color = velocity < 0 ? Color::red() : Color::blue();
-	emitEntityQuad(level, writer, tileset.sprite(0, 0), size, angle, color);
+	float alpha = (time / 10.0f);
+
+	if (alpha > 1) {
+		alpha = 1;
+	}
+
+	emitEntityQuad(level, writer, tileset.sprite(0, 0), size, angle, color.withAlpha(alpha * 255));
 }

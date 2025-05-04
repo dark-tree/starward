@@ -44,6 +44,30 @@ void Level::spawnInitial() {
 	addEntity(new PowerUpEntity {200, 600, PowerUpEntity::LIVE});
 }
 
+void Level::loadPlayCount() {
+
+	if (play_count > 0) {
+		printf("Looks like play count was already loaded, did the player respawn?\n");
+		return;
+	}
+
+	constexpr const char* local_play_count = "count";
+
+	int plays = 0;
+	std::string plays_str = platform_read_string(local_play_count);
+
+	if (plays_str.length() > 0) {
+		plays = std::stoi(plays_str);
+	}
+
+	plays ++;
+	platform_write_string(local_play_count, std::to_string(plays));
+
+	printf("Started session #%d\n", plays);
+	this->play_count = plays;
+
+}
+
 void Level::addScore(int points) {
 	if (state != GameState::DEAD) {
 		this->score += points;
@@ -87,7 +111,7 @@ Entity* Level::randomAlien(int margin, LevelSegment& segment) {
 		glm::ivec2 tile = segment.getRandomPos(margin);
 		glm::vec2 pos = toEntityPos(tile.x, tile.y);
 
-		return new MineAlienEntity {pos.x, pos.y};
+		return new MineAlienEntity {pos.x, pos.y, (int) evolution};
 	}
 
 	if (alien == Alien::FIGHTER) {
@@ -197,31 +221,32 @@ void Level::tick() {
 		}
 	}
 
-	if (Input::is_pressed(Key::UP) && (konami == 0)) {
+	if (Input::isPressed(Key::UP) && (konami == 0)) {
 		konami = 1;
 		timer = 60 * 4;
-	} else if (Input::is_pressed(Key::UP) && (konami == 1)) konami = 2;
-	else if (Input::is_pressed(Key::DOWN) && (konami == 2)) konami = 3;
-	else if (Input::is_pressed(Key::DOWN) && (konami == 3)) konami = 4;
-	else if (Input::is_pressed(Key::LEFT) && (konami == 4)) konami = 5;
-	else if (Input::is_pressed(Key::RIGHT) && (konami == 5)) konami = 6;
-	else if (Input::is_pressed(Key::LEFT) && (konami == 6)) konami = 7;
-	else if (Input::is_pressed(Key::RIGHT) && (konami == 7)) konami = 8;
-	else if (Input::is_pressed(Key::B) && (konami == 8)) konami = 9;
-	else if (Input::is_pressed(Key::A) && (konami == 9)) {
+	} else if (Input::isPressed(Key::UP) && (konami == 1)) konami = 2;
+	else if (Input::isPressed(Key::DOWN) && (konami == 2)) konami = 3;
+	else if (Input::isPressed(Key::DOWN) && (konami == 3)) konami = 4;
+	else if (Input::isPressed(Key::LEFT) && (konami == 4)) konami = 5;
+	else if (Input::isPressed(Key::RIGHT) && (konami == 5)) konami = 6;
+	else if (Input::isPressed(Key::LEFT) && (konami == 6)) konami = 7;
+	else if (Input::isPressed(Key::RIGHT) && (konami == 7)) konami = 8;
+	else if (Input::isPressed(Key::B) && (konami == 8)) konami = 9;
+	else if (Input::isPressed(Key::A) && (konami == 9)) {
 		konami = 0;
 		debug = !debug;
 	}
 
 	// player input
 	if (state != GameState::DEAD) {
-		if (Input::is_pressed(Key::UP) || Input::is_pressed(Key::W)) {
+
+		if (Input::isPressed(Key::UP) || Input::isPressed(Key::W)) {
 			skip += skip * 0.1 + 0.02;
 		}
 
 		if (skip > 1) skip = 1;
 	} else {
-		if (Input::is_pressed(Key::ENTER)) {
+		if (Input::isPressed(Key::ENTER)) {
 			this->reset();
 		}
 	}

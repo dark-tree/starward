@@ -6,6 +6,7 @@ class PlayerEntity : public Entity {
 
 	private:
 
+		bool first_input = true;
 		int lives = 2;
 		int invulnerable = 0;
 		float cooldown = 0;
@@ -15,6 +16,8 @@ class PlayerEntity : public Entity {
 
 		/// get the left (side == -1) or right (side == +1) bumper box
 		Box getBoxBumper(int side) const;
+
+		void onUserInput(Level& level);
 
 	public:
 

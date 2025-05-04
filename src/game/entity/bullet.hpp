@@ -6,6 +6,7 @@ class BulletEntity : public Entity {
 
 	private:
 
+		int time;
 		std::shared_ptr<Entity> parent;
 		float velocity;
 

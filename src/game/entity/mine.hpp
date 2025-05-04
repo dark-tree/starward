@@ -14,10 +14,10 @@ class MineAlienEntity : public AlienEntity {
 
 	public:
 
-		MineAlienEntity(float x, float y);
+		MineAlienEntity(float x, float y, int evolution);
 
 		bool checkPlacement(Level& level) override;
-		void onKilled(Level& level) override;
+		void onDamage(Level& level, int damage, Entity* damager) override;
 
 		void tickExplode(Level& level);
 		void tick(Level& level) override;

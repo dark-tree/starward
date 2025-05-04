@@ -17,6 +17,13 @@ Box PlayerEntity::getBoxBumper(int side) const {
 	return bumper.withOffset(side * 32, 0).withOffset(x, y);
 }
 
+void PlayerEntity::onUserInput(Level& level) {
+	if (first_input) {
+		first_input = false;
+		level.loadPlayCount();
+	}
+}
+
 PlayerEntity::PlayerEntity()
 : Entity(64, SW / 2, 0) {
 	this->bumper = Box(-5, -32, 10, 64);
@@ -83,7 +90,7 @@ void PlayerEntity::tick(Level& level) {
 	this->y = 64 - level.getScroll() + level.getSkip() * 40;
 	this->cooldown -= 0.1f;
 
-	// spawn engine ploom particles
+	// spawn engine plum particles
 	if (level.getSkip() > 0.5) {
 		float spread = randomFloat(-10, 10);
 		int brightness = randomInt(50, 100);
@@ -108,25 +115,28 @@ void PlayerEntity::tick(Level& level) {
 	tilt *= 0.9;
 	this->x += avoidance * 0.4;
 
-	if ((avoidance <= 0) && Input::is_pressed(Key::LEFT) || Input::is_pressed(Key::A)) {
+	if ((avoidance <= 0) && Input::isPressed(Key::LEFT) || Input::isPressed(Key::A)) {
 		this->x -= 6;
 		tilt -= 0.1;
+		onUserInput(level);
 	}
 
-	if ((avoidance >= 0) && Input::is_pressed(Key::RIGHT) || Input::is_pressed(Key::D)) {
+	if ((avoidance >= 0) && Input::isPressed(Key::RIGHT) || Input::isPressed(Key::D)) {
 		this->x += 6;
 		tilt += 0.1;
+		onUserInput(level);
 	}
 
 	this->angle = tilt * 0.2;
 
-	if ((cooldown <= 0) && Input::is_pressed(Key::SPACE)) {
+	if ((cooldown <= 0) && Input::isPressed(Key::SPACE)) {
 		bool shot = false;
 		cooldown = 1;
 
 		if (double_barrel_ticks > 0) {
 			level.addEntity(new BulletEntity {11, x - 32, y + 30, self()});
 			level.addEntity(new BulletEntity {11, x + 32, y + 30, self()});
+			double_barrel_ticks --;
 			shot = true;
 		} else {
 			if (ammo > 0) {
@@ -141,10 +151,6 @@ void PlayerEntity::tick(Level& level) {
 
 	if (invulnerable > 0) {
 		invulnerable --;
-	}
-
-	if (double_barrel_ticks > 0) {
-		double_barrel_ticks --;
 	}
 
 	clamp();

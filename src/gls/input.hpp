@@ -74,12 +74,8 @@ class Input {
 
 	public:
 
-		static bool is_pressed(Key code) {
+		static bool isPressed(Key code) {
 			return state().get(code) != KeyState::UP;
-		}
-
-		static bool is_typed(Key code) {
-			return state().get(code) == KeyState::TYPED;
 		}
 
 };

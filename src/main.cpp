@@ -87,7 +87,8 @@ void loadBiomes(BiomeManager& biomes) {
 
 	biomes.beginBiome() // sweepers only
 		.setTerrain(0.0, 0.25)
-		.addAlien(Alien::SWEEPER, 1)
+		.addAlien(Alien::SWEEPER, 2)
+		.addAlien(Alien::MINE, 1)
 		.addEvolution(Evolution::LOW, 1)
 		.addEvolution(Evolution::MEDIUM, 1)
 		.addEnemyPlacer(1, 0)
@@ -98,6 +99,7 @@ void loadBiomes(BiomeManager& biomes) {
 		.setTerrain(0.0, 0.27)
 		.addAlien(Alien::SWEEPER, 3)
 		.addAlien(Alien::TURRET, 1)
+		.addAlien(Alien::MINE, 1)
 		.addEvolution(Evolution::LOW, 1)
 		.addEvolution(Evolution::MEDIUM, 1)
 		.addEnemyPlacer(1, 0)
@@ -109,12 +111,14 @@ void loadBiomes(BiomeManager& biomes) {
 		.addEvolution(Evolution::HIGH, 1)
 		.addEnemyPlacer(1, 0)
 		.addEnemyPlacer(1, 1)
-		.setEndSegment(80);
+		.setEndSegment(72);
 
 	biomes.beginBiome() // a bit stronger sweeper-turret mix
 		.setTerrain(0.0, 0.26)
-		.addAlien(Alien::SWEEPER, 2)
-		.addAlien(Alien::TURRET, 1)
+		.addAlien(Alien::SWEEPER, 3)
+		.addAlien(Alien::TURRET, 2)
+		.addAlien(Alien::MINE, 1)
+		.addAlien(Alien::VERTICAL, 2)
 		.addEvolution(Evolution::LOW, 1)
 		.addEvolution(Evolution::MEDIUM, 3)
 		.addEnemyPlacer(1, 0)

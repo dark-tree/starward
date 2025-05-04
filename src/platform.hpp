@@ -233,7 +233,7 @@ using PlatformLoopCallback = void(*)();
 
 			std::string buffer;
 			buffer.resize(size);
-			f.read(const_cast<char*>(buffer.data()), size);
+			f.read(buffer.data(), size);
 
 			return buffer;
 		}

@@ -8,8 +8,8 @@
 #include "bullet.hpp"
 #include "player.hpp"
 
-MineAlienEntity::MineAlienEntity(float x, float y)
-: AlienEntity(x, y, 0) {
+MineAlienEntity::MineAlienEntity(float x, float y, int evolution)
+: AlienEntity(x, y, evolution) {
 	timer = randomInt(0, 60);
 }
 
@@ -17,7 +17,7 @@ bool MineAlienEntity::checkPlacement(Level& level) {
 	return level.checkCollision(this).type == Collision::MISS;
 }
 
-void MineAlienEntity::onKilled(Level& level) {
+void MineAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
 	tickExplode(level);
 }
 
@@ -26,13 +26,15 @@ void MineAlienEntity::tickExplode(Level& level) {
 	level.addScore(150);
 	this->dead = true;
 
-	int bullets = 10;
+	float start = randomFloat(-M_PI, M_PI);
+	int bullets = evolution ? 16 : 10;
 	float step = 2 * M_PI / bullets;
+	int radius = evolution ? 32 : 24;
 
 	for (int i = 0; i < bullets; i++) {
-		float angle = i * step;
-		float bx = x + 24 * cos(angle);
-		float by = y + 24 * sin(angle);
+		float angle = i * step + start;
+		float bx = x + radius * cos(angle);
+		float by = y + radius * sin(angle);
 
 		level.addEntity(new BulletEntity{-3, bx, by, self(), (float) M_PI_2 - angle});
 	}
@@ -61,7 +63,7 @@ void MineAlienEntity::tick(Level& level) {
 		led = !led;
 	}
 
-	if (distance < 150) {
+	if (distance < (evolution ? 200 : 150)) {
 		level.addEntity(new BlowEntity(x, y));
 		SoundSystem::getInstance().add(Sounds::damage).play();
 		tickExplode(level);
@@ -69,5 +71,6 @@ void MineAlienEntity::tick(Level& level) {
 }
 
 void MineAlienEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
-	emitEntityQuad(level, writer, tileset.sprite(led, 9), size, angle, Color::red(damage_ticks));
+	const int offset = evolution ? 2 : 0;
+	emitEntityQuad(level, writer, tileset.sprite(led + offset, 9), size, angle, Color::red(damage_ticks));
 }

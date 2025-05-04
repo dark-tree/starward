@@ -61,6 +61,7 @@ class Level {
 		float biome_speed = 0;
 		int age = 0;
 		int total = 0;
+		int play_count = 0;
 
 		int timer = 0;
 		int konami = 0;
@@ -78,6 +79,7 @@ class Level {
 
 		Level(BiomeManager& manager);
 		void spawnInitial();
+		void loadPlayCount();
 
 		float getSkip() const;
 		float getScroll() const;
