@@ -14,9 +14,6 @@ class SoundSource {
 		uint32_t source;
 		const std::string path;
 		std::list<SoundEvent> events;
-		float gain;
-
-		void flush();
 
 	public:
 
@@ -68,7 +65,6 @@ class SoundSource {
 	public:
 
 		SoundSource& play() {
-			flush();
 			alSourcePlay(source);
 			debug::openal::check_error("alSourcePlay");
 			return *this;
@@ -96,8 +92,8 @@ class SoundSource {
 		}
 
 		SoundSource& volume(float value) {
-			this->gain = value;
-			flush();
+			alSourcef(source, AL_GAIN, value);
+			debug::openal::check_error("alSourcef");
 			return *this;
 		}
 

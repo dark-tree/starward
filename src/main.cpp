@@ -174,7 +174,7 @@ int main() {
 	SoundSystem& system = SoundSystem::getInstance();
 	Sounds::load();
 
-	system.setMasterVolume(0.3f);
+	system.listener().gain(0.3f);
 
 	BiomeManager biomes;
 	loadBiomes(biomes);

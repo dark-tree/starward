@@ -35,8 +35,9 @@ class SoundBuffer {
 				fault("Failed to load sound: '%s'\n", path);
 			}
 
+			format = formatOf(channels);
 			uint32_t length = count * channels * sizeof(short);
-			alBufferData(buffer, formatOf(channels), data, length, samples);
+			alBufferData(buffer, format, data, length, samples);
 			debug::openal::check_error("alBufferData");
 
 			if (format == AL_FORMAT_STEREO16) {

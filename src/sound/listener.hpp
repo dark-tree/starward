@@ -4,15 +4,15 @@ class SoundListener {
 	public:
 
 		// the position of the virtual listener
-		SoundListener& position(glm::vec3 value) {
-			alListenerfv(AL_POSITION, glm::value_ptr(value));
+		SoundListener& position(float x, float y) {
+			alListener3f(AL_POSITION, x, y, 0);
 			debug::openal::check_error("alListenerfv");
 			return *this;
 		}
 
 		// the velocity of the virtual listener
-		SoundListener& velocity(glm::vec3 value) {
-			alListenerfv(AL_VELOCITY, glm::value_ptr(value));
+		SoundListener& velocity(float x, float y) {
+			alListener3f(AL_VELOCITY, x, y, 0);
 			debug::openal::check_error("alListenerfv");
 			return *this;
 		}

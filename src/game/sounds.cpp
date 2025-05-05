@@ -34,11 +34,3 @@ void Sounds::load() {
 	Sounds::soft = std::move(groups.at("soft"));
 
 }
-
-SoundGroup Sounds::beep;
-SoundGroup Sounds::blow;
-SoundGroup Sounds::coin;
-SoundGroup Sounds::damage;
-SoundGroup Sounds::death;
-SoundGroup Sounds::empty;
-SoundGroup Sounds::soft;

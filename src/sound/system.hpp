@@ -18,7 +18,6 @@ class SoundSystem {
 		ALCcontext* context;
 
 		std::list<std::unique_ptr<SoundSource>> sources;
-		float volume = 1.0f;
 
 		SoundSystem() {
 			device = alcOpenDevice(nullptr);
@@ -36,8 +35,7 @@ class SoundSystem {
 			alcMakeContextCurrent(context);
 			debug::openal::check_error("alcMakeContextCurrent");
 
-			glm::vec3 origin {0, 0, 0};
-			listener().position(origin).velocity(origin).gain(1.0f);
+			listener().position(0, 0).velocity(0, 0).gain(1.0f);
 
 			printf("Sound system started!\n");
 		}
@@ -57,15 +55,6 @@ class SoundSystem {
 		static SoundSystem& getInstance() {
 			static SoundSystem system;
 			return system;
-		}
-
-		void setMasterVolume(float volume) {
-			this->volume = volume;
-			flush();
-		}
-
-		float getMasterVolume() {
-			return volume;
 		}
 
 		void update() {
@@ -104,13 +93,6 @@ class SoundSystem {
 		void stop() {
 			for (auto& source : sources) {
 				source->drop();
-			}
-		}
-
-		// update volumes of all playing sounds
-		void flush() {
-			for (auto& source : sources) {
-				source->flush();
 			}
 		}
 
