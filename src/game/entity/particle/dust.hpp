@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entity.hpp"
+#include "game/entity/entity.hpp"
 
 class DustEntity : public Entity {
 

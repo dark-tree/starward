@@ -1,7 +1,7 @@
 #pragma once
 
-#include <external.hpp>
-#include <rendering.hpp>
+#include "external.hpp"
+#include "rendering.hpp"
 #include "tile.hpp"
 
 extern int global_segment_id;

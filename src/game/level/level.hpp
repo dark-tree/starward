@@ -4,10 +4,10 @@
 #include <rendering.hpp>
 
 #include "segment.hpp"
-#include "entity/entity.hpp"
-#include "entity/player.hpp"
+#include "game/entity/entity.hpp"
+#include "game/entity/player.hpp"
 #include "biome.hpp"
-#include "level/box.hpp"
+#include "box.hpp"
 
 enum struct GameState {
 	BEGIN,

@@ -1,9 +1,11 @@
+
 #include "level.hpp"
-#include "sounds.hpp"
-#include "emitter.hpp"
+
+#include "game/sounds.hpp"
+#include "game/emitter.hpp"
 #include "biome.hpp"
-#include "entity/all.hpp"
-#include "entity/vertical.hpp"
+#include "game/entity/all.hpp"
+#include "game/entity/enemy/vertical.hpp"
 
 int global_segment_id = 0;
 

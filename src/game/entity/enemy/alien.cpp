@@ -1,7 +1,8 @@
+
 #include "alien.hpp"
 
-#include <game/level.hpp>
-#include "dust.hpp"
+#include "game/level/level.hpp"
+#include "game/entity/particle/dust.hpp"
 
 /*
  * AlienEntity

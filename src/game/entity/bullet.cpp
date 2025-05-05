@@ -1,10 +1,10 @@
 
 #include "bullet.hpp"
-#include "blow.hpp"
-#include "tile.hpp"
 
-#include "game/level.hpp"
-#include "game/tile.hpp"
+#include "particle/blow.hpp"
+#include "particle/tile.hpp"
+#include "game/level/level.hpp"
+#include "../level/tile.hpp"
 #include "game/emitter.hpp"
 #include "game/sounds.hpp"
 

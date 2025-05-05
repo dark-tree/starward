@@ -1,10 +1,10 @@
 
 #include "powerup.hpp"
-#include "player.hpp"
-#include "blow.hpp"
 
-#include "game/level.hpp"
-#include "game/tile.hpp"
+#include "player.hpp"
+#include "particle/blow.hpp"
+#include "game/level/level.hpp"
+#include "../level/tile.hpp"
 #include "game/emitter.hpp"
 #include "game/sounds.hpp"
 

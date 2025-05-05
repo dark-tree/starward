@@ -1,11 +1,11 @@
 
 #include "player.hpp"
-#include "bullet.hpp"
-#include "dust.hpp"
-#include "powerup.hpp"
 
-#include "game/level.hpp"
-#include "game/tile.hpp"
+#include "bullet.hpp"
+#include "particle/dust.hpp"
+#include "powerup.hpp"
+#include "game/level/level.hpp"
+#include "../level/tile.hpp"
 #include "game/emitter.hpp"
 #include "game/sounds.hpp"
 

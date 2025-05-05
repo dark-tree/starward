@@ -1,7 +1,7 @@
 #pragma once
 
-#include <external.hpp>
-#include <rendering.hpp>
+#include "external.hpp"
+#include "rendering.hpp"
 
 enum struct TextMode {
 	LEFT,

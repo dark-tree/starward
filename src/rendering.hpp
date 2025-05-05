@@ -1,11 +1,11 @@
 #pragma once
 
-#include <gls/input.hpp>
-#include <gls/wrapper.hpp>
-#include <gls/shader.hpp>
-#include <gls/buffer.hpp>
-#include <gls/texture.hpp>
-#include <gls/framebuffer.hpp>
-#include <gls/state.hpp>
-#include <gls/vertex.hpp>
-#include <gls/screen.hpp>
+#include <render/input.hpp>
+#include <render/wrapper.hpp>
+#include <render/shader.hpp>
+#include <render/buffer.hpp>
+#include <render/texture.hpp>
+#include <render/framebuffer.hpp>
+#include <render/state.hpp>
+#include <render/vertex.hpp>
+#include <render/screen.hpp>

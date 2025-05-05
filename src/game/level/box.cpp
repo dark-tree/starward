@@ -1,3 +1,4 @@
+
 #include "box.hpp"
 
 glm::vec2 Box::begin() const {

@@ -1,7 +1,8 @@
+
 #include "vertical.hpp"
 
-#include <game/level.hpp>
-#include "bullet.hpp"
+#include "game/level/level.hpp"
+#include "game/entity/bullet.hpp"
 
 /*
  * VerticalAlienEntity

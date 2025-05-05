@@ -1,11 +1,11 @@
 
 #include <external.hpp>
 #include <rendering.hpp>
-#include <gls/layout.hpp>
+#include <render/layout.hpp>
 
 #include "const.hpp"
 #include "game/sounds.hpp"
-#include "game/level.hpp"
+#include "game/level/level.hpp"
 
 // docs
 // https://emscripten.org/docs/api_reference/html5.h.html

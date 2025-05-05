@@ -1,10 +1,10 @@
 
 #include "turret.hpp"
-#include "bullet.hpp"
-#include "dust.hpp"
 
-#include "game/level.hpp"
-#include "game/tile.hpp"
+#include "game/entity/bullet.hpp"
+#include "game/entity/particle/dust.hpp"
+#include "game/level/level.hpp"
+#include "../../level/tile.hpp"
 #include "game/emitter.hpp"
 #include "game/sounds.hpp"
 

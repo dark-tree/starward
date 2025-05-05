@@ -1,12 +1,12 @@
+
 #include "mine.hpp"
 
-#include <game/level.hpp>
+#include <game/level/level.hpp>
 #include <game/sounds.hpp>
 #include <sound/system.hpp>
-
-#include "blow.hpp"
-#include "bullet.hpp"
-#include "player.hpp"
+#include "game/entity/particle/blow.hpp"
+#include "game/entity/bullet.hpp"
+#include "game/entity/player.hpp"
 
 MineAlienEntity::MineAlienEntity(float x, float y, int evolution)
 : AlienEntity(x, y, evolution) {
