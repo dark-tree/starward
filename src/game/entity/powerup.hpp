@@ -11,6 +11,7 @@ class PowerUpEntity : public Entity {
 		enum Type {
 			LIVE = 0,
 			DOUBLE_BARREL = 1,
+			SHIELD = 2
 		};
 
 		static Type randomPick();

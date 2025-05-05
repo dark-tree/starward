@@ -69,7 +69,7 @@ class Level {
 
 		std::array<LevelSegment, 4> segments;
 
-		std::vector<Entity*> pending;
+		std::vector<std::shared_ptr<Entity>> pending;
 		std::vector<std::shared_ptr<Entity>> entities;
 		std::shared_ptr<PlayerEntity> player;
 
@@ -94,6 +94,7 @@ class Level {
 
 		void addScore(int points);
 		void addEntity(Entity* entity);
+		void addEntity(const std::shared_ptr<Entity>& entity);
 		void tick();
 		void draw(TileSet& font8x8, BufferWriter<Vert4f4b>& text_writer, TileSet& tileset, BufferWriter<Vert4f4b>& game_writer);
 		void setTile(int x, int y, uint8_t tile);

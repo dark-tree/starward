@@ -2,7 +2,7 @@
 #include "entity.hpp"
 
 #include "game/level/level.hpp"
-#include "../level/tile.hpp"
+#include "game/level/tile.hpp"
 #include "game/emitter.hpp"
 #include "game/sounds.hpp"
 
@@ -19,6 +19,10 @@ void Entity::emitBoxWireframe(Box box, BufferWriter<Vert4f4b>& writer, Sprite sp
 	emitLineQuad(writer, box.x, box.y, box.x + box.w, box.y, width, sprite, color.r, color.g, color.b, color.a);
 	emitLineQuad(writer, box.x + box.w, box.y, box.x + box.w, box.y + box.h, width, sprite, color.r, color.g, color.b, color.a);
 	emitLineQuad(writer, box.x, box.y + box.h, box.x + box.w, box.y + box.h, width, sprite, color.r, color.g, color.b, color.a);
+}
+
+float Entity::getAngle() const {
+	return angle;
 }
 
 Entity::Entity(float size, float x, float y)

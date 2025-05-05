@@ -2,6 +2,8 @@
 
 #include "entity.hpp"
 
+class ShieldEntity;
+
 class PlayerEntity : public Entity {
 
 	private:
@@ -13,6 +15,8 @@ class PlayerEntity : public Entity {
 		float tilt = 0;
 		int ammo = 32;
 		Box bumper;
+
+		std::shared_ptr<ShieldEntity> shield = nullptr;
 
 		/// get the left (side == -1) or right (side == +1) bumper box
 		Box getBoxBumper(int side) const;
@@ -35,5 +39,7 @@ class PlayerEntity : public Entity {
 		void tick(Level& level) override;
 		void draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) override;
 		void debugDraw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) override;
+
+		void enableShield(Level& level);
 
 };

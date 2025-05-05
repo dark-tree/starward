@@ -3,6 +3,7 @@
 #include "bullet.hpp"
 #include "player.hpp"
 #include "powerup.hpp"
+#include "shield.hpp"
 
 // particles
 #include "particle/blow.hpp"

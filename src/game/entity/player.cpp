@@ -4,8 +4,9 @@
 #include "bullet.hpp"
 #include "particle/dust.hpp"
 #include "powerup.hpp"
+#include "shield.hpp"
 #include "game/level/level.hpp"
-#include "../level/tile.hpp"
+#include "game/level/tile.hpp"
 #include "game/emitter.hpp"
 #include "game/sounds.hpp"
 
@@ -79,6 +80,10 @@ void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
 }
 
 void PlayerEntity::tick(Level& level) {
+
+	if (shield && shield->shouldRemove()) {
+		shield.reset();
+	}
 
 	int avoidance = 0;
 
@@ -192,4 +197,13 @@ void PlayerEntity::debugDraw(Level& level, TileSet& tileset, BufferWriter<Vert4f
 
 	emitBoxWireframe(getBoxBumper(-1).withOffset(0, level.getScroll()), writer, tileset.sprite(0, 0), 1, Color::white());
 	emitBoxWireframe(getBoxBumper(+1).withOffset(0, level.getScroll()), writer, tileset.sprite(0, 0), 1, Color::white());
+}
+
+void PlayerEntity::enableShield(Level& level) {
+	if (shield) {
+		shield->repower();
+	} else {
+		shield = std::make_shared<ShieldEntity>(std::static_pointer_cast<PlayerEntity>(self()));
+		level.addEntity(shield);
+	}
 }

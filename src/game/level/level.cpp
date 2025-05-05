@@ -24,9 +24,7 @@ void Level::reset() {
 	printf("Resetting level...\n");
 
 	// we need to do this part manually
-	for (Entity* entity : pending) {
-		delete entity;
-	}
+	pending.clear();
 
 	// reset world gen
 	manager.reset();
@@ -88,6 +86,10 @@ void Level::setState(GameState state) {
 }
 
 void Level::addEntity(Entity* entity) {
+	pending.emplace_back(entity);
+}
+
+void Level::addEntity(const std::shared_ptr<Entity>& entity) {
 	pending.emplace_back(entity);
 }
 
@@ -205,10 +207,10 @@ void Level::tick() {
 		return entity->shouldRemove();
 	}), entities.end());
 
-	for (Entity* entity : pending) {
-		std::shared_ptr<Entity>& ptr = entities.emplace_back(entity);
+	for (auto& entity : pending) {
+		entities.emplace_back(entity);
 
-		if (std::shared_ptr<PlayerEntity> shared_player = std::dynamic_pointer_cast<PlayerEntity>(ptr)) {
+		if (std::shared_ptr<PlayerEntity> shared_player = std::dynamic_pointer_cast<PlayerEntity>(entity)) {
 			player = shared_player;
 		}
 	}

@@ -33,6 +33,8 @@ class Entity : public std::enable_shared_from_this<Entity> {
 		virtual ~Entity();
 		void clamp();
 
+		float getAngle() const;
+
 		bool shouldRemove() const;
 		std::shared_ptr<Entity> self();
 		Box getBoxCollider() const;

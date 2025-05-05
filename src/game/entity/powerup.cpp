@@ -14,8 +14,9 @@
 
 PowerUpEntity::Type PowerUpEntity::randomPick() {
 	int pick = randomInt(0, 100);
-	if (pick >=   0 && pick <=  40) return LIVE;
-	if (pick >=  40 && pick <= 100) return DOUBLE_BARREL;
+	if (pick >=   0 && pick <=  30) return LIVE;
+	if (pick >=  30 && pick <=  60) return DOUBLE_BARREL;
+	if (pick >=  60 && pick <=  80) return SHIELD;
 
 	return randomPick();
 }
@@ -36,6 +37,10 @@ void PowerUpEntity::applyEffect(Level& level, PlayerEntity* player) {
 
 	if (type == Type::DOUBLE_BARREL) {
 		player->double_barrel_ticks += 50;
+	}
+
+	if (type == Type::SHIELD) {
+		player->enableShield(level);
 	}
 }
 
