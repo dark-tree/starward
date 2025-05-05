@@ -60,16 +60,25 @@ class SoundSystem {
 		void update() {
 			std::list<std::unique_ptr<SoundSource>>::iterator iter = sources.begin();
 
+			int count = sources.size();
+			int freed = 0;
+
+			if (count < 100) {
+				return;
+			}
+
 			while (iter != sources.end()) {
 				bool drop = (*iter)->shouldDrop();
 
 				if (drop) {
 					iter = sources.erase(iter);
+					freed ++;
 				} else {
-					(*iter)->update();
 					iter ++;
 				}
 			}
+
+			printf("Cleanup up %d sounds out of %d total\n", freed, count);
 		}
 
 		SoundSource& add(const SoundGroup& group) {

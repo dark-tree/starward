@@ -13,7 +13,6 @@ class SoundSource {
 
 		uint32_t source;
 		const std::string path;
-		std::list<SoundEvent> events;
 
 	public:
 
@@ -44,21 +43,6 @@ class SoundSource {
 			alGetSourcei(source, AL_SOURCE_STATE, &state);
 
 			return state == AL_STOPPED;
-		}
-
-		void update() {
-			float current = seconds();
-			std::list<SoundEvent>::iterator iter = events.begin();
-
-			while (iter != events.end()) {
-				bool drop = (*iter).update(*this, current);
-
-				if (drop) {
-					iter = events.erase(iter);
-				} else {
-					iter ++;
-				}
-			}
 		}
 
 	// play state menegment
@@ -119,15 +103,6 @@ class SoundSource {
 			alSourcefv(source, AL_DIRECTION, glm::value_ptr(value));
 			debug::openal::check_error("alSourcefv");
 			return *this;
-		}
-
-		SoundSource& event(float seconds, SoundEvent::Callback callback, float window = 0.04f, bool once = true) {
-			events.emplace_back(seconds, window, callback, once);
-			return *this;
-		}
-
-		SoundSource& event(float seconds, Runnable runnable) {
-			return event(seconds, [&] (float, SoundSource&) { runnable(); });
 		}
 
 	// state getters
