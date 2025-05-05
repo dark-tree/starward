@@ -11,6 +11,10 @@
 MineAlienEntity::MineAlienEntity(float x, float y, int evolution)
 : AlienEntity(x, y, evolution) {
 	timer = randomInt(0, 60);
+
+	if (evolution) {
+		this->collider = Box {-20, -20, 40, 40};
+	}
 }
 
 bool MineAlienEntity::checkPlacement(Level& level) {
