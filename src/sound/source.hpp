@@ -11,8 +11,7 @@ class SoundSource {
 
 		friend class SoundSystem;
 
-		int lastSample = 0;
-		bool firstCleanupAttempt = true;
+		int age = 0;
 
 		uint32_t source;
 		const std::string path;
@@ -47,11 +46,11 @@ class SoundSource {
 
 			// this is to avoid hundreds of sounds being
 			// played at once if the user doesn't immediately click the website
-			if (!firstCleanupAttempt && samples() == 0 && state == AL_PLAYING) {
+			if (age > 18 && samples() == 0 && state == AL_PLAYING) {
 				return true;
 			}
 
-			firstCleanupAttempt = false;
+			age ++;
 			return state == AL_STOPPED;
 		}
 

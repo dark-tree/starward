@@ -25,12 +25,12 @@ void Sounds::load() {
 		}
 	}
 
-	Sounds::beep = std::move(groups.at("beep"));
-	Sounds::blow = std::move(groups.at("blow"));
-	Sounds::coin = std::move(groups.at("coin"));
-	Sounds::damage = std::move(groups.at("damage"));
-	Sounds::death = std::move(groups.at("death"));
-	Sounds::empty = std::move(groups.at("empty"));
-	Sounds::soft = std::move(groups.at("soft"));
+	beep = std::move(groups.at("beep"));
+	blow = std::move(groups.at("blow"));
+	coin = std::move(groups.at("coin"));
+	damage = std::move(groups.at("damage"));
+	death = std::move(groups.at("death"));
+	empty = std::move(groups.at("empty"));
+	soft = std::move(groups.at("soft"));
 
 }
