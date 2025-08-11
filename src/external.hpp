@@ -5,6 +5,10 @@
 // C
 #include <cinttypes>
 
+// GLM extensions
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/hash.hpp"
+
 // C++
 #include <functional>
 #include <memory>

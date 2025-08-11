@@ -17,13 +17,13 @@ class Entity : public std::enable_shared_from_this<Entity> {
 		bool dead = false;
 		long age = 0;
 		Box collider;
+		float size;
 
 		void emitEntityQuad(Level& level, BufferWriter<Vert4f4b>& writer, Sprite sprite, float size, float angle, Color color) const;
 		void emitBoxWireframe(Box box, BufferWriter<Vert4f4b>& writer, Sprite sprite, float width, Color color) const;
 
 	public:
 
-		const float size;
 		float x;
 		float y;
 

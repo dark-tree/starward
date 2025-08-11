@@ -5,43 +5,58 @@
 #include "game/emitter.hpp"
 #include "biome.hpp"
 #include "game/entity/all.hpp"
+#include "game/entity/enemy/decay.hpp"
 #include "game/entity/enemy/vertical.hpp"
-
-int global_segment_id = 0;
 
 Level::Level(BiomeManager& manager)
 : manager(manager) {
-	std::string hi_str = platform_read_string("hi");
-
-	if (hi_str.length() > 0) {
-		hi = std::stoi(hi_str);
-	}
-
+	loadHighScore();
 	manager.tick(0);
 }
 
-void Level::reset() {
-	printf("Resetting level...\n");
+void Level::loadHighScore() {
+	const char* stat_hi_score = "hi";
+	std::string hi_str = platform_read_string(stat_hi_score);
 
-	// we need to do this part manually
-	pending.clear();
-
-	// reset world gen
-	manager.reset();
-	global_segment_id = 0;
-
-	// recreate level
-	this->~Level();
-	new (this) Level(manager);
-
-	// respawn player
-	spawnInitial();
+	if (hi_str.length() > 0) {
+		try {
+			hi = std::stoi(hi_str);
+		} catch (...) {
+			hi = 0;
+			platform_write_string(stat_hi_score, "0");
+		}
+	}
 }
 
 void Level::spawnInitial() {
 	addEntity(new PlayerEntity {});
 	addEntity(new SweeperAlienEntity {100, 450, 0});
 	addEntity(new PowerUpEntity {200, 600, PowerUpEntity::LIVE});
+
+	// float oy = 1024;
+	// int layers = 6;
+	//
+	// auto shared = std::make_shared<DecaySharedState>();
+	//
+	// for (int j = 0; j < 34; j ++) {
+	// 	float k = 32.0f * j;
+	//
+	// 	int s = randomInt(-1, 1);
+	// 	int e = randomInt(-1, 2);
+	//
+	// 	for (int i = s; i < layers + e; i ++) {
+	// 		float o = 32.0f * i;
+	//
+	// 		addEntity(shared->createPart(k, oy + o));
+	// 	}
+	// }
+	//
+	// for (int i = randomInt(10, 15); i > 0; i --) {
+	// 	float x = 32 * randomInt(0, 34);
+	// 	float y = 32 * randomInt(9, 12);
+	//
+	// 	addEntity(shared->createPart(x, oy + y));
+	// }
 }
 
 void Level::loadPlayCount() {
@@ -66,6 +81,10 @@ void Level::loadPlayCount() {
 	printf("Started session #%d\n", plays);
 	this->play_count = plays;
 
+}
+
+void Level::addSlowness(float tar) {
+	this->tar *= tar;
 }
 
 void Level::addScore(int points) {
@@ -155,14 +174,21 @@ void Level::tick() {
 		age ++;
 
 		aliveness = aliveness * 0.99f;
+		linear_aliveness -= 0.005;
+
+		if (linear_aliveness < 0) {
+			linear_aliveness = 0;
+		}
 	} else {
 		age = 60;
 		aliveness = 1.0f;
+		linear_aliveness = 1.0f;
 	}
 
 	biome_speed = manager.getBonusSpeed();
 	scroll -= getSpeed();
 	skip *= 0.95;
+	tar = 1.0f;
 
 	for (auto& segment : segments) {
 
@@ -251,7 +277,7 @@ void Level::tick() {
 		if (skip > 1) skip = 1;
 	} else {
 		if (Input::isPressed(Key::ENTER)) {
-			this->reset();
+			reload = true;
 		}
 	}
 }
@@ -346,7 +372,11 @@ float Level::getScroll() const {
 
 float Level::getSpeed() const {
 	float v = std::min(1.0f, total * 0.01f);
-	return base_speed * std::max(aliveness, 0.5f) + (skip * 4 + v * 2 + biome_speed) * aliveness;
+	return tar * base_speed * aliveness + (skip * 4 + tar * v * 2 + biome_speed) * aliveness;
+}
+
+float Level::getLinearAliveness() const {
+	return linear_aliveness;
 }
 
 bool Level::isDebug() const {

@@ -46,10 +46,10 @@ using PlatformLoopCallback = void(*)();
 
 	#define EXPORTED_NATIVE EMSCRIPTEN_KEEPALIVE
 
-	namespace __impl {
+	namespace impl {
 
 		/// translates the javascript's key code into key enum
-		inline Key __platform_translate_key(const char* key) {
+		inline Key platform_translate_key(const char* key) {
 
 			if (strcmp(key, "ArrowLeft") == 0) return Key::LEFT;
 			if (strcmp(key, "ArrowRight") == 0) return Key::RIGHT;
@@ -67,27 +67,27 @@ using PlatformLoopCallback = void(*)();
 			return Key::UNDEF;
 		}
 
-		inline EM_BOOL __platform_keydown_handler(int type, const EmscriptenKeyboardEvent* event, void* userdata) {
-			reinterpret_cast<PlatformKeyEventCallback>(userdata)(__platform_translate_key(event->code));
+		inline EM_BOOL platform_keydown_handler(int type, const EmscriptenKeyboardEvent* event, void* userdata) {
+			reinterpret_cast<PlatformKeyEventCallback>(userdata)(platform_translate_key(event->code));
 			return true;
 		}
 
-		inline EM_BOOL __platform_keyup_handler(int type, const EmscriptenKeyboardEvent* event, void* userdata) {
-			reinterpret_cast<PlatformKeyEventCallback>(userdata)(__platform_translate_key(event->code));
+		inline EM_BOOL platform_keyup_handler(int type, const EmscriptenKeyboardEvent* event, void* userdata) {
+			reinterpret_cast<PlatformKeyEventCallback>(userdata)(platform_translate_key(event->code));
 			return true;
 		}
 
-		inline EM_BOOL __platform_mousemove_handler(int type, const EmscriptenMouseEvent* event, void* userdata) {
+		inline EM_BOOL platform_mousemove_handler(int type, const EmscriptenMouseEvent* event, void* userdata) {
 			reinterpret_cast<PlatformMouseEventCallback>(userdata)(event->clientX, event->clientY);
 			return true;
 		}
 
-		inline void __platform_write_string(std::string path, std::string data) {
+		inline void platform_write_string(std::string path, std::string data) {
 			std::string code = "localStorage.setItem('" + path + "', '" + data + "');";
 			emscripten_run_script(code.data());
 		}
 
-		inline std::string __platform_read_string(std::string path) {
+		inline std::string platform_read_string(std::string path) {
 			std::string code = "localStorage.getItem('" + path + "') || '';";
 			return emscripten_run_script_string(code.data());
 		}
@@ -99,11 +99,11 @@ using PlatformLoopCallback = void(*)();
 	}
 
 	inline void platform_set_keydown_callback(PlatformKeyEventCallback callback) {
-		emscripten_set_keydown_callback(HTML_CANVAS, (void*) callback, false, __impl::__platform_keydown_handler);
+		emscripten_set_keydown_callback(HTML_CANVAS, (void*) callback, false, impl::platform_keydown_handler);
 	}
 
 	inline void platform_set_keyup_callback(PlatformKeyEventCallback callback) {
-		emscripten_set_keyup_callback(HTML_CANVAS, (void*) callback, false, __impl::__platform_keyup_handler);
+		emscripten_set_keyup_callback(HTML_CANVAS, (void*) callback, false, impl::platform_keyup_handler);
 	}
 
 	inline void platform_get_canvas_element_size(int* width, int* height) {
@@ -149,7 +149,13 @@ using PlatformLoopCallback = void(*)();
 
 	inline std::string platform_read(std::string path) {
 		std::string code = "localStorage.getItem('" + path + "');";
-		return emscripten_run_script_string(code.data());
+		std::string data = emscripten_run_script_string(code.data());
+
+		if (data == "null" || data == "undefined") {
+			return "";
+		}
+
+		return data;
 	}
 
 #elif defined(__linux__)
@@ -162,15 +168,15 @@ using PlatformLoopCallback = void(*)();
 
 	#define EXPORTED_NATIVE
 
-	namespace __impl {
+	namespace impl {
 
-		extern int __screen_width;
-		extern int __screen_height;
-		extern PlatformKeyEventCallback __keydown_callback;
-		extern PlatformKeyEventCallback __keyup_callback;
+		extern int screen_width;
+		extern int screen_height;
+		extern PlatformKeyEventCallback keydown_callback;
+		extern PlatformKeyEventCallback keyup_callback;
 
 		/// translates the system keycode into key enum
-		inline Key __platform_translate_key(int key) {
+		inline Key platform_translate_key(int key) {
 
 			if (key == WXK_LEFT) return Key::LEFT;
 			if (key == WXK_RIGHT) return Key::RIGHT;
@@ -188,28 +194,26 @@ using PlatformLoopCallback = void(*)();
 			return Key::UNDEF;
 		}
 
-		inline void __platform_close_handler() {
+		inline void platform_close_handler() {
 			exit(-1);
 		}
 
-		inline void __platform_keyboard_handler(int state, int keycode) {
-			Key key = __platform_translate_key(keycode);
+		inline void platform_keyboard_handler(int state, int keycode) {
+			Key key = platform_translate_key(keycode);
 
 			if (state == WINX_PRESSED) {
-				__keydown_callback(key);
+				keydown_callback(key);
 			} else {
-				__keyup_callback(key);
+				keyup_callback(key);
 			}
 		}
 
-		inline void __platform_resize_handler(int width, int height) {
-			__screen_width = width;
-			__screen_height = height;
+		inline void platform_resize_handler(int width, int height) {
+			screen_width = width;
+			screen_height = height;
 		}
 
-		inline void __platform_write_string(std::string path, std::string data) {
-			printf("Writing state 'local/%s'\n", path.c_str());
-
+		inline void platform_write_string(std::string path, std::string data) {
 			mkdir("./local", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
 			std::ofstream f;
@@ -217,9 +221,7 @@ using PlatformLoopCallback = void(*)();
 			f.write(data.data(), data.size());
 		}
 
-		inline std::string __platform_read_string(std::string path) {
-			printf("Reading state 'local/%s'\n", path.c_str());
-
+		inline std::string platform_read_string(std::string path) {
 			std::ifstream f;
 			f.open("./local/" + path, std::ifstream::binary | std::ifstream::in);
 
@@ -245,19 +247,19 @@ using PlatformLoopCallback = void(*)();
 	}
 
 	inline void platform_set_keydown_callback(PlatformKeyEventCallback callback) {
-		__impl::__keydown_callback = callback;
+		impl::keydown_callback = callback;
 	}
 
 	inline void platform_set_keyup_callback(PlatformKeyEventCallback callback) {
-		__impl::__keyup_callback = callback;
+		impl::keyup_callback = callback;
 	}
 
 	inline void platform_get_canvas_element_size(int* width, int* height) {
-		*width = __impl::__screen_width;
-		*height = __impl::__screen_height;
+		*width = impl::screen_width;
+		*height = impl::screen_height;
 	}
 
-	inline void platform_set_main_loop(PlatformLoopCallback callback, int fps) {
+	[[noreturn]] inline void platform_set_main_loop(PlatformLoopCallback callback, int fps) {
 		while (true) {
 			callback();
 
@@ -279,21 +281,24 @@ using PlatformLoopCallback = void(*)();
 		// use GLAD to load OpenGL functions
 		gladLoadGL();
 
-		__impl::__screen_width = GAME_NATIVE_WIDTH;
-		__impl::__screen_height = GAME_NATIVE_HEIGHT;
+		impl::screen_width = GAME_NATIVE_WIDTH;
+		impl::screen_height = GAME_NATIVE_HEIGHT;
 
-		winxSetCloseEventHandle(__impl::__platform_close_handler);
-		winxSetKeyboardEventHandle(__impl::__platform_keyboard_handler);
-		winxSetResizeEventHandle(__impl::__platform_resize_handler);
+		winxSetCloseEventHandle(impl::platform_close_handler);
+		winxSetKeyboardEventHandle(impl::platform_keyboard_handler);
+		winxSetResizeEventHandle(impl::platform_resize_handler);
 	}
 
 #endif
 
 // shared
-inline void platform_write_string(std::string path, std::string data) {
-	__impl::__platform_write_string(path, data);
+inline void platform_write_string(const std::string& path, const std::string& data) {
+	impl::platform_write_string(path, data);
+	printf("Written '%s' into '/%s'\n", data.c_str(), path.c_str());
 }
 
-inline std::string platform_read_string(std::string path) {
-	return __impl::__platform_read_string(path);
+inline std::string platform_read_string(const std::string& path) {
+	std::string data = impl::platform_read_string(path);
+	printf("Read '%s' from '/%s'\n", data.c_str(), path.c_str());
+	return data;
 }

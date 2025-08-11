@@ -3,8 +3,8 @@
 #include "platform.hpp"
 
 #if !defined(__EMSCRIPTEN__) && defined(__linux__)
-	int __impl::__screen_width;
-	int __impl::__screen_height;
-	PlatformKeyEventCallback __impl::__keydown_callback;
-	PlatformKeyEventCallback __impl::__keyup_callback;
+	int impl::screen_width;
+	int impl::screen_height;
+	PlatformKeyEventCallback impl::keydown_callback;
+	PlatformKeyEventCallback impl::keyup_callback;
 #endif

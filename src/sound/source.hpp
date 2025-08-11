@@ -11,6 +11,9 @@ class SoundSource {
 
 		friend class SoundSystem;
 
+		int lastSample = 0;
+		bool firstCleanupAttempt = true;
+
 		uint32_t source;
 		const std::string path;
 
@@ -38,14 +41,21 @@ class SoundSource {
 			return path;
 		}
 
-		bool shouldDrop() const {
+		bool shouldDrop() {
 			int state;
 			alGetSourcei(source, AL_SOURCE_STATE, &state);
 
+			// this is to avoid hundreds of sounds being
+			// played at once if the user doesn't immediately click the website
+			if (!firstCleanupAttempt && samples() == 0 && state == AL_PLAYING) {
+				return true;
+			}
+
+			firstCleanupAttempt = false;
 			return state == AL_STOPPED;
 		}
 
-	// play state menegment
+	// play state management
 	public:
 
 		SoundSource& play() {

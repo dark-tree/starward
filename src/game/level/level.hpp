@@ -42,6 +42,9 @@ class Level {
 
 	public:
 
+		// read by Game class to reload game state next tick
+		bool reload = false;
+
 		static constexpr int segment_width = 128;
 		static constexpr int segment_height = 32;
 
@@ -53,10 +56,12 @@ class Level {
 
 		GameState state = GameState::BEGIN;
 		float aliveness = 1.0f;
+		float linear_aliveness = 1.0f;
 		int score = 0;
 		int hi = 0;
-		double base_speed = 0.8;
-		double scroll = 0;
+		float base_speed = 0.8;
+		float scroll = 0;
+		float tar = 0.0f;
 		float skip = 0;
 		float biome_speed = 0;
 		int age = 0;
@@ -69,21 +74,21 @@ class Level {
 
 		std::array<LevelSegment, 4> segments;
 
-		std::vector<std::shared_ptr<Entity>> pending;
-		std::vector<std::shared_ptr<Entity>> entities;
-		std::shared_ptr<PlayerEntity> player;
-
-		void reset();
+		std::vector<std::shared_ptr<Entity>> pending {};
+		std::vector<std::shared_ptr<Entity>> entities {};
+		std::shared_ptr<PlayerEntity> player {};
 
 	public:
 
 		Level(BiomeManager& manager);
+		void loadHighScore();
 		void spawnInitial();
 		void loadPlayCount();
 
 		float getSkip() const;
 		float getScroll() const;
 		float getSpeed() const;
+		float getLinearAliveness() const;
 		bool isDebug() const;
 
 		glm::vec2 toTilePos(int x, int y) const;
@@ -92,6 +97,7 @@ class Level {
 		Entity* randomAlien(int margin, LevelSegment& segment);
 		std::shared_ptr<PlayerEntity> getPlayer();
 
+		void addSlowness(float tar);
 		void addScore(int points);
 		void addEntity(Entity* entity);
 		void addEntity(const std::shared_ptr<Entity>& entity);

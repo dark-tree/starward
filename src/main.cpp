@@ -4,6 +4,7 @@
 #include <render/layout.hpp>
 
 #include "const.hpp"
+#include "game/game.hpp"
 #include "game/sounds.hpp"
 #include "game/level/level.hpp"
 
@@ -73,90 +74,6 @@ void checkViewport(float ratio, const std::function<void(int, int, int, int, glm
 
 }
 
-void loadBiomes(BiomeManager& biomes) {
-	biomes.beginBiome() // start
-		.setTerrain(0.0, 0.25)
-		.addAlien(Alien::MINE, 1)
-		//.addAlien(Alien::FIGHTER, 1)
-		.addEvolution(Evolution::LOW, 1)
-		.addEvolution(Evolution::MEDIUM, 1)
-		.addEvolution(Evolution::HIGH, 1)
-		.addEnemyPlacer(1, 0)
-		.setPowerUpRarity(30)
-		.setEndSegment(6);
-
-	biomes.beginBiome() // sweepers only
-		.setTerrain(0.0, 0.25)
-		.addAlien(Alien::SWEEPER, 2)
-		.addAlien(Alien::MINE, 1)
-		.addEvolution(Evolution::LOW, 1)
-		.addEvolution(Evolution::MEDIUM, 1)
-		.addEnemyPlacer(1, 0)
-		.setPowerUpRarity(30)
-		.setEndSegment(20);
-
-	biomes.beginBiome() // turret introduced
-		.setTerrain(0.0, 0.27)
-		.addAlien(Alien::SWEEPER, 3)
-		.addAlien(Alien::TURRET, 1)
-		.addAlien(Alien::MINE, 1)
-		.addEvolution(Evolution::LOW, 1)
-		.addEvolution(Evolution::MEDIUM, 1)
-		.addEnemyPlacer(1, 0)
-		.setEndSegment(60);
-
-	biomes.beginBiome() // strong sweepers
-		.setTerrain(0.1, 0.28)
-		.addAlien(Alien::SWEEPER, 3)
-		.addEvolution(Evolution::HIGH, 1)
-		.addEnemyPlacer(1, 0)
-		.addEnemyPlacer(1, 1)
-		.setEndSegment(72);
-
-	biomes.beginBiome() // a bit stronger sweeper-turret mix
-		.setTerrain(0.0, 0.26)
-		.addAlien(Alien::SWEEPER, 3)
-		.addAlien(Alien::TURRET, 2)
-		.addAlien(Alien::MINE, 1)
-		.addAlien(Alien::VERTICAL, 2)
-		.addEvolution(Evolution::LOW, 1)
-		.addEvolution(Evolution::MEDIUM, 3)
-		.addEnemyPlacer(1, 0)
-		.setEndSegment(100);
-
-	biomes.beginBiome() // now onto the HIGH evolution!
-		.setTerrain(0.0, 0.26)
-		.addAlien(Alien::SWEEPER, 1)
-		.addAlien(Alien::TURRET, 1)
-		.addEvolution(Evolution::LOW, 1)
-		.addEvolution(Evolution::MEDIUM, 4)
-		.addEvolution(Evolution::HIGH, 1)
-		.addEnemyPlacer(1, 0)
-		.addEnemyPlacer(1, 4)
-		.setEndSegment(140);
-
-	biomes.beginBiome() // i heard you like turrets?
-		.setTerrain(0.0, 0.27)
-		.addAlien(Alien::SWEEPER, 1)
-		.addAlien(Alien::TURRET, 5)
-		.addEvolution(Evolution::LOW, 2)
-		.addEvolution(Evolution::MEDIUM, 2)
-		.addEvolution(Evolution::HIGH, 1)
-		.addEnemyPlacer(1, 0)
-		.addEnemyPlacer(1, 4)
-		.setEndSegment(180);
-
-	biomes.beginBiome() // fun time
-		.setTerrain(0.0, 0.26)
-		.addAlien(Alien::SWEEPER, 1)
-		.addAlien(Alien::TURRET, 1)
-		.addEvolution(Evolution::MEDIUM, 3)
-		.addEvolution(Evolution::HIGH, 1)
-		.addEnemyPlacer(1, 0)
-		.addEnemyPlacer(1, 5)
-		.setEndSegment(-1);
-}
-
 int main() {
 
 	auto begin_time = std::chrono::steady_clock::now();
@@ -176,11 +93,7 @@ int main() {
 
 	system.listener().gain(0.3f);
 
-	BiomeManager biomes;
-	loadBiomes(biomes);
-
-	Level level {biomes};
-	level.spawnInitial();
+	Game game {};
 
 	Framebuffer pass_1;
 	const Framebuffer& pass_2 = Framebuffer::main();
@@ -226,7 +139,7 @@ int main() {
 
 	printf("System ready!\n");
 
-	int __w, __h;
+	int vw, vh;
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_BLEND);
@@ -234,15 +147,15 @@ int main() {
 
 	setMainLoop([&] {
 
-		level.tick();
+		game.tick();
 
 		// takes care of the screen ratio, calls the callback when the screen resizes
 		checkViewport(ASPECT_RATIO, [&] (int w, int h, int rw, int rh, glm::mat4& matrix) {
 			glm::mat4 static_matrix {
-				2.0f/SW,   0,   0,   0,
-				0,  2.0f/SH,   0,   0,
-				0,   0,   1,   0,
-				-1,  -1,   0,   1,
+				 2.0f/SW, 0,       0,   0,
+				 0,       2.0f/SH, 0,   0,
+				 0,       0,       1,   0,
+				-1,      -1,       0,   1,
 			};
 
 			level_shader.use();
@@ -252,18 +165,19 @@ int main() {
 			glUniform2f(degrade_shader.uniform("uResolution"), rw, rh);
 			glUniformMatrix4fv(degrade_shader.uniform("uMatrix"), 1, GL_FALSE, glm::value_ptr(matrix));
 
-			__w = w;
-			__h = h;
+			vw = w;
+			vh = h;
 		});
 
 		degrade_shader.use();
 		const auto now_time = std::chrono::steady_clock::now();
 		glUniform1f(degrade_shader.uniform("uTime"), std::chrono::duration_cast<std::chrono::duration<float>>(now_time - begin_time).count());
+		glUniform1f(degrade_shader.uniform("uAliveness"), game.level->getLinearAliveness());
 
 		glViewport(0, 0, SW, SH);
 
 		// render
-		level.draw(font8x8, text_writer, tileset, game_writer);
+		game.level->draw(font8x8, text_writer, tileset, game_writer);
 		game_writer.upload();
 		text_writer.upload();
 
@@ -278,7 +192,7 @@ int main() {
 		font8x8.use();
 		text_buffer.draw();
 
-		glViewport(0, 0, __w, __h);
+		glViewport(0, 0, vw, vh);
 
 		// apply a CRT-like effect and draw into back buffer
 		pass_2.use();
@@ -292,5 +206,6 @@ int main() {
 
 	});
 
+	printf("Main returned without error\n");
     return EXIT_SUCCESS;
 }
