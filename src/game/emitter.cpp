@@ -1,6 +1,8 @@
 
 #include "emitter.hpp"
 
+#include "level/level.hpp"
+
 void emitSpriteQuad(BufferWriter<Vert4f4b>& writer, float tx, float ty, float sx, float sy, float angle, const Sprite& s, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 	double quarter = M_PI / 2;
 	double start = M_PI / 4 + M_PI / 2 + angle;
@@ -62,4 +64,21 @@ void emitTextQuads(BufferWriter<Vert4f4b>& text_writer, float x, float y, float 
 
 		return;
 	}
+}
+
+void emitTileQuad(BufferWriter<Vert4f4b>& writer, Sprite s, int x, int y, float ox, float oy, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+	const float unit = SW / Level::segment_width;
+
+	const float tx = x * unit + ox;
+	const float ty = y * unit + oy;
+
+	const float ex = tx + unit;
+	const float ey = ty + unit;
+
+	writer.push({tx, ty, s.min_u, s.min_v, r, g, b, a});
+	writer.push({ex, ty, s.max_u, s.min_v, r, g, b, a});
+	writer.push({ex, ey, s.max_u, s.max_v, r, g, b, a});
+	writer.push({ex, ey, s.max_u, s.max_v, r, g, b, a});
+	writer.push({tx, ey, s.min_u, s.max_v, r, g, b, a});
+	writer.push({tx, ty, s.min_u, s.min_v, r, g, b, a});
 }

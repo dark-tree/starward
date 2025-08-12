@@ -17,3 +17,5 @@
 #include "enemy/fighter.hpp"
 #include "enemy/mine.hpp"
 #include "enemy/vertical.hpp"
+#include "enemy/ray.hpp"
+#include "enemy/tesla.hpp"

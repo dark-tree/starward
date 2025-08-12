@@ -4,17 +4,13 @@
 #include "game/entity/bullet.hpp"
 #include "game/entity/particle/dust.hpp"
 #include "game/level/level.hpp"
-#include "../../level/tile.hpp"
-#include "game/emitter.hpp"
-#include "game/sounds.hpp"
 
 /*
  * TurretAlienEntity
  */
 
 TurretAlienEntity::TurretAlienEntity(double x, double y, int evolution)
-: AlienEntity(x, y, evolution) {
-	this->evolution = evolution;
+	: AlienEntity(x, y, evolution) {
 }
 
 bool TurretAlienEntity::checkPlacement(Level& level) {
@@ -54,7 +50,7 @@ void TurretAlienEntity::tick(Level& level) {
 		float bullet = 5;
 		float radius = 32;
 
-		// try to be sneaky and target future position
+		// try to be sneaky and target future player position
 		float oy = level.getSpeed() * (glm::length(dir) - radius) / bullet;
 		target = deg(90) - std::atan2(dir.y + oy, dir.x);
 		head = slerp(head, target, deg(1 + evolution));

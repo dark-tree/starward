@@ -26,6 +26,10 @@ bool AlienEntity::wasAttacked() const {
 	return attacked;
 }
 
+int AlienEntity::getHealth() const {
+	return health;
+}
+
 void AlienEntity::onDamage(Level& level, int damage, NULLABLE Entity* damager) {
 	if (damage <= 0) {
 		this->damage_ticks = 4;

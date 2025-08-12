@@ -9,6 +9,7 @@ enum struct Alien {
 	FIGHTER = 2,
 	VERTICAL = 3,
 	MINE = 4,
+	TESLA = 5,
 };
 
 enum struct Evolution {

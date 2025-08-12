@@ -127,6 +127,14 @@ class Segment {
 			return {0, 0};
 		}
 
+		glm::ivec2 getRandomTeslaLeftPos(int margin) {
+			return {0, 0}; // TODO
+		}
+
+		glm::ivec2 getRandomTeslaRightPos(int margin, glm::ivec2 left) {
+			return {0, 0}; // TODO
+		}
+
 		bool contains(int y) const {
 			return (y >= index * H) && (y < (index + 1) * H);
 		}

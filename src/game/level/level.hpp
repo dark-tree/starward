@@ -97,10 +97,13 @@ class Level {
 		Entity* randomAlien(int margin, LevelSegment& segment);
 		std::shared_ptr<PlayerEntity> getPlayer();
 
+		template<typename T>
+		std::shared_ptr<T> addEntity(T* entity) {
+			return std::static_pointer_cast<T>(pending.emplace_back(entity));
+		}
+
 		void addSlowness(float tar);
 		void addScore(int points);
-		void addEntity(Entity* entity);
-		void addEntity(const std::shared_ptr<Entity>& entity);
 		void tick();
 		void draw(TileSet& font8x8, BufferWriter<Vert4f4b>& text_writer, TileSet& tileset, BufferWriter<Vert4f4b>& game_writer);
 		void setTile(int x, int y, uint8_t tile);

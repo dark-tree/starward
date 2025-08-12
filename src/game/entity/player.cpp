@@ -64,7 +64,7 @@ void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
 
 			SoundSystem::getInstance().add(Sounds::blow).play();
 			lives--;
-			invulnerable = 300;
+			invulnerable = 200;
 		}
 
 		return;
@@ -203,7 +203,6 @@ void PlayerEntity::enableShield(Level& level) {
 	if (shield) {
 		shield->repower();
 	} else {
-		shield = std::make_shared<ShieldEntity>(std::static_pointer_cast<PlayerEntity>(self()));
-		level.addEntity(shield);
+		shield = level.addEntity(new ShieldEntity(std::static_pointer_cast<PlayerEntity>(self())));
 	}
 }

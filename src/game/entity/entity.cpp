@@ -96,3 +96,7 @@ std::shared_ptr<Entity> Entity::self() {
 Box Entity::getBoxCollider() const {
 	return collider.withOffset(x, y);
 }
+
+bool Entity::isDead() const {
+	return dead;
+}

@@ -6,7 +6,6 @@
 #include "biome.hpp"
 #include "game/entity/all.hpp"
 #include "game/entity/enemy/decay.hpp"
-#include "game/entity/enemy/vertical.hpp"
 
 Level::Level(BiomeManager& manager)
 : manager(manager) {
@@ -104,14 +103,6 @@ void Level::setState(GameState state) {
 	}
 }
 
-void Level::addEntity(Entity* entity) {
-	pending.emplace_back(entity);
-}
-
-void Level::addEntity(const std::shared_ptr<Entity>& entity) {
-	pending.emplace_back(entity);
-}
-
 Entity* Level::randomAlien(int margin, LevelSegment& segment) {
 	Alien alien = manager.getAlien();
 	Evolution evolution = manager.getEvolution();
@@ -154,6 +145,24 @@ Entity* Level::randomAlien(int margin, LevelSegment& segment) {
 		}
 
 		return new TurretAlienEntity {pos.x, pos.y, (int) evolution};
+	}
+
+	if (alien == Alien::TESLA) {
+		glm::ivec2 tile = segment.getRandomTeslaLeftPos(margin);
+
+		glm::vec2 pos = toEntityPos(tile.x, tile.y);
+
+		// failed to find valid turret placement
+		if (tile.x == 0 && tile.y == 0) {
+			return randomAlien(margin, segment);
+		}
+
+		glm::ivec2 tile2 = segment.getRandomTeslaRightPos(margin, tile);
+		glm::vec2 pos2 = toEntityPos(tile2.x, tile2.y);
+
+		auto left = addEntity(new TeslaAlienEntity(pos.x, pos.y, (int) evolution, TeslaAlienEntity::LEFT));
+		auto right = addEntity(new TeslaAlienEntity(pos2.x, pos2.y, (int) evolution, TeslaAlienEntity::RIGHT));
+		new RayBeamEntity(left, right);
 	}
 
 	return randomAlien(margin, segment);

@@ -34,4 +34,7 @@ class AlienEntity : public Entity {
 		/// Called when the entity is killed
 		virtual void onKilled(Level& level);
 
+		/// Get the number of health points
+		int getHealth() const;
+
 };

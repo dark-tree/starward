@@ -39,6 +39,8 @@ class Entity : public std::enable_shared_from_this<Entity> {
 		std::shared_ptr<Entity> self();
 		Box getBoxCollider() const;
 
+		bool isDead() const;
+
 	public:
 
 		/// Invoked to check for collision between this and the given entity
