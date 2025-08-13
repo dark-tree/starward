@@ -103,7 +103,7 @@ void Level::setState(GameState state) {
 	}
 }
 
-Entity* Level::randomAlien(int margin, LevelSegment& segment) {
+Entity* Level::randomAlien(int margin, Segment& segment) {
 	Alien alien = manager.getAlien();
 	Evolution evolution = manager.getEvolution();
 
@@ -148,21 +148,20 @@ Entity* Level::randomAlien(int margin, LevelSegment& segment) {
 	}
 
 	if (alien == Alien::TESLA) {
-		glm::ivec2 tile = segment.getRandomTeslaLeftPos(margin);
+		TeslaPlacement placement = segment.getRandomTeslaPos(margin);
 
-		glm::vec2 pos = toEntityPos(tile.x, tile.y);
+		glm::vec2 pos = toEntityPos(placement.lx, placement.y);
 
 		// failed to find valid turret placement
-		if (tile.x == 0 && tile.y == 0) {
+		if (placement.lx == placement.rx) {
 			return randomAlien(margin, segment);
 		}
 
-		glm::ivec2 tile2 = segment.getRandomTeslaRightPos(margin, tile);
-		glm::vec2 pos2 = toEntityPos(tile2.x, tile2.y);
+		glm::vec2 pos2 = toEntityPos(placement.rx, placement.y);
 
 		auto left = addEntity(new TeslaAlienEntity(pos.x, pos.y, (int) evolution, TeslaAlienEntity::LEFT));
 		auto right = addEntity(new TeslaAlienEntity(pos2.x, pos2.y, (int) evolution, TeslaAlienEntity::RIGHT));
-		new RayBeamEntity(left, right);
+		return new RayBeamEntity(left, right);
 	}
 
 	return randomAlien(margin, segment);
@@ -294,7 +293,7 @@ void Level::tick() {
 void Level::draw(TileSet& font8x8, BufferWriter<Vert4f4b>& text_writer, TileSet& tileset, BufferWriter<Vert4f4b>& game_writer) {
 
 	for (auto& segment : segments) {
-		segment.draw(scroll, tileset, game_writer);
+		segment.draw(scroll, tileset, game_writer, debug);
 	}
 
 	for (auto& entity : entities) {
@@ -336,17 +335,17 @@ void Level::draw(TileSet& font8x8, BufferWriter<Vert4f4b>& text_writer, TileSet&
 }
 
 glm::vec2 Level::toTilePos(int x, int y) const {
-	const float pixels = SW / segment_width;
+	const float pixels = SW / Segment::width;
 	return glm::vec2 {x, y} / pixels;
 }
 
 glm::vec2 Level::toEntityPos(int x, int y) const {
-	const float pixels = SW / segment_width;
+	const float pixels = SW / Segment::width;
 	return (glm::vec2 {x, y} + 0.5f) * pixels;
 }
 
 uint8_t Level::getTile(int tx, int ty) const {
-	if (tx < 0 || tx >= segment_width) {
+	if (tx < 0 || tx >= Segment::width) {
 		return 0;
 	}
 
@@ -360,7 +359,7 @@ uint8_t Level::getTile(int tx, int ty) const {
 }
 
 void Level::setTile(int tx, int ty, uint8_t tile) {
-	if (tx < 0 || tx >= segment_width) {
+	if (tx < 0 || tx >= Segment::width) {
 		return;
 	}
 

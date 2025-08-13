@@ -67,7 +67,7 @@ void emitTextQuads(BufferWriter<Vert4f4b>& text_writer, float x, float y, float 
 }
 
 void emitTileQuad(BufferWriter<Vert4f4b>& writer, Sprite s, int x, int y, float ox, float oy, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-	const float unit = SW / Level::segment_width;
+	const float unit = SW / Segment::width;
 
 	const float tx = x * unit + ox;
 	const float ty = y * unit + oy;

@@ -45,11 +45,6 @@ class Level {
 		// read by Game class to reload game state next tick
 		bool reload = false;
 
-		static constexpr int segment_width = 128;
-		static constexpr int segment_height = 32;
-
-		using LevelSegment = Segment<segment_width, segment_height>;
-
 	private:
 
 		BiomeManager& manager;
@@ -72,7 +67,7 @@ class Level {
 		int konami = 0;
 		bool debug = false;
 
-		std::array<LevelSegment, 4> segments;
+		std::array<Segment, 4> segments;
 
 		std::vector<std::shared_ptr<Entity>> pending {};
 		std::vector<std::shared_ptr<Entity>> entities {};
@@ -94,7 +89,7 @@ class Level {
 		glm::vec2 toTilePos(int x, int y) const;
 		glm::vec2 toEntityPos(int x, int y) const;
 
-		Entity* randomAlien(int margin, LevelSegment& segment);
+		Entity* randomAlien(int margin, Segment& segment);
 		std::shared_ptr<PlayerEntity> getPlayer();
 
 		template<typename T>
