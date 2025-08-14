@@ -1,6 +1,8 @@
 
 #include "segment.hpp"
 
+#include "tile.hpp"
+
 /*
  * Segment
  */
@@ -81,71 +83,6 @@ glm::ivec2 Segment::getRandomSpawnPos(int margin) {
 	int y = randomInt(0, height - 1);
 
 	return {x, y + index * height};
-}
-
-glm::ivec2 Segment::getRandomTurretPos(int margin) {
-	int column = 0;
-	int buffer[width];
-	randomBuffer(buffer, width);
-
-	while (column < width) {
-		int match = 0;
-		bool table[7] = {true, true, true, true, false, false, false};
-
-		int x = buffer[column++];
-		if (x < margin) continue;
-		if (x > width - margin) break;
-
-		for (int y = 0; y < height; y++) {
-			bool air = (at(x, y) == 0);
-
-			if (air != table[match++]) {
-				match = 0;
-			}
-
-			if (match == 7) {
-				return {x, y + index * height - 4};
-			}
-		}
-	}
-
-	printf("Failed to find turret placement spot!\n");
-	return {0, 0};
-}
-
-TeslaPlacement Segment::getRandomTeslaPos(int margin) {
-	int rows[height];
-	randomBuffer(rows, height);
-
-	for (int row = 0; row < height; row++) {
-		int cols[width];
-		randomBuffer(cols, width);
-
-		for (int col = 0; col < width; col++) {
-			TerrainMacher matcher{*this, cols[col], rows[row]};
-
-			if (!matcher.acceptRight(true, 5, 20)) {
-				continue;
-			}
-
-			glm::ivec2 left = matcher.here();
-
-			if (!matcher.acceptRight(false, 15, 100)) {
-				continue;
-			}
-
-			glm::ivec2 right = matcher.here();
-
-			if (!matcher.acceptRight(true, 5, 20)) {
-				continue;
-			}
-
-			return {left.x, right.x, left.y + this->index * height};
-		}
-	}
-
-	printf("Failed to find left tesla tower placement spot!\n");
-	return {0, 0, 0};
 }
 
 bool Segment::contains(int y) const {

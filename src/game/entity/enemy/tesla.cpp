@@ -2,22 +2,16 @@
 
 #include "ray.hpp"
 #include "game/level/level.hpp"
+#include "game/level/matcher.hpp"
 
 /*
  * TeslaAlienEntity
  */
 
-bool TeslaAlienEntity::spawn(Level& level, Segment& segment, int evolution) {
-	TeslaPlacement placement = segment.getRandomTeslaPos(1);
+bool TeslaAlienEntity::spawnAt(Level& level, int lx, int rx, int y, int evolution) {
 
-	glm::vec2 lp = Level::toEntityPos(placement.lx, placement.y);
-
-	// failed to find valid turret placement
-	if (placement.lx == placement.rx) {
-		return false;
-	}
-
-	glm::vec2 rp = Level::toEntityPos(placement.rx, placement.y);
+	glm::vec2 lp = Level::toEntityPos(lx, y);
+	glm::vec2 rp = Level::toEntityPos(rx, y);
 
 	std::shared_ptr<TeslaAlienEntity> left = std::make_shared<TeslaAlienEntity>(lp.x, lp.y, evolution, LEFT);
 	std::shared_ptr<TeslaAlienEntity> right = std::make_shared<TeslaAlienEntity>(rp.x, rp.y, evolution, RIGHT);
@@ -31,6 +25,42 @@ bool TeslaAlienEntity::spawn(Level& level, Segment& segment, int evolution) {
 	level.addEntity(right);
 	level.addEntity(new RayBeamEntity(left, right));
 	return true;
+}
+
+bool TeslaAlienEntity::spawn(Level& level, Segment& segment, int evolution) {
+
+	int rows[Segment::height];
+	randomBuffer(rows, Segment::height);
+
+	for (int row = 0; row < Segment::height; row++) {
+		int cols[Segment::width];
+		randomBuffer(cols, Segment::width);
+
+		for (int col = 0; col < Segment::width; col++) {
+			TerrainMacher matcher{segment, cols[col], rows[row]};
+
+			if (!matcher.acceptRight(true, 5, 20)) {
+				continue;
+			}
+
+			glm::ivec2 left = matcher.here();
+
+			if (!matcher.acceptRight(false, 15, 100)) {
+				continue;
+			}
+
+			glm::ivec2 right = matcher.here();
+
+			if (!matcher.acceptRight(true, 5, 20)) {
+				continue;
+			}
+
+			return spawnAt(level, left.x, right.x, left.y + segment.getVerticalOffset(), evolution);
+		}
+	}
+
+	printf("Failed to find left tesla tower placement spot!\n");
+	return false;
 }
 
 void TeslaAlienEntity::generateFoundation(Segment& segment, glm::ivec2 pos, int x, bool flip) {

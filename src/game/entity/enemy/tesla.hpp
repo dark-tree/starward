@@ -5,6 +5,7 @@ class TeslaAlienEntity : public AlienEntity {
 
 	private:
 
+		static bool spawnAt(Level& level, int lx, int rx, int y, int evolution);
 		void generateFoundation(Segment& segment, glm::ivec2 pos, int x, bool flip);
 
 	public:

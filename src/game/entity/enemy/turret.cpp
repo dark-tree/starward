@@ -4,21 +4,43 @@
 #include "game/entity/bullet.hpp"
 #include "game/entity/particle/dust.hpp"
 #include "game/level/level.hpp"
+#include "game/level/matcher.hpp"
 
 /*
  * TurretAlienEntity
  */
 
 bool TurretAlienEntity::spawn(Level& level, Segment& segment, int evolution) {
-	glm::ivec2 tile = segment.getRandomTurretPos(1);
-	glm::vec2 pos = Level::toEntityPos(tile.x, tile.y);
 
-	// failed to find valid turret placement
-	if (tile.x == 0 && tile.y == 0) {
-		return false;
+	int cols[Segment::width];
+	randomBuffer(cols, Segment::width);
+
+	for (int col = 0; col < Segment::width; col++) {
+
+		int rows[Segment::height];
+		randomBuffer(rows, Segment::height);
+
+		for (int row = 0; row < Segment::height; row++) {
+
+			TerrainMacher matcher {segment, cols[col], rows[row]};
+
+			if (!matcher.acceptDown(true, 4, 10)) {
+				continue;
+			}
+
+			glm::ivec2 tile = matcher.here();
+
+			if (!matcher.acceptDown(false, 5, 200)) {
+				continue;
+			}
+
+			glm::vec2 pos = Level::toEntityPos(tile.x, tile.y + segment.getVerticalOffset());
+			return level.trySpawn(new TurretAlienEntity {pos.x, pos.y, evolution});
+		}
 	}
 
-	return level.trySpawn(new TurretAlienEntity {pos.x, pos.y, evolution});
+	printf("Failed to find turret placement spot!\n");
+	return false;
 }
 
 TurretAlienEntity::TurretAlienEntity(double x, double y, int evolution)

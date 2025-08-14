@@ -1,16 +1,10 @@
 #pragma once
 
 #include "external.hpp"
-#include "matcher.hpp"
 #include "rendering.hpp"
-#include "tile.hpp"
 
 extern int global_segment_id;
 
-struct TeslaPlacement {
-	int lx, rx;
-	int y;
-};
 
 class Segment {
 
@@ -35,10 +29,6 @@ class Segment {
 		Segment();
 
 		glm::ivec2 getRandomSpawnPos(int margin);
-
-		glm::ivec2 getRandomTurretPos(int margin);
-
-		TeslaPlacement getRandomTeslaPos(int margin);
 
 		bool contains(int y) const;
 

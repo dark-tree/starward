@@ -126,6 +126,7 @@ bool Level::trySpawnAlien(Segment& segment) {
 	// aliens with custom spawners
 	if (alien == Alien::TURRET) return TurretAlienEntity::spawn(*this, segment, evolution);
 	if (alien == Alien::TESLA) return TeslaAlienEntity::spawn(*this, segment, evolution);
+	if (alien == Alien::TESLA) return TeslaAlienEntity::spawn(*this, segment, evolution);
 
 	printf("Failed to spawn dues to invalid enum value, is the enemy spawn logic unimplemented?\n");
 	return false;
@@ -270,8 +271,9 @@ void Level::draw(TileSet& font8x8, BufferWriter<Vert4f4b>& text_writer, TileSet&
 			entity->debugDraw(*this, tileset, game_writer);
 		}
 
-		emitTextQuads(text_writer, 16, SH - 64, 20, 16, font8x8, 255, 255, 0, 220, "Seg: " + std::to_string(total), TextMode::LEFT);
-		emitTextQuads(text_writer, 16, SH - 96, 20, 16, font8x8, 255, 255, 0, 220, "Bio: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
+		emitTextQuads(text_writer, 16, SH - 64,  20, 16, font8x8, 255, 255, 0, 220, "Seg: " + std::to_string(total), TextMode::LEFT);
+		emitTextQuads(text_writer, 16, SH - 96,  20, 16, font8x8, 255, 255, 0, 220, "Bio: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
+		emitTextQuads(text_writer, 16, SH - 128, 20, 16, font8x8, 255, 255, 0, 220, "Spd: " + std::to_string(getSpeed()), TextMode::LEFT);
 	}
 
 	if (state != GameState::DEAD) {
@@ -350,7 +352,7 @@ float Level::getScroll() const {
 }
 
 float Level::getSpeed() const {
-	float v = std::min(1.0f, total * 0.01f);
+	float v = std::min(1.0f, total * 0.002f);
 	return tar * base_speed * aliveness + (skip * 4 + tar * v * 2 + biome_speed) * aliveness;
 }
 
