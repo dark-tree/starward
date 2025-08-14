@@ -103,6 +103,8 @@ class Level {
 		void draw(TileSet& font8x8, BufferWriter<Vert4f4b>& text_writer, TileSet& tileset, BufferWriter<Vert4f4b>& game_writer);
 		void setTile(int x, int y, uint8_t tile);
 		uint8_t getTile(int x, int y) const;
+		Segment* findSegment(int y);
+		const Segment* findSegment(int y) const;
 
 		Collision checkTileCollision(const Box& collider) const;
 		Collision checkEntityCollision(Entity* self) const;

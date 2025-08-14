@@ -6,6 +6,7 @@
 #include "game/level/box.hpp"
 
 class Level;
+class Segment;
 
 class Entity : public std::enable_shared_from_this<Entity> {
 
@@ -57,6 +58,9 @@ class Entity : public std::enable_shared_from_this<Entity> {
 
 		/// Invoked every frame in debug mode to draw colliders and extra info
 		virtual void debugDraw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer);
+
+		/// Invoked for entities when added to the world
+		virtual void onSpawned(const Level& level, NULLABLE Segment* segment);
 
 		virtual bool checkPlacement(Level& level);
 		virtual bool isCausedByPlayer();

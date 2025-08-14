@@ -52,6 +52,10 @@ void Entity::debugDraw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& w
 	emitBoxWireframe(getBoxCollider().withOffset(0, level.getScroll()), writer, tileset.sprite(0, 0), 1, Color::white());
 }
 
+void Entity::onSpawned(const Level& level, NULLABLE Segment* segment) {
+	// by default do nothing, Turrets can Tesla towers use it to generate foundations
+}
+
 bool Entity::checkPlacement(Level& level) {
 	return false;
 }

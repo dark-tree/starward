@@ -243,6 +243,7 @@ void Level::tick() {
 
 	for (auto& entity : pending) {
 		entities.emplace_back(entity);
+		entity->onSpawned(*this, findSegment(toTilePos(entity->x, entity->y).y));
 
 		if (std::shared_ptr<PlayerEntity> shared_player = std::dynamic_pointer_cast<PlayerEntity>(entity)) {
 			player = shared_player;
@@ -349,13 +350,31 @@ uint8_t Level::getTile(int tx, int ty) const {
 		return 0;
 	}
 
-	for (const auto& segment : segments) {
-		if (segment.contains(ty)) {
-			return segment.atWorldPos(tx, ty);
-		}
+	if (const Segment* segment = findSegment(ty)) {
+		return segment->atWorldPos(tx, ty);
 	}
 
 	return 0;
+}
+
+Segment* Level::findSegment(int y) {
+	for (auto& segment : segments) {
+		if (segment.contains(y)) {
+			return &segment;
+		}
+	}
+
+	return nullptr;
+}
+
+const Segment* Level::findSegment(int y) const {
+	for (auto& segment : segments) {
+		if (segment.contains(y)) {
+			return &segment;
+		}
+	}
+
+	return nullptr;
 }
 
 void Level::setTile(int tx, int ty, uint8_t tile) {
@@ -363,10 +382,8 @@ void Level::setTile(int tx, int ty, uint8_t tile) {
 		return;
 	}
 
-	for (auto& segment : segments) {
-		if (segment.contains(ty)) {
-			segment.atWorldPos(tx, ty) = tile;
-		}
+	if (Segment* segment = findSegment(ty)) {
+		segment->atWorldPos(tx, ty) = tile;
 	}
 }
 

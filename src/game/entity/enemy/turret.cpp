@@ -82,3 +82,36 @@ void TurretAlienEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f
 	emitEntityQuad(level, writer, tileset.sprite(0, 6), size, angle, color);
 	emitEntityQuad(level, writer, tileset.sprite(evolution + 1, 6), size, head, color);
 }
+
+void TurretAlienEntity::onSpawned(const Level& level, Segment* segment) {
+
+	if (segment == nullptr) {
+		return;
+	}
+
+	int oy = 0;
+	glm::ivec2 pos = level.toTilePos(x, y);
+
+	const int count = 6;
+	int heights[count]  = {2, 3, 3, 2, 2, 3};
+	int material[count] = {0, 0, 0, 2, 2, 2};
+
+	for (int i = 0; i < count; i ++) {
+
+		int h = heights[i];
+		int m = material[i];
+
+		for (int x = -h; x <= h; x ++) {
+			int tx = pos.x + x;
+			int ty = pos.y + oy - segment->getVerticalOffset();
+
+			if (tx < 0 || tx >= Segment::width || ty < 0 || ty >= Segment::height) {
+				continue;
+			}
+
+			segment->at(tx, ty) = m;
+		}
+
+		oy ++;
+	}
+}

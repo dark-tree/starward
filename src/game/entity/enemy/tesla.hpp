@@ -3,11 +3,18 @@
 
 class TeslaAlienEntity : public AlienEntity {
 
+	private:
+
+		void generateFoundation(Segment& segment, glm::ivec2 pos, int x, bool flip);
+
 	public:
 
 		enum Side {
-			LEFT, RIGHT
+			LEFT = 0,
+			RIGHT = 1
 		};
+
+		const Side side;
 
 		TeslaAlienEntity(double x, double y, int evolution, Side side);
 
@@ -15,5 +22,6 @@ class TeslaAlienEntity : public AlienEntity {
 
 		void tick(Level& level) override;
 		void draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) override;
+		void onSpawned(const Level& level, Segment* segment) override;
 
 };

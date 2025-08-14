@@ -20,5 +20,6 @@ class TurretAlienEntity : public AlienEntity {
 
 		void tick(Level& level) override;
 		void draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) override;
+		void onSpawned(const Level& level, Segment* segment) override;
 
 };
