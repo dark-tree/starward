@@ -34,7 +34,7 @@ class Segment {
 
 		Segment();
 
-		glm::ivec2 getRandomPos(int margin);
+		glm::ivec2 getRandomSpawnPos(int margin);
 
 		glm::ivec2 getRandomTurretPos(int margin);
 

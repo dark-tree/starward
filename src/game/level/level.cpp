@@ -7,6 +7,16 @@
 #include "game/entity/all.hpp"
 #include "game/entity/enemy/decay.hpp"
 
+glm::vec2 Level::toTilePos(int x, int y) {
+	const float pixels = SW / Segment::width;
+	return glm::vec2 {x, y} / pixels;
+}
+
+glm::vec2 Level::toEntityPos(int x, int y) {
+	const float pixels = SW / Segment::width;
+	return (glm::vec2 {x, y} + 0.5f) * pixels;
+}
+
 Level::Level(BiomeManager& manager)
 : manager(manager) {
 	loadHighScore();
@@ -103,68 +113,22 @@ void Level::setState(GameState state) {
 	}
 }
 
-Entity* Level::randomAlien(int margin, Segment& segment) {
+bool Level::trySpawnAlien(Segment& segment) {
 	Alien alien = manager.getAlien();
-	Evolution evolution = manager.getEvolution();
+	int evolution = (int) manager.getEvolution();
 
-	if (alien == Alien::SWEEPER) {
-		glm::ivec2 tile = segment.getRandomPos(margin);
-		glm::vec2 pos = toEntityPos(tile.x, tile.y);
+	// basic aliens
+	if (alien == Alien::SWEEPER) return AlienEntity::spawn<SweeperAlienEntity>(*this, segment, evolution);
+	if (alien == Alien::VERTICAL) return AlienEntity::spawn<VerticalAlienEntity>(*this, segment, evolution);
+	if (alien == Alien::MINE) return AlienEntity::spawn<MineAlienEntity>(*this, segment, evolution);
+	if (alien == Alien::FIGHTER) return AlienEntity::spawn<FighterAlienEntity>(*this, segment, evolution);
 
-		return new SweeperAlienEntity {pos.x, pos.y, (int) evolution};
-	}
+	// aliens with custom spawners
+	if (alien == Alien::TURRET) return TurretAlienEntity::spawn(*this, segment, evolution);
+	if (alien == Alien::TESLA) return TeslaAlienEntity::spawn(*this, segment, evolution);
 
-	if (alien == Alien::VERTICAL) {
-		glm::ivec2 tile = segment.getRandomPos(margin);
-		glm::vec2 pos = toEntityPos(tile.x, tile.y);
-
-		return new VerticalAlienEntity {pos.x, pos.y, (int) evolution};
-	}
-
-	if (alien == Alien::MINE) {
-		glm::ivec2 tile = segment.getRandomPos(margin);
-		glm::vec2 pos = toEntityPos(tile.x, tile.y);
-
-		return new MineAlienEntity {pos.x, pos.y, (int) evolution};
-	}
-
-	if (alien == Alien::FIGHTER) {
-		glm::ivec2 tile = segment.getRandomPos(margin);
-		glm::vec2 pos = toEntityPos(tile.x, tile.y);
-
-		return new FighterAlienEntity {pos.x, pos.y, (int) evolution};
-	}
-
-	if (alien == Alien::TURRET) {
-		glm::ivec2 tile = segment.getRandomTurretPos(margin);
-		glm::vec2 pos = toEntityPos(tile.x, tile.y);
-
-		// failed to find valid turret placement
-		if (tile.x == 0 && tile.y == 0) {
-			return randomAlien(margin, segment);
-		}
-
-		return new TurretAlienEntity {pos.x, pos.y, (int) evolution};
-	}
-
-	if (alien == Alien::TESLA) {
-		TeslaPlacement placement = segment.getRandomTeslaPos(margin);
-
-		glm::vec2 pos = toEntityPos(placement.lx, placement.y);
-
-		// failed to find valid turret placement
-		if (placement.lx == placement.rx) {
-			return randomAlien(margin, segment);
-		}
-
-		glm::vec2 pos2 = toEntityPos(placement.rx, placement.y);
-
-		auto left = addEntity(new TeslaAlienEntity(pos.x, pos.y, (int) evolution, TeslaAlienEntity::LEFT));
-		auto right = addEntity(new TeslaAlienEntity(pos2.x, pos2.y, (int) evolution, TeslaAlienEntity::RIGHT));
-		return new RayBeamEntity(left, right);
-	}
-
-	return randomAlien(margin, segment);
+	printf("Failed to spawn dues to invalid enum value, is the enemy spawn logic unimplemented?\n");
+	return false;
 }
 
 std::shared_ptr<PlayerEntity> Level::getPlayer() {
@@ -204,23 +168,23 @@ void Level::tick() {
 		if (segment.tick(scroll, manager.getTerrain())) {
 			int count = manager.getEnemyCount();
 
+			int attempts = 100;
+
 			// try adding enemies
-			for (int i = 0; i < count; i ++) {
-				Entity* alien = randomAlien(1, segment);
+			for (int i = 0; i < count;) {
+				if (trySpawnAlien(segment)) {
+					i ++;
+				}
 
-				if (alien) {
-					if (!alien->checkPlacement(*this)) {
-						delete alien;
-						continue;
-					}
-
-					addEntity(alien);
+				if (attempts -- < 0) {
+					printf("Unable to fill spawn quota of %d for segment %d, aborting!\n", count, segment.index);
+					break;
 				}
 			}
 
 			// place powerups
 			while (randomInt(0, manager.getPowerUpRarity()) == 0) {
-				glm::ivec2 tile = segment.getRandomPos(6);
+				glm::ivec2 tile = segment.getRandomSpawnPos(6);
 				glm::vec2 entity = toEntityPos(tile.x, tile.y);
 
 				addEntity(new PowerUpEntity(entity.x, entity.y, PowerUpEntity::randomPick()));
@@ -333,16 +297,6 @@ void Level::draw(TileSet& font8x8, BufferWriter<Vert4f4b>& text_writer, TileSet&
 		}
 	}
 
-}
-
-glm::vec2 Level::toTilePos(int x, int y) const {
-	const float pixels = SW / Segment::width;
-	return glm::vec2 {x, y} / pixels;
-}
-
-glm::vec2 Level::toEntityPos(int x, int y) const {
-	const float pixels = SW / Segment::width;
-	return (glm::vec2 {x, y} + 0.5f) * pixels;
 }
 
 uint8_t Level::getTile(int tx, int ty) const {

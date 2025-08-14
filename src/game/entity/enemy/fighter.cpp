@@ -3,9 +3,7 @@
 
 #include "game/entity/bullet.hpp"
 #include "game/level/level.hpp"
-#include "../../level/tile.hpp"
 #include "game/emitter.hpp"
-#include "game/sounds.hpp"
 
 /*
  * FighterAlienEntity

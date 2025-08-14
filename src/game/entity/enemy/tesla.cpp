@@ -1,10 +1,37 @@
 #include "tesla.hpp"
 
+#include "ray.hpp"
 #include "game/level/level.hpp"
 
 /*
  * TeslaAlienEntity
  */
+
+bool TeslaAlienEntity::spawn(Level& level, Segment& segment, int evolution) {
+	TeslaPlacement placement = segment.getRandomTeslaPos(1);
+
+	glm::vec2 lp = Level::toEntityPos(placement.lx, placement.y);
+
+	// failed to find valid turret placement
+	if (placement.lx == placement.rx) {
+		return false;
+	}
+
+	glm::vec2 rp = Level::toEntityPos(placement.rx, placement.y);
+
+	std::shared_ptr<TeslaAlienEntity> left = std::make_shared<TeslaAlienEntity>(lp.x, lp.y, evolution, LEFT);
+	std::shared_ptr<TeslaAlienEntity> right = std::make_shared<TeslaAlienEntity>(rp.x, rp.y, evolution, RIGHT);
+
+	// manually check placement so that both need to match first
+	if (!left->checkPlacement(level) || !right->checkPlacement(level)){
+		return false;
+	}
+
+	level.addEntity(left);
+	level.addEntity(right);
+	level.addEntity(new RayBeamEntity(left, right));
+	return true;
+}
 
 void TeslaAlienEntity::generateFoundation(Segment& segment, glm::ivec2 pos, int x, bool flip) {
 	const int count = 7;

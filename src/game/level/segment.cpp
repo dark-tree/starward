@@ -76,8 +76,8 @@ Segment::Segment() {
 	generate(0, 0.25);
 }
 
-glm::ivec2 Segment::getRandomPos(int margin) {
-	int x = randomInt(margin, width - margin);
+glm::ivec2 Segment::getRandomSpawnPos(int margin) {
+	int x = randomInt(margin, width - margin * 2);
 	int y = randomInt(0, height - 1);
 
 	return {x, y + index * height};

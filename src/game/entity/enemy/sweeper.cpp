@@ -3,10 +3,7 @@
 
 #include "game/entity/bullet.hpp"
 #include "game/entity/particle/blow.hpp"
-#include "game/entity/particle/dust.hpp"
 #include "game/level/level.hpp"
-#include "../../level/tile.hpp"
-#include "game/emitter.hpp"
 #include "game/sounds.hpp"
 
 /*

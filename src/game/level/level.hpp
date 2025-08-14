@@ -8,6 +8,7 @@
 #include "game/entity/player.hpp"
 #include "biome.hpp"
 #include "box.hpp"
+#include "game/entity/enemy/fighter.hpp"
 
 enum struct GameState {
 	BEGIN,
@@ -41,6 +42,9 @@ struct Collision {
 class Level {
 
 	public:
+
+		static glm::vec2 toTilePos(int x, int y);
+		static glm::vec2 toEntityPos(int x, int y);
 
 		// read by Game class to reload game state next tick
 		bool reload = false;
@@ -86,15 +90,32 @@ class Level {
 		float getLinearAliveness() const;
 		bool isDebug() const;
 
-		glm::vec2 toTilePos(int x, int y) const;
-		glm::vec2 toEntityPos(int x, int y) const;
-
-		Entity* randomAlien(int margin, Segment& segment);
+		bool trySpawnAlien(Segment& segment);
 		std::shared_ptr<PlayerEntity> getPlayer();
 
 		template<typename T>
 		std::shared_ptr<T> addEntity(T* entity) {
 			return std::static_pointer_cast<T>(pending.emplace_back(entity));
+		}
+
+		template<typename T>
+		void addEntity(const std::shared_ptr<T>& entity) {
+			pending.emplace_back(entity);
+		}
+
+		template<typename T>
+		bool trySpawn(T* entity) {
+			return trySpawn(std::shared_ptr<T> {entity});
+		}
+
+		template<typename T>
+		bool trySpawn(const std::shared_ptr<T>& entity) {
+			if (entity->checkPlacement(*this)) {
+				pending.emplace_back(entity);
+				return true;
+			}
+
+			return false;
 		}
 
 		void addSlowness(float tar);
@@ -114,5 +135,4 @@ class Level {
 		void setState(GameState state);
 
 		std::vector<std::shared_ptr<Entity>>& getEntities();
-
 };

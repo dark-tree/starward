@@ -9,6 +9,18 @@
  * TurretAlienEntity
  */
 
+bool TurretAlienEntity::spawn(Level& level, Segment& segment, int evolution) {
+	glm::ivec2 tile = segment.getRandomTurretPos(1);
+	glm::vec2 pos = Level::toEntityPos(tile.x, tile.y);
+
+	// failed to find valid turret placement
+	if (tile.x == 0 && tile.y == 0) {
+		return false;
+	}
+
+	return level.trySpawn(new TurretAlienEntity {pos.x, pos.y, evolution});
+}
+
 TurretAlienEntity::TurretAlienEntity(double x, double y, int evolution)
 	: AlienEntity(x, y, evolution) {
 }

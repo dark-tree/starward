@@ -37,4 +37,13 @@ class AlienEntity : public Entity {
 		/// Get the number of health points
 		int getHealth() const;
 
+		/// Basic spawner, used by most aliens
+		template<typename T, typename L = Level, typename S = Segment>
+		static bool spawn(L& level, S& segment, int evolution) {
+			glm::ivec2 tile = segment.getRandomSpawnPos(1);
+			glm::vec2 pos = L::toEntityPos(tile.x, tile.y);
+
+			return level.trySpawn(new T {pos.x, pos.y, evolution});
+		}
+
 };
