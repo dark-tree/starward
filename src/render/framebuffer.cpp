@@ -1,15 +1,15 @@
 
 #include "framebuffer.hpp"
 
-Framebuffer::Framebuffer() {
+void Framebuffer::init() {
 	glGenFramebuffers(1, &fbo);
 }
 
-Framebuffer::Framebuffer(unsigned int fbo) {
+void Framebuffer::init(int fbo) {
 	this->fbo = fbo;
 }
 
-Framebuffer::~Framebuffer() {
+void Framebuffer::close() {
 	if (fbo != 0) {
 		glDeleteFramebuffers(1, &fbo);
 	}
@@ -30,6 +30,8 @@ void Framebuffer::clear(GLbitfield mask) const {
 }
 
 const Framebuffer& Framebuffer::main() {
-	static Framebuffer fb {0};
+	static Framebuffer fb;
+	fb.init(0);
+
 	return fb;
 }

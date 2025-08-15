@@ -74,7 +74,7 @@ void MineAlienEntity::tick(Level& level) {
 	}
 }
 
-void MineAlienEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
+void MineAlienEntity::draw(Level& level, Renderer& renderer) {
 	const int offset = evolution ? 2 : 0;
-	emitEntityQuad(level, writer, tileset.sprite(led + offset, 9), size, angle, Color::red(damage_ticks));
+	emitEntityQuad(level, *renderer.terrain.writer, renderer.terrain.tileset->sprite(led + offset, 9), size, angle, Color::red(damage_ticks));
 }

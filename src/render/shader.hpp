@@ -7,15 +7,14 @@ class Shader {
 
 	private:
 
-		GLuint program;
+		GLuint program = 0;
 
 	public:
 
-		Shader(const std::string& base_path);
-		~Shader();
+		Shader() = default;
 
-		Shader(const Shader& buffer) = delete;
-		Shader(Shader&& buffer) = default;
+		void init(const std::string& base_path);
+		void close();
 
 		/// Get uniform location by name
 		int uniform(const char* name);
@@ -31,7 +30,7 @@ class Shader {
 		/// Compile shader from GLSL string
 		static GLuint compileShaderSource(GLenum type, const char* source);
 
-		/// link shader program from two shader modules
+		/// Link shader program from two shader modules
 		static GLuint linkShaderProgram(GLuint vertex, GLuint fragment);
 
 };

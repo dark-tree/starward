@@ -19,20 +19,11 @@ void Texture::framebuffer(GLenum attachment) const {
 	glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, tid, 0);
 }
 
-Texture::Texture(const char* path)
-: Texture() {
-	int32_t width, height, channels;
-	uint8_t* data = stbi_load(path, &width, &height, &channels, 4);
-
-	if (data == nullptr) {
-		fault("Failed to load texture: '%s'!\n", path);
-	}
-
-	upload(data, width, height, 4);
-	stbi_image_free(data);
+void Texture::close() {
+	glDeleteTextures(1, &tid);
 }
 
-Texture::Texture() {
+void Texture::init() {
 	glGenTextures(1, &tid);
 	use();
 
@@ -45,8 +36,18 @@ Texture::Texture() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
-Texture::~Texture() {
-	glDeleteTextures(1, &tid);
+void Texture::init(const char* path) {
+	init();
+
+	int32_t width, height, channels;
+	uint8_t* data = stbi_load(path, &width, &height, &channels, 4);
+
+	if (data == nullptr) {
+		fault("Failed to load texture: '%s'!\n", path);
+	}
+
+	upload(data, width, height, 4);
+	stbi_image_free(data);
 }
 
 void Texture::upload(unsigned char* data, int width, int height, int channels) {
@@ -84,12 +85,12 @@ void RenderBuffer::framebuffer(GLenum attachment) const {
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, rbo);
 }
 
-RenderBuffer::RenderBuffer() {
+void RenderBuffer::init() {
 	glGenRenderbuffers(1, &rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
 }
 
-RenderBuffer::~RenderBuffer() {
+void RenderBuffer::close() {
 	glDeleteRenderbuffers(1, &rbo);
 }
 
@@ -124,14 +125,25 @@ void TileSet::framebuffer(GLenum attachment) const {
 	texture.framebuffer(attachment);
 }
 
-TileSet::TileSet(const char* path, uint32_t tile)
-: TileSet(path, tile, tile) {}
+void TileSet::init(const char* path, uint32_t tile) {
+	init(path, tile, tile);
+}
 
-TileSet::TileSet(const char* path, uint32_t tw, uint32_t th)
-: texture(path), tw(tw), th(th), line(texture.width() / tw), column(texture.height() / th) {
+void TileSet::init(const char* path, uint32_t tw, uint32_t th) {
+
+	this->texture.init(path);
+	this->tw = tw;
+	this->th = th;
+	this->line = texture.width() / tw;
+	this->column = texture.height() / th;
+
 	if (texture.width() % tw != 0 || texture.height() % th != 0) {
 		fault("Unable to neatly divide tileset! Texture width: %d tile width: %d\n", texture.width(), tw);
 	}
+}
+
+void TileSet::close() {
+	texture.close();
 }
 
 void TileSet::resize(int w, int h, GLenum internal_format, GLenum format) {

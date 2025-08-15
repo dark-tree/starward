@@ -126,7 +126,6 @@ bool Level::trySpawnAlien(Segment& segment) {
 	// aliens with custom spawners
 	if (alien == Alien::TURRET) return TurretAlienEntity::spawn(*this, segment, evolution);
 	if (alien == Alien::TESLA) return TeslaAlienEntity::spawn(*this, segment, evolution);
-	if (alien == Alien::TESLA) return TeslaAlienEntity::spawn(*this, segment, evolution);
 
 	printf("Failed to spawn dues to invalid enum value, is the enemy spawn logic unimplemented?\n");
 	return false;
@@ -256,28 +255,28 @@ void Level::tick() {
 	}
 }
 
-void Level::draw(TileSet& font8x8, BufferWriter<Vert4f4b>& text_writer, TileSet& tileset, BufferWriter<Vert4f4b>& game_writer) {
+void Level::draw(Renderer& renderer) {
 
 	for (auto& segment : segments) {
-		segment.draw(scroll, tileset, game_writer, debug);
+		segment.draw(renderer.terrain, scroll, debug);
 	}
 
 	for (auto& entity : entities) {
-		entity->draw(*this, tileset, game_writer);
+		entity->draw(*this, renderer);
 	}
 
 	if (debug) {
 		for (auto& entity : entities) {
-			entity->debugDraw(*this, tileset, game_writer);
+			entity->debugDraw(*this, renderer);
 		}
 
-		emitTextQuads(text_writer, 16, SH - 64,  20, 16, font8x8, 255, 255, 0, 220, "Seg: " + std::to_string(total), TextMode::LEFT);
-		emitTextQuads(text_writer, 16, SH - 96,  20, 16, font8x8, 255, 255, 0, 220, "Bio: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
-		emitTextQuads(text_writer, 16, SH - 128, 20, 16, font8x8, 255, 255, 0, 220, "Spd: " + std::to_string(getSpeed()), TextMode::LEFT);
+		emitTextQuads(renderer.text, 16, SH - 64,  20, 16, 255, 255, 0, 220, "Seg: " + std::to_string(total), TextMode::LEFT);
+		emitTextQuads(renderer.text, 16, SH - 96,  20, 16, 255, 255, 0, 220, "Bio: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
+		emitTextQuads(renderer.text, 16, SH - 128, 20, 16, 255, 255, 0, 220, "Spd: " + std::to_string(getSpeed()), TextMode::LEFT);
 	}
 
 	if (state != GameState::DEAD) {
-		emitTextQuads(text_writer, SW - 32, SH - 32, 24, 20, font8x8, 255, 255, 0, 220, std::to_string(score), TextMode::RIGHT);
+		emitTextQuads(renderer.text, SW - 16, SH - 32, 24, 20, 255, 255, 0, 220, std::to_string(score), TextMode::RIGHT);
 	}
 
 	if (state == GameState::DEAD && (age % 120 < 60)) {
@@ -291,11 +290,11 @@ void Level::draw(TileSet& font8x8, BufferWriter<Vert4f4b>& text_writer, TileSet&
 		int width = 48 + spacing;
 		int start = (SW - (over.length() - 1) * width) / 2;
 
-		emitTextQuads(text_writer, start, SH / 2 + 24, width, 48, font8x8, 255, 255, 0, 220, over, TextMode::LEFT);
-		emitTextQuads(text_writer, start - 8, SH / 2 + 16 - 48, 24, 20, font8x8, 255, 255, 0, 220, "SCORE: " + std::to_string(score), TextMode::LEFT);
+		emitTextQuads(renderer.text, start, SH / 2 + 24, width, 48, 255, 255, 0, 220, over, TextMode::LEFT);
+		emitTextQuads(renderer.text, start - 8, SH / 2 + 16 - 48, 24, 20, 255, 255, 0, 220, "SCORE: " + std::to_string(score), TextMode::LEFT);
 
 		if ((score > hi) && (age % 10 < 5)) {
-			emitTextQuads(text_writer, start - 8, SH / 2 + 16 - 48 - 32, 24, 20, font8x8, 255, 255, 0, 220, "NEW HI-SCORE!", TextMode::LEFT);
+			emitTextQuads(renderer.text, start - 8, SH / 2 + 16 - 48 - 32, 24, 20, 255, 255, 0, 220, "NEW HI-SCORE!", TextMode::LEFT);
 		}
 	}
 

@@ -5,7 +5,7 @@
  * Shader
  */
 
-Shader::Shader(const std::string& base_path) {
+void Shader::init(const std::string& base_path) {
 	std::string vertex_source = readFile(base_path + ".vert");
 	std::string fragment_source = readFile(base_path + ".frag");
 
@@ -17,7 +17,7 @@ Shader::Shader(const std::string& base_path) {
 	glDeleteShader(frag);
 }
 
-Shader::~Shader() {
+void Shader::close() {
 	glDeleteProgram(program);
 }
 

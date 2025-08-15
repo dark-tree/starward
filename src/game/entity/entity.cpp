@@ -14,11 +14,13 @@ void Entity::emitEntityQuad(Level& level, BufferWriter<Vert4f4b>& writer, Sprite
 	emitSpriteQuad(writer, x, y + level.getScroll(), size, size, angle, sprite, color.r, color.g, color.b, color.a);
 }
 
-void Entity::emitBoxWireframe(Box box, BufferWriter<Vert4f4b>& writer, Sprite sprite, float width, Color color) const {
-	emitLineQuad(writer, box.x, box.y, box.x, box.y + box.h, width, sprite, color.r, color.g, color.b, color.a);
-	emitLineQuad(writer, box.x, box.y, box.x + box.w, box.y, width, sprite, color.r, color.g, color.b, color.a);
-	emitLineQuad(writer, box.x + box.w, box.y, box.x + box.w, box.y + box.h, width, sprite, color.r, color.g, color.b, color.a);
-	emitLineQuad(writer, box.x, box.y + box.h, box.x + box.w, box.y + box.h, width, sprite, color.r, color.g, color.b, color.a);
+void Entity::emitBoxWireframe(Box box, RenderLayer& layer, float width, Color color) const {
+	Sprite sprite = layer.tileset->sprite(0, 0);
+
+	emitLineQuad(*layer.writer, box.x, box.y, box.x, box.y + box.h, width, sprite, color.r, color.g, color.b, color.a);
+	emitLineQuad(*layer.writer, box.x, box.y, box.x + box.w, box.y, width, sprite, color.r, color.g, color.b, color.a);
+	emitLineQuad(*layer.writer, box.x + box.w, box.y, box.x + box.w, box.y + box.h, width, sprite, color.r, color.g, color.b, color.a);
+	emitLineQuad(*layer.writer, box.x, box.y + box.h, box.x + box.w, box.y + box.h, width, sprite, color.r, color.g, color.b, color.a);
 }
 
 float Entity::getAngle() const {
@@ -48,8 +50,8 @@ void Entity::clamp() {
 	}
 }
 
-void Entity::debugDraw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
-	emitBoxWireframe(getBoxCollider().withOffset(0, level.getScroll()), writer, tileset.sprite(0, 0), 1, Color::white());
+void Entity::debugDraw(Level& level, Renderer& renderer) {
+	emitBoxWireframe(getBoxCollider().withOffset(0, level.getScroll()), renderer.terrain, 1, Color::white());
 }
 
 void Entity::onSpawned(const Level& level, NULLABLE Segment* segment) {

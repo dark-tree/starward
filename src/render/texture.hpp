@@ -47,12 +47,11 @@ class Texture : public PixelBuffer {
 
 	public:
 
-		Texture(const char* path);
-		Texture();
-		~Texture();
+		Texture() = default;
 
-		Texture(const Texture& buffer) = delete;
-		Texture(Texture&& buffer) = default;
+		void close();
+		void init();
+		void init(const char* path);
 
 		/// Initialize texture of given size and contents
 		void upload(unsigned char* data, int width, int height, int channels);
@@ -84,8 +83,10 @@ class RenderBuffer : public PixelBuffer {
 
 	public:
 
-		RenderBuffer();
-		~RenderBuffer();
+		RenderBuffer() = default;
+
+		void close();
+		void init();
 
 		void resize(int width, int height, GLenum internal_format, GLenum format) override;
 
@@ -119,9 +120,11 @@ class TileSet : public PixelBuffer {
 
 	public:
 
-		TileSet(const char* path, uint32_t tile);
+		TileSet() = default;
 
-		TileSet(const char* path, uint32_t tw, uint32_t th);
+		void init(const char* path, uint32_t tile);
+		void init(const char* path, uint32_t tw, uint32_t th);
+		void close();
 
 		void resize(int w, int h, GLenum internal_format, GLenum format) override;
 

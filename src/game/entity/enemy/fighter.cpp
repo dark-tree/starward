@@ -222,12 +222,15 @@ void FighterAlienEntity::tick(Level& level) {
 	AlienEntity::tick(level);
 }
 
-void FighterAlienEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
-	emitEntityQuad(level, writer, tileset.sprite(evolution, 7), size, angle, Color::red(damage_ticks));
+void FighterAlienEntity::draw(Level& level, Renderer& renderer) {
+	emitEntityQuad(level, *renderer.terrain.writer, renderer.terrain.tileset->sprite(evolution, 7), size, angle, Color::red(damage_ticks));
 }
 
-void FighterAlienEntity::debugDraw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
+void FighterAlienEntity::debugDraw(Level& level, Renderer& renderer) {
 	auto player = level.getPlayer();
+
+	auto& writer = *renderer.terrain.writer;
+	auto& tileset = *renderer.terrain.tileset;
 
 	if (player) {
 		float tx = px + player->x;
@@ -258,5 +261,5 @@ void FighterAlienEntity::debugDraw(Level& level, TileSet& tileset, BufferWriter<
 		emitLineQuad(writer, x, y + level.getScroll(), bullet->x, bullet->y + level.getScroll() - 16, 2, tileset.sprite(0, 0), 255, 0, 0, 100);
 	});
 
-	Entity::debugDraw(level, tileset, writer);
+	Entity::debugDraw(level, renderer);
 }

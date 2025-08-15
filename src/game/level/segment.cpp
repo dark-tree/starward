@@ -2,6 +2,7 @@
 #include "segment.hpp"
 
 #include "tile.hpp"
+#include "render/renderer.hpp"
 
 /*
  * Segment
@@ -15,8 +16,7 @@ int Segment::next() {
 	return global_segment_id++;
 }
 
-void Segment::drawTile(BufferWriter <Vert4f4b>& writer, Sprite s, int x, int y, int width, float scroll, uint8_t r, uint8_t g,
-              uint8_t b, uint8_t a) {
+void Segment::drawTile(RenderLayer& layer, int tile, int x, int y, int width, float scroll, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 	const float unit = SW / width;
 
 	const float tx = x * unit;
@@ -25,12 +25,14 @@ void Segment::drawTile(BufferWriter <Vert4f4b>& writer, Sprite s, int x, int y, 
 	const float ex = tx + unit;
 	const float ey = ty + unit;
 
-	writer.push({tx, ty, s.min_u, s.min_v, r, g, b, a});
-	writer.push({ex, ty, s.max_u, s.min_v, r, g, b, a});
-	writer.push({ex, ey, s.max_u, s.max_v, r, g, b, a});
-	writer.push({ex, ey, s.max_u, s.max_v, r, g, b, a});
-	writer.push({tx, ey, s.min_u, s.max_v, r, g, b, a});
-	writer.push({tx, ty, s.min_u, s.min_v, r, g, b, a});
+	Sprite s = getTileSprite(*layer.tileset, tile);
+
+	layer.writer->push({tx, ty, s.min_u, s.min_v, r, g, b, a});
+	layer.writer->push({ex, ty, s.max_u, s.min_v, r, g, b, a});
+	layer.writer->push({ex, ey, s.max_u, s.max_v, r, g, b, a});
+	layer.writer->push({ex, ey, s.max_u, s.max_v, r, g, b, a});
+	layer.writer->push({tx, ey, s.min_u, s.max_v, r, g, b, a});
+	layer.writer->push({tx, ty, s.min_u, s.min_v, r, g, b, a});
 }
 
 void Segment::generate(float low, float high) {
@@ -121,7 +123,7 @@ bool Segment::tick(double scroll, glm::vec2 terrain) {
 	return false;
 }
 
-void Segment::draw(double scroll, TileSet& tileset, BufferWriter <Vert4f4b>& writer, bool debug) {
+void Segment::draw(RenderLayer& layer, double scroll, bool debug) {
 	float unit = height *  size();
 
 	for (int x = 0; x < width; x++) {
@@ -129,13 +131,12 @@ void Segment::draw(double scroll, TileSet& tileset, BufferWriter <Vert4f4b>& wri
 			uint8_t tile = at(x, y);
 
 			if (tile) {
-				drawTile(writer, getTileSprite(tileset, tile), x, y, width, scroll + index * unit, 255, 255,
-				         255, 255);
+				drawTile(layer, tile, x, y, width, scroll + index * unit, 255, 255, 255, 255);
 			}
 		}
 
 		if (debug) {
-			drawTile(writer, tileset.sprite(0, 0), x, 0, width, scroll + index * unit, 0, 255, 0, 50);
+			drawTile(layer, 1, x, 0, width, scroll + index * unit, 0, 255, 0, 50);
 		}
 	}
 }

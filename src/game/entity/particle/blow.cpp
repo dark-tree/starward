@@ -25,6 +25,10 @@ void BlowEntity::tick(Level& level) {
 	}
 }
 
-void BlowEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
+void BlowEntity::draw(Level& level, Renderer& renderer) {
+	auto& layer = renderer.terrain;
+	auto& writer = *layer.writer;
+	auto& tileset = *layer.tileset;
+
 	emitEntityQuad(level, writer, tileset.sprite((int) age / 5, 2), size, angle, Color::white());
 }

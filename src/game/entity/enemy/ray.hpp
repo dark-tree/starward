@@ -12,7 +12,7 @@ class RayBeamEntity : public AlienEntity {
 
 		std::shared_ptr<TeslaAlienEntity> left, right;
 
-		void drawElectricArc(BufferWriter<Vert4f4b>& writer, float scroll, int sx, int ex, int ey, float amplitude, float phase, float speed, float roughness, const Sprite& sprite, Color color);
+		void drawElectricArc(RenderLayer& layer, float scroll, int sx, int ex, int ey, float amplitude, float phase, float speed, float roughness, Color color);
 
 	public:
 
@@ -22,6 +22,6 @@ class RayBeamEntity : public AlienEntity {
 
 		void onDamage(Level& level, int damage, Entity* damager) override;
 		void tick(Level& level) override;
-		void draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) override;
+		void draw(Level& level, Renderer& renderer) override;
 
 };

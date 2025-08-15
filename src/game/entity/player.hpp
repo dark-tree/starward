@@ -37,8 +37,8 @@ class PlayerEntity : public Entity {
 		bool isCausedByPlayer() override;
 		void onDamage(Level& level, int damage, Entity* damager) override;
 		void tick(Level& level) override;
-		void draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) override;
-		void debugDraw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) override;
+		void draw(Level& level, Renderer& renderer) override;
+		void debugDraw(Level& level, Renderer& renderer) override;
 
 		void enableShield(Level& level);
 

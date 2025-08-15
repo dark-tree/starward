@@ -17,8 +17,8 @@ class VerticalAlienEntity : public SweeperAlienEntity {
 		VerticalAlienEntity(double x, double y, int evolution);
 
 		void tick(Level& level) override;
-		void draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) override;
-		void debugDraw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) override;
+		void draw(Level& level, Renderer& renderer) override;
+		void debugDraw(Level& level, Renderer& renderer) override;
 
 		void tickMovement() override;
 		void tickShooting(Level& level) override;

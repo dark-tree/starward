@@ -59,7 +59,7 @@ bool TeslaAlienEntity::spawn(Level& level, Segment& segment, int evolution) {
 		}
 	}
 
-	printf("Failed to find left tesla tower placement spot!\n");
+	printf("Failed to find tesla tower placement spot!\n");
 	return false;
 }
 
@@ -116,10 +116,10 @@ void TeslaAlienEntity::tick(Level& level) {
 	AlienEntity::tick(level);
 }
 
-void TeslaAlienEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
+void TeslaAlienEntity::draw(Level& level, Renderer& renderer) {
 	const Color color = Color::red(damage_ticks);
 
-	emitEntityQuad(level, writer, tileset.sprite(1, 13), size, angle, color);
+	emitEntityQuad(level, *renderer.terrain.writer, renderer.terrain.tileset->sprite(1, 13), size, angle, color);
 }
 
 void TeslaAlienEntity::onSpawned(const Level& level, Segment* segment) {

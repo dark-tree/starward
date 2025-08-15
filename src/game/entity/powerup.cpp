@@ -7,6 +7,7 @@
 #include "../level/tile.hpp"
 #include "game/emitter.hpp"
 #include "game/sounds.hpp"
+#include "particle/text.hpp"
 
 /*
  * PowerUpEntity
@@ -31,16 +32,19 @@ bool PowerUpEntity::checkPlacement(Level& level) {
 }
 
 void PowerUpEntity::applyEffect(Level& level, PlayerEntity* player) {
-	if (type == Type::LIVE) {
+	if (type == LIVE) {
 		player->onDamage(level, -10, this);
+		level.addEntity(new TextEntity {x, y, "Extra Life", 30});
 	}
 
-	if (type == Type::DOUBLE_BARREL) {
+	if (type == DOUBLE_BARREL) {
 		player->double_barrel_ticks += 50;
+		level.addEntity(new TextEntity {x, y, "Double Barrel", 30});
 	}
 
-	if (type == Type::SHIELD) {
+	if (type == SHIELD) {
 		player->enableShield(level);
+		level.addEntity(new TextEntity {x, y, "Shield", 30});
 	}
 }
 
@@ -64,7 +68,7 @@ void PowerUpEntity::tick(Level& level) {
 	Collision collision = level.checkCollision(this);
 
 	if (!dead && (collision.type == Collision::ENTITY)) {
-		if(PlayerEntity* player = dynamic_cast<PlayerEntity*>(collision.entity)) {
+		if (PlayerEntity* player = dynamic_cast<PlayerEntity*>(collision.entity)) {
 			level.addEntity(new BlowEntity(x, y));
 			SoundSystem::getInstance().add(Sounds::coin).play();
 
@@ -76,6 +80,6 @@ void PowerUpEntity::tick(Level& level) {
 	Entity::tick(level);
 }
 
-void PowerUpEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
-	emitEntityQuad(level, writer, tileset.sprite(type, 1), size, angle, Color::white());
+void PowerUpEntity::draw(Level& level, Renderer& renderer) {
+	emitEntityQuad(level, *renderer.terrain.writer, renderer.terrain.tileset->sprite(type, 1), size, angle, Color::white());
 }

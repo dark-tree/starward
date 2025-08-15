@@ -4,6 +4,7 @@
 #include "rendering.hpp"
 #include "game/color.hpp"
 #include "game/level/box.hpp"
+#include "render/renderer.hpp"
 
 class Level;
 class Segment;
@@ -21,7 +22,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
 		float size;
 
 		void emitEntityQuad(Level& level, BufferWriter<Vert4f4b>& writer, Sprite sprite, float size, float angle, Color color) const;
-		void emitBoxWireframe(Box box, BufferWriter<Vert4f4b>& writer, Sprite sprite, float width, Color color) const;
+		void emitBoxWireframe(Box box, RenderLayer& layer, float width, Color color) const;
 
 	public:
 
@@ -54,10 +55,10 @@ class Entity : public std::enable_shared_from_this<Entity> {
 		virtual void tick(Level& level);
 
 		/// Invoked every frame to draw the entity into the given buffer
-		virtual void draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) = 0;
+		virtual void draw(Level& level, Renderer& renderer) = 0;
 
 		/// Invoked every frame in debug mode to draw colliders and extra info
-		virtual void debugDraw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer);
+		virtual void debugDraw(Level& level, Renderer& renderer);
 
 		/// Invoked for entities when added to the world
 		virtual void onSpawned(const Level& level, NULLABLE Segment* segment);

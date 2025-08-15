@@ -53,7 +53,10 @@ void ShieldEntity::tick(Level& level) {
 	}
 }
 
-void ShieldEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
+void ShieldEntity::draw(Level& level, Renderer& renderer) {
+	auto& writer = *renderer.terrain.writer;
+	auto& tileset = *renderer.terrain.tileset;
+
 	Color c = Color::white().withAlpha(power / 60.0f * 200);
 
 	int offset = age % 40 / 10;

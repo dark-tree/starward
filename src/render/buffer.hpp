@@ -8,19 +8,18 @@ class VertexBuffer {
 
 	private:
 
-		GLuint vao;
-		GLuint vbo;
-		uint32_t stride;
-		uint32_t vertices;
-		GLenum type;
+		GLuint vao = 0;
+		GLuint vbo = 0;
+		uint32_t stride = 0;
+		uint32_t vertices = 0;
+		GLenum type = 0;
 
 	public:
 
-		VertexBuffer(const Layout& layout, GLenum type);
-		~VertexBuffer();
+		VertexBuffer() = default;
 
-		VertexBuffer(const VertexBuffer& buffer) = delete;
-		VertexBuffer(VertexBuffer&& buffer) = default;
+		void init(const Layout& layout, GLenum type);
+		void close();
 
 		/// Upload given data to the GPU
 		void upload(uint8_t* data, size_t size);
@@ -36,12 +35,15 @@ class BufferWriter {
 	private:
 
 		std::vector<V> vertices;
-		VertexBuffer& buffer;
+		VertexBuffer* buffer = nullptr;
 
 	public:
 
-		BufferWriter(VertexBuffer& buffer)
-		: buffer(buffer) {}
+		BufferWriter() = default;
+
+		void init(VertexBuffer* buffer) {
+			this->buffer = buffer;
+		}
 
 		/// Write vertex to buffer
 		void push(V vertex) {
@@ -50,7 +52,7 @@ class BufferWriter {
 
 		/// Upload written data to the underlying buffer
 		void upload() {
-			buffer.upload((uint8_t*) vertices.data(), vertices.size() * sizeof(V));
+			buffer->upload((uint8_t*) vertices.data(), vertices.size() * sizeof(V));
 			vertices.clear();
 		}
 

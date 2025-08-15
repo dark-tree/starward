@@ -72,7 +72,10 @@ void DecayEntity::tick(Level& level) {
 	}
 }
 
-void DecayEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
+void DecayEntity::draw(Level& level, Renderer& renderer) {
+	auto& writer = *renderer.terrain.writer;
+	auto& tileset = *renderer.terrain.tileset;
+
 	emitEntityQuad(level, writer, tileset.sprite(base, 10), size, angle, cb);
 	emitEntityQuad(level, writer, tileset.sprite(row_1, 12), size, angle, Color::red(true));
 	emitEntityQuad(level, writer, tileset.sprite(row_2, 11), size, angle, Color::red(true));

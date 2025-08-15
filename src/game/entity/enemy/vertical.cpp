@@ -45,13 +45,14 @@ void VerticalAlienEntity::tick(Level& level) {
 	SweeperAlienEntity::tick(level);
 }
 
-void VerticalAlienEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
-	emitEntityQuad(level, writer, tileset.sprite(evolution, 8), size, angle, Color::red(damage_ticks || (buried % 10 > 5)));
+void VerticalAlienEntity::draw(Level& level, Renderer& renderer) {
+	Sprite sprite = renderer.terrain.tileset->sprite(evolution, 8);
+	emitEntityQuad(level, *renderer.terrain.writer, sprite, size, angle, Color::red(damage_ticks || (buried % 10 > 5)));
 }
 
-inline void VerticalAlienEntity::debugDraw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
-	AlienEntity::debugDraw(level, tileset, writer);
-	emitBoxWireframe(getBoxTrigger().withOffset(0, level.getScroll()), writer, tileset.sprite(0, 0), 1, Color::white());
+inline void VerticalAlienEntity::debugDraw(Level& level, Renderer& renderer) {
+	AlienEntity::debugDraw(level, renderer);
+	emitBoxWireframe(getBoxTrigger().withOffset(0, level.getScroll()), renderer.terrain, 1, Color::white());
 }
 
 void VerticalAlienEntity::tickMovement() {

@@ -19,6 +19,6 @@ class BulletEntity : public Entity {
 		bool isCausedByPlayer() override;
 		std::shared_ptr<Entity> getParent() override;
 		void tick(Level& level) override;
-		void draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) override;
+		void draw(Level& level, Renderer& renderer) override;
 
 };

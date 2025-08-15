@@ -52,7 +52,9 @@ void RayBeamEntity::tick(Level& level) {
 	}
 }
 
-void RayBeamEntity::drawElectricArc(BufferWriter<Vert4f4b>& writer, float scroll, int sx, int ex, int ey, float amplitude, float phase, float speed, float roughness, const Sprite& sprite, Color color) {
+void RayBeamEntity::drawElectricArc(RenderLayer& layer, float scroll, int sx, int ex, int ey, float amplitude, float phase, float speed, float roughness, Color color) {
+
+	Sprite sprite = layer.tileset->sprite(0, 0);
 
 	for (int ox = sx; ox < ex; ox ++) {
 
@@ -68,18 +70,20 @@ void RayBeamEntity::drawElectricArc(BufferWriter<Vert4f4b>& writer, float scroll
 		float sigmoidal = factor / (1 + std::pow(M_E, - slope * strength)) - factor / 2;
 
 		int variance = sigmoidal * glm::perlin(glm::vec2 {ox * roughness + age * speed, phase}) + ey;
-		emitTileQuad(writer, sprite, ox, variance, 0.0f, scroll, color.r, color.g, color.b, color.a);
+		emitTileQuad(*layer.writer, sprite, ox, variance, 0.0f, scroll, color.r, color.g, color.b, color.a);
 	}
 }
 
-void RayBeamEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
+void RayBeamEntity::draw(Level& level, Renderer& renderer) {
+	auto& writer = *renderer.terrain.writer;
+	auto& tileset = *renderer.terrain.tileset;
 
 	glm::ivec2 start = level.toTilePos(x, y);
 	glm::ivec2 end = level.toTilePos(rx, ry);
 
 	float scroll = level.getScroll();
 	int baseline = start.y;
-	const Sprite& sprite = tileset.sprite(0, 0);
+	const Sprite& sprite = renderer.terrain.tileset->sprite(0, 0);
 
 	// pure red doesn't look that good on it
 	// so we cheat a bit and make it a bluish
@@ -87,10 +91,9 @@ void RayBeamEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>&
 	base.g += 10;
 	base.b += 30 * (glm::perlin(glm::vec2 {age * 0.01f, 100.0f}) + 1);
 
-	drawElectricArc(writer, scroll, start.x, end.x, baseline, 0.7f, 3.0f, 0.2f, 0.45f, sprite, base.withAlpha(250));
-
-	drawElectricArc(writer, scroll, start.x, end.x, baseline, 0.8f, 1.0f, 0.1f, 0.1f, sprite, base.withAlpha(120));
-	drawElectricArc(writer, scroll, start.x, end.x, baseline, 0.8f, 77.0f, 0.07f, 0.1f, sprite, base.withAlpha(120));
+	drawElectricArc(renderer.terrain, scroll, start.x, end.x, baseline, 0.7f, 3.0f, 0.2f, 0.45f, base.withAlpha(250));
+	drawElectricArc(renderer.terrain, scroll, start.x, end.x, baseline, 0.8f, 1.0f, 0.1f, 0.1f, base.withAlpha(120));
+	drawElectricArc(renderer.terrain, scroll, start.x, end.x, baseline, 0.8f, 77.0f, 0.07f, 0.1f, base.withAlpha(120));
 
 	emitTileQuad(writer, tileset.sprite(0, 0), start.x, start.y, 0, scroll, 255, 50, 50, 255);
 	emitTileQuad(writer, tileset.sprite(0, 0), end.x, start.y, 0, scroll, 255, 50, 50, 255);

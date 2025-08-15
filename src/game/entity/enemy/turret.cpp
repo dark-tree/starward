@@ -110,11 +110,11 @@ void TurretAlienEntity::tick(Level& level) {
 	}
 }
 
-void TurretAlienEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
+void TurretAlienEntity::draw(Level& level, Renderer& renderer) {
 	const Color color = Color::red(damage_ticks);
 
-	emitEntityQuad(level, writer, tileset.sprite(0, 6), size, angle, color);
-	emitEntityQuad(level, writer, tileset.sprite(evolution + 1, 6), size, head, color);
+	emitEntityQuad(level, *renderer.terrain.writer, renderer.terrain.tileset->sprite(0, 6), size, angle, color);
+	emitEntityQuad(level, *renderer.terrain.writer, renderer.terrain.tileset->sprite(evolution + 1, 6), size, head, color);
 }
 
 void TurretAlienEntity::onSpawned(const Level& level, Segment* segment) {

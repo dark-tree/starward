@@ -31,11 +31,11 @@ void DustEntity::tick(Level& level) {
 	age ++;
 }
 
-void DustEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
+void DustEntity::draw(Level& level, Renderer& renderer) {
 	float delta = age / (float) lifetime;
 
 	float radius = size + 5 * delta;
 	float alpha = 255 - (delta * 200);
 
-	emitEntityQuad(level, writer, tileset.sprite(0, 0), radius, angle, color.withAlpha(alpha));
+	emitEntityQuad(level, *renderer.terrain.writer, renderer.terrain.tileset->sprite(0, 0), radius, angle, color.withAlpha(alpha));
 }

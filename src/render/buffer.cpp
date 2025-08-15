@@ -6,7 +6,7 @@
  * VertexBuffer
  */
 
-VertexBuffer::VertexBuffer(const Layout& layout, GLenum type) {
+void VertexBuffer::init(const Layout& layout, GLenum type) {
 	// create and bind VAO
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -20,7 +20,7 @@ VertexBuffer::VertexBuffer(const Layout& layout, GLenum type) {
 	this->type = type;
 }
 
-VertexBuffer::~VertexBuffer() {
+void VertexBuffer::close() {
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(1, &vbo);
 }

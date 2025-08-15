@@ -7,16 +7,15 @@ class Framebuffer {
 
 	private:
 
-		unsigned int fbo;
+		unsigned int fbo = 0;
 
 	public:
 
-		Framebuffer();
-		Framebuffer(unsigned int fbo);
-		~Framebuffer();
+		Framebuffer() = default;
 
-		Framebuffer(const Framebuffer& buffer) = delete;
-		Framebuffer(Framebuffer&& buffer) = default;
+		void close();
+		void init();
+		void init(int fbo);
 
 		/// Add a pixel buffer to back this framebuffer
 		void attach(const PixelBuffer& buffer, GLenum attachment);

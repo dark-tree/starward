@@ -22,7 +22,7 @@ class TeslaAlienEntity : public AlienEntity {
 		bool checkPlacement(Level& level) override;
 
 		void tick(Level& level) override;
-		void draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) override;
+		void draw(Level& level, Renderer& renderer) override;
 		void onSpawned(const Level& level, Segment* segment) override;
 
 		static bool spawn(Level& level, Segment& segment, int evolution);

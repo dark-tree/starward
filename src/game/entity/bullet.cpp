@@ -4,8 +4,6 @@
 #include "particle/blow.hpp"
 #include "particle/tile.hpp"
 #include "game/level/level.hpp"
-#include "../level/tile.hpp"
-#include "game/emitter.hpp"
 #include "game/sounds.hpp"
 
 /*
@@ -102,7 +100,7 @@ void BulletEntity::tick(Level& level) {
 	Entity::tick(level);
 }
 
-void BulletEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
+void BulletEntity::draw(Level& level, Renderer& renderer) {
 	Color color = velocity < 0 ? Color::red() : Color::blue();
 	float alpha = (time / 10.0f);
 
@@ -110,5 +108,5 @@ void BulletEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& 
 		alpha = 1;
 	}
 
-	emitEntityQuad(level, writer, tileset.sprite(0, 0), size, angle, color.withAlpha(alpha * 255));
+	emitEntityQuad(level, *renderer.terrain.writer, renderer.terrain.tileset->sprite(0, 0), size, angle, color.withAlpha(alpha * 255));
 }

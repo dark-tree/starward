@@ -162,7 +162,11 @@ void PlayerEntity::tick(Level& level) {
 	Entity::tick(level);
 }
 
-void PlayerEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
+void PlayerEntity::draw(Level& level, Renderer& renderer) {
+
+	auto& layer = renderer.terrain;
+	auto& writer = *layer.writer;
+	auto& tileset = *layer.tileset;
 
 	Sprite sprite = tileset.sprite(2, 0);
 
@@ -192,11 +196,12 @@ void PlayerEntity::draw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& 
 	}
 }
 
-void PlayerEntity::debugDraw(Level& level, TileSet& tileset, BufferWriter<Vert4f4b>& writer) {
-	Entity::debugDraw(level, tileset, writer);
+void PlayerEntity::debugDraw(Level& level, Renderer& renderer) {
+	Entity::debugDraw(level, renderer);
 
-	emitBoxWireframe(getBoxBumper(-1).withOffset(0, level.getScroll()), writer, tileset.sprite(0, 0), 1, Color::white());
-	emitBoxWireframe(getBoxBumper(+1).withOffset(0, level.getScroll()), writer, tileset.sprite(0, 0), 1, Color::white());
+	auto& layer = renderer.terrain;
+	emitBoxWireframe(getBoxBumper(-1).withOffset(0, level.getScroll()), layer, 1, Color::white());
+	emitBoxWireframe(getBoxBumper(+1).withOffset(0, level.getScroll()), layer, 1, Color::white());
 }
 
 void PlayerEntity::enableShield(Level& level) {

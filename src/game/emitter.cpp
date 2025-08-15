@@ -46,23 +46,16 @@ void emitLineQuad(BufferWriter<Vert4f4b>& writer, float x1, float y1, float x2, 
 	writer.push({x2 - dx, y2 - dy, s.max_u, s.max_v, r, g, b, a});
 }
 
-void emitTextQuads(BufferWriter<Vert4f4b>& text_writer, float x, float y, float spacing, float size, TileSet& font, uint8_t r, uint8_t g, uint8_t b, uint8_t a, const std::string& str, TextMode mode) {
-	int len = str.length();
+void emitTextQuads(RenderLayer& layer, float x, float y, float spacing, float size, uint8_t r, uint8_t g, uint8_t b, uint8_t a, const std::string& str, TextMode mode) {
 
-	if (mode == TextMode::RIGHT) {
-		for (int i = 0; i < len; i ++) {
-			emitSpriteQuad(text_writer, x - i * spacing, y, -size, size, 0, font.sprite(str[len - i - 1]), r, g, b, a);
-		}
+	int length = str.length() * spacing;
+	float offset = - length * ((int) mode) / 2.0f;
 
-		return;
-	}
+	for (int i = 0; i < str.length(); i ++) {
+		Sprite glyph = layer.tileset->sprite(str[i]);
+		emitSpriteQuad(*layer.writer, x + offset, y, -size, size, 0, glyph, r, g, b, a);
 
-	if (mode == TextMode::LEFT) {
-		for (int i = 0; i < len; i ++) {
-			emitSpriteQuad(text_writer, x + i * spacing, y, -size, size, 0, font.sprite(str[i]), r, g, b, a);
-		}
-
-		return;
+		offset += spacing;
 	}
 }
 

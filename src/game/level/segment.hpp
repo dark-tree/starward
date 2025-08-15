@@ -3,6 +3,7 @@
 #include "external.hpp"
 #include "rendering.hpp"
 
+struct RenderLayer;
 extern int global_segment_id;
 
 
@@ -20,7 +21,7 @@ class Segment {
 
 		int next();
 
-		void drawTile(BufferWriter<Vert4f4b>& writer, Sprite s, int x, int y, int width, float scroll, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+		void drawTile(RenderLayer& layer, int tile, int x, int y, int width, float scroll, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
 		void generate(float low, float high);
 
@@ -44,6 +45,6 @@ class Segment {
 
 		bool tick(double scroll, glm::vec2 terrain);
 
-		void draw(double scroll, TileSet& tileset, BufferWriter<Vert4f4b>& writer, bool debug);
+		void draw(RenderLayer& layer, double scroll, bool debug);
 
 };
