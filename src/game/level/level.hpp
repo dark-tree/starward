@@ -49,6 +49,9 @@ class Level {
 		// read by Game class to reload game state next tick
 		bool reload = false;
 
+		// speed up game speed
+		float skip = 0;
+
 	private:
 
 		BiomeManager& manager;
@@ -61,14 +64,11 @@ class Level {
 		float base_speed = 0.8;
 		float scroll = 0;
 		float tar = 0.0f;
-		float skip = 0;
 		float biome_speed = 0;
 		int age = 0;
 		int total = 0;
 		int play_count = 0;
 
-		int timer = 0;
-		int konami = 0;
 		bool debug = false;
 
 		std::array<Segment, 4> segments;

@@ -120,6 +120,16 @@ void PlayerEntity::tick(Level& level) {
 	tilt *= 0.9;
 	this->x += avoidance * 0.4;
 
+	if (Input::isPressed(Key::UP) || Input::isPressed(Key::W)) {
+		if (level.isDebug() || nitro_ticks > 0) {
+			level.skip += level.skip * 0.1 + 0.02;
+
+			if (nitro_ticks > 0) {
+				nitro_ticks --;
+			}
+		}
+	}
+
 	if ((avoidance <= 0) && Input::isPressed(Key::LEFT) || Input::isPressed(Key::A)) {
 		this->x -= 6;
 		tilt -= 0.1;
@@ -136,17 +146,30 @@ void PlayerEntity::tick(Level& level) {
 
 	if ((cooldown <= 0) && Input::isPressed(Key::SPACE)) {
 		bool shot = false;
+
+		BulletConfig config {};
+
 		cooldown = 1;
 
+		if (charged_ammo > 0) {
+			config.charged = true;
+			charged_ammo --;
+		}
+
+		if (piercing_ammo > 0) {
+			config.piercing = true;
+			piercing_ammo --;
+		}
+
 		if (double_barrel_ticks > 0) {
-			level.addEntity(new BulletEntity {11, x - 32, y + 30, self()});
-			level.addEntity(new BulletEntity {11, x + 32, y + 30, self()});
+			level.addEntity(new BulletEntity {-11, x - 32, y + 30, self(), 0, config});
+			level.addEntity(new BulletEntity {-11, x + 32, y + 30, self(), 0, config});
 			double_barrel_ticks --;
 			shot = true;
 		} else {
 			if (ammo > 0) {
 				ammo --;
-				level.addEntity(new BulletEntity {11, x, y + 48, self()});
+				level.addEntity(new BulletEntity {-11, x, y + 48, self(), 0, config});
 				shot = true;
 			}
 		}

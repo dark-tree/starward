@@ -22,16 +22,26 @@ bool MineAlienEntity::checkPlacement(Level& level) {
 }
 
 void MineAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
-	tickExplode(level);
+	bool reduced = false;
+
+	if (BulletEntity* bullet = dynamic_cast<BulletEntity*>(damager)) {
+		if (bullet->isCharged()) reduced = true;
+	}
+
+	tickExplode(level, reduced);
 }
 
-void MineAlienEntity::tickExplode(Level& level) {
+void MineAlienEntity::onDespawn(Level& level) {
+	level.addScore(evolution * -10);
+}
+
+void MineAlienEntity::tickExplode(Level& level, bool reduced) {
 	spawnParticles(level, 5, 10);
-	level.addScore(150);
+	level.addScore(100);
 	this->dead = true;
 
 	float start = randomFloat(-M_PI, M_PI);
-	int bullets = evolution ? 16 : 10;
+	int bullets = (evolution ? 16 : 10) - (reduced ? 5 : 0);
 	float step = 2 * M_PI / bullets;
 	int radius = evolution ? 32 : 24;
 
@@ -70,7 +80,7 @@ void MineAlienEntity::tick(Level& level) {
 	if (distance < (evolution ? 200 : 150)) {
 		level.addEntity(new BlowEntity(x, y));
 		SoundSystem::getInstance().add(Sounds::damage).play();
-		tickExplode(level);
+		tickExplode(level, false);
 	}
 }
 

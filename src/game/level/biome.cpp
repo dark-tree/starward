@@ -51,7 +51,7 @@ BiomeBuilder BiomeBuilder::setPowerUpRarity(int rarity) {
 	return *this;
 }
 
-BiomeBuilder BiomeBuilder::setScrollSpeed(float speed) {
+BiomeBuilder BiomeBuilder::setBonusScrollSpeed(float speed) {
 	biome.scroll_speed = speed;
 	return *this;
 }

@@ -44,6 +44,10 @@ void ShieldEntity::tick(Level& level) {
 	Entity::tick(level);
 	updatePosition();
 
+	if (player->isDead()) {
+		dead = true;
+	}
+
 	if (damaged) {
 		power --;
 

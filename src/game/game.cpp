@@ -46,15 +46,15 @@ void Game::loadBiomes() {
 	biomes->beginBiome() // start
 		.setTerrain(0.0, 0.25)
 		.addAlien(Alien::MINE, 1)
-		//.addAlien(Alien::FIGHTER, 1)
 		.addEvolution(Evolution::LOW, 1)
 		.addEvolution(Evolution::MEDIUM, 1)
 		.addEvolution(Evolution::HIGH, 1)
 		.addEnemyPlacer(1, 0)
-		.setPowerUpRarity(30)
-		.setEndSegment(6);
+		.setPowerUpRarity(10)
+		.setBonusScrollSpeed(0.15)
+		.setEndSegment(5);
 
-	biomes->beginBiome() // sweepers only
+	biomes->beginBiome() // sweepers
 		.setTerrain(0.0, 0.25)
 		.addAlien(Alien::SWEEPER, 2)
 		.addAlien(Alien::MINE, 1)
@@ -62,8 +62,17 @@ void Game::loadBiomes() {
 		.addEvolution(Evolution::LOW, 1)
 		.addEvolution(Evolution::MEDIUM, 1)
 		.addEnemyPlacer(1, 0)
-		.setPowerUpRarity(30)
+		.setPowerUpRarity(10)
+		.setBonusScrollSpeed(0.1)
 		.setEndSegment(20);
+
+	biomes->beginBiome() // tight tesla twister
+		.setTerrain(0.1, 0.4)
+		.addAlien(Alien::TESLA, 2)
+		.addAlien(Alien::SWEEPER, 1)
+		.addEvolution(Evolution::LOW, 1)
+		.setEndSegment(31)
+		.addEnemyPlacer(1, 0);
 
 	biomes->beginBiome() // turret introduced
 		.setTerrain(0.0, 0.27)
@@ -74,6 +83,8 @@ void Game::loadBiomes() {
 		.addEvolution(Evolution::LOW, 1)
 		.addEvolution(Evolution::MEDIUM, 1)
 		.addEnemyPlacer(1, 0)
+		.addEnemyPlacer(1, 4)
+		.setPowerUpRarity(10)
 		.setEndSegment(60);
 
 	biomes->beginBiome() // strong sweepers
@@ -81,18 +92,22 @@ void Game::loadBiomes() {
 		.addAlien(Alien::SWEEPER, 3)
 		.addEvolution(Evolution::HIGH, 1)
 		.addEnemyPlacer(1, 0)
-		.addEnemyPlacer(1, 1)
+		.addEnemyPlacer(1, 2)
+		.setPowerUpRarity(6)
 		.setEndSegment(72);
 
-	biomes->beginBiome() // a bit stronger sweeper-turret mix
+	biomes->beginBiome() // mixed bag
 		.setTerrain(0.0, 0.26)
 		.addAlien(Alien::SWEEPER, 3)
 		.addAlien(Alien::TURRET, 2)
 		.addAlien(Alien::MINE, 1)
 		.addAlien(Alien::VERTICAL, 2)
+		.addAlien(Alien::TESLA, 2)
 		.addEvolution(Evolution::LOW, 1)
 		.addEvolution(Evolution::MEDIUM, 3)
 		.addEnemyPlacer(1, 0)
+		.addEnemyPlacer(1, 4)
+		.setPowerUpRarity(10)
 		.setEndSegment(100);
 
 	biomes->beginBiome() // now onto the HIGH evolution!
@@ -104,7 +119,8 @@ void Game::loadBiomes() {
 		.addEvolution(Evolution::HIGH, 1)
 		.addEnemyPlacer(1, 0)
 		.addEnemyPlacer(1, 4)
-		.setEndSegment(140);
+		.setPowerUpRarity(10)
+		.setEndSegment(130);
 
 	biomes->beginBiome() // i heard you like turrets?
 		.setTerrain(0.0, 0.27)
@@ -115,7 +131,8 @@ void Game::loadBiomes() {
 		.addEvolution(Evolution::HIGH, 1)
 		.addEnemyPlacer(1, 0)
 		.addEnemyPlacer(1, 4)
-		.setEndSegment(180);
+		.setPowerUpRarity(9)
+		.setEndSegment(140);
 
 	biomes->beginBiome() // fun time
 		.setTerrain(0.0, 0.26)
@@ -127,5 +144,6 @@ void Game::loadBiomes() {
 		.addEvolution(Evolution::HIGH, 1)
 		.addEnemyPlacer(1, 0)
 		.addEnemyPlacer(1, 5)
+		.setPowerUpRarity(10)
 		.setEndSegment(-1);
 }

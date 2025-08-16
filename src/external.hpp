@@ -21,6 +21,7 @@
 #include <fstream>
 #include <filesystem>
 #include <regex>
+#include <ranges>
 
 // emscripten
 #include <platform.hpp>

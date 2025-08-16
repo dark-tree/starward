@@ -58,6 +58,10 @@ void Entity::onSpawned(const Level& level, NULLABLE Segment* segment) {
 	// by default do nothing, Turrets can Tesla towers use it to generate foundations
 }
 
+void Entity::onDespawn(Level& level) {
+	// by default do nothing when we despawn
+}
+
 bool Entity::checkPlacement(Level& level) {
 	return false;
 }
@@ -85,6 +89,7 @@ void Entity::tick(Level& level) {
 	visible = (wy < SH);
 
 	if (wy < -size) {
+		onDespawn(level);
 		dead = true;
 	}
 

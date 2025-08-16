@@ -21,6 +21,12 @@ VerticalAlienEntity::VerticalAlienEntity(double x, double y, int evolution)
 
 void VerticalAlienEntity::tick(Level& level) {
 
+	if (stan_ticks > 0) {
+		bump = 0;
+		AlienEntity::tick(level);
+		return;
+	}
+
 	this->active = false;
 
 	for (auto& entity : level.getEntities()) {
@@ -39,7 +45,7 @@ void VerticalAlienEntity::tick(Level& level) {
 			bx += (count % 2 == 1 ? -size : size) * 0.3f;
 		}
 
-		level.addEntity(new BulletEntity{-3, bx, y - 24, self()});
+		level.addEntity(new BulletEntity{-3, bx, y - 24, self(), M_PI});
 	}
 
 	SweeperAlienEntity::tick(level);

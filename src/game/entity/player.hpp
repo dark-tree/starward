@@ -27,6 +27,9 @@ class PlayerEntity : public Entity {
 
 		// bonuses
 		int double_barrel_ticks = 0;
+		int nitro_ticks = 60 * 10;
+		int charged_ammo = 0;
+		int piercing_ammo = 0;
 
 	public:
 

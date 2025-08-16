@@ -35,6 +35,12 @@ void SweeperAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
 
 void SweeperAlienEntity::tick(Level& level) {
 
+	if (stan_ticks > 0) {
+		bump = 0;
+		AlienEntity::tick(level);
+		return;
+	}
+
 	tickMovement();
 
 	if (this->bump > 0) {
@@ -99,7 +105,7 @@ void SweeperAlienEntity::tickShooting(Level& level) {
 		bx += (count % 2 == 1 ? -size : size) * 0.3f;
 	}
 
-	level.addEntity(new BulletEntity{-3, bx, y - 24, self()});
+	level.addEntity(new BulletEntity{-3, bx, y - 24, self(), M_PI});
 }
 
 void SweeperAlienEntity::tickMovement() {

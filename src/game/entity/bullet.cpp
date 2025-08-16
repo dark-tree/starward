@@ -5,17 +5,24 @@
 #include "particle/tile.hpp"
 #include "game/level/level.hpp"
 #include "game/sounds.hpp"
+#include "particle/dust.hpp"
 
 /*
  * BulletEntity
  */
 
-BulletEntity::BulletEntity(float velocity, double x, double y, const std::shared_ptr<Entity>& parent, float angle)
+BulletEntity::BulletEntity(float velocity, double x, double y, const std::shared_ptr<Entity>& parent, float angle, BulletConfig config)
 : Entity(8, x, y) {
 	this->parent = parent;
 	this->velocity = velocity;
 	this->angle = angle;
 	this->time = 60 * 6;
+	this->config = config;
+	this->color = parent->isCausedByPlayer() ? Color::blue(config.charged) : Color::red(config.charged);
+}
+
+bool BulletEntity::isCharged() const {
+	return config.charged;
 }
 
 bool BulletEntity::isCausedByPlayer() {
@@ -53,15 +60,36 @@ void BulletEntity::tick(Level& level) {
 		time --;
 	}
 
+	if (config.charged) {
+		level.addEntity(new DustEntity {x, y, 0, 0, 1, 1, 1, 30, Color::white().withAlpha(100)});
+	}
+
+	bool collided = false;
 	Collision collision = level.checkCollision(this);
 
-	if (collision.type != Collision::MISS) {
-		level.addEntity(new BlowEntity(x, y));
-		SoundSystem::getInstance().add(Sounds::damage).play();
+	// once we hit an entity with piercing we wait for soem time
+	// before we can do that again (to now one-shot aliens)
+	// but we still need to collide with terrain
+	if (cooldown > 0) {
+		cooldown --;
+	}
+
+	if (collision.type == Collision::ENTITY && cooldown == 0) {
 
 		if (collision.entity) {
 			collision.entity->onDamage(level, 1, this);
 		}
+
+		if (config.piercing) {
+			cooldown = 15;
+		} else {
+			dead = true;
+		}
+
+		collided = true;
+	}
+
+	if (collision.type == Collision::TILE) {
 
 		glm::ivec2 pos = level.toTilePos(x, y);
 		int radius = isCausedByPlayer() ? 5 : 4;
@@ -95,18 +123,24 @@ void BulletEntity::tick(Level& level) {
 		}
 
 		dead = true;
+		collided = true;
+	}
+
+	if (collided) {
+		level.addEntity(new BlowEntity(x, y));
+		SoundSystem::getInstance().add(Sounds::damage).play();
 	}
 
 	Entity::tick(level);
 }
 
 void BulletEntity::draw(Level& level, Renderer& renderer) {
-	Color color = velocity < 0 ? Color::red() : Color::blue();
 	float alpha = (time / 10.0f);
 
 	if (alpha > 1) {
 		alpha = 1;
 	}
 
-	emitEntityQuad(level, *renderer.terrain.writer, renderer.terrain.tileset->sprite(0, 0), size, angle, color.withAlpha(alpha * 255));
+	Sprite sprite = renderer.terrain.tileset->sprite(config.piercing ? 7 : 6, 5);
+	emitEntityQuad(level, *renderer.terrain.writer, sprite, 16, angle, color.withAlpha(alpha * 255));
 }

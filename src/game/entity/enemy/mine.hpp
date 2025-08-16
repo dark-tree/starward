@@ -18,8 +18,9 @@ class MineAlienEntity : public AlienEntity {
 
 		bool checkPlacement(Level& level) override;
 		void onDamage(Level& level, int damage, Entity* damager) override;
+		void onDespawn(Level& level) override;
 
-		void tickExplode(Level& level);
+		void tickExplode(Level& level, bool reduced);
 		void tick(Level& level) override;
 		void draw(Level& level, Renderer& renderer) override;
 };

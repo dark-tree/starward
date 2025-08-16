@@ -1,6 +1,7 @@
 
 #include "alien.hpp"
 
+#include "game/entity/bullet.hpp"
 #include "game/level/level.hpp"
 #include "game/entity/particle/dust.hpp"
 
@@ -42,6 +43,10 @@ void AlienEntity::onDamage(Level& level, int damage, NULLABLE Entity* damager) {
 		this->health --;
 		this->damage_ticks = 4;
 
+		if (BulletEntity* bullet = dynamic_cast<BulletEntity*>(damager)) {
+			if (bullet->isCharged()) stan_ticks = 90 + randomInt(0, 60);
+		}
+
 		onDamaged(level);
 
 		if (health <= 0) {
@@ -58,9 +63,28 @@ void AlienEntity::tick(Level& level) {
 	if (damage_ticks) {
 		damage_ticks --;
 	}
+
+	if (stan_ticks > 0) {
+		damage_ticks = 1;
+		stan_ticks --;
+
+		if (randomInt(0, 3) == 0) {
+			float ox = x + size * randomFloat(-1, 1) / 2;
+			float oy = y + size * randomFloat(-1, 1) / 2;
+
+			float vx = 0.2f * randomFloat(-1, 1);
+			float vy = 0.2f * randomFloat(-1, 1);
+
+			level.addEntity(new DustEntity {ox, oy, vx, vy, 1, 1, 1, 30, Color::red(true)});
+		}
+	}
 }
 
 void AlienEntity::onDamaged(Level& level) {
+}
+
+void AlienEntity::onDespawn(Level& level) {
+	level.addScore(std::min(-10, health * -10));
 }
 
 void AlienEntity::onKilled(Level& level) {

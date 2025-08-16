@@ -98,7 +98,11 @@ void Level::addSlowness(float tar) {
 
 void Level::addScore(int points) {
 	if (state != GameState::DEAD) {
-		this->score += points;
+		score += points;
+
+		if (score < 0) {
+			score = 0;
+		}
 	}
 }
 
@@ -127,7 +131,7 @@ bool Level::trySpawnAlien(Segment& segment) {
 	if (alien == Alien::TURRET) return TurretAlienEntity::spawn(*this, segment, evolution);
 	if (alien == Alien::TESLA) return TeslaAlienEntity::spawn(*this, segment, evolution);
 
-	printf("Failed to spawn dues to invalid enum value, is the enemy spawn logic unimplemented?\n");
+	printf("Failed to spawn due to invalid enum value, is the enemy spawn logic unimplemented?\n");
 	return false;
 }
 
@@ -183,7 +187,7 @@ void Level::tick() {
 			}
 
 			// place powerups
-			while (randomInt(0, manager.getPowerUpRarity()) == 0) {
+			if (randomInt(0, manager.getPowerUpRarity()) == 0) {
 				glm::ivec2 tile = segment.getRandomSpawnPos(6);
 				glm::vec2 entity = toEntityPos(tile.x, tile.y);
 
@@ -201,6 +205,10 @@ void Level::tick() {
 		entity->tick(*this);
 	}
 
+	if (skip > 1) {
+		skip = 1;
+	}
+
 	entities.erase(std::remove_if(entities.begin(), entities.end(), [] (const auto& entity) {
 		return entity->shouldRemove();
 	}), entities.end());
@@ -216,39 +224,12 @@ void Level::tick() {
 
 	pending.clear();
 
-	if (timer > 0) {
-		timer --;
-
-		if (timer == 0) {
-			konami = 0;
-		}
-	}
-
-	if (Input::isPressed(Key::UP) && (konami == 0)) {
-		konami = 1;
-		timer = 60 * 4;
-	} else if (Input::isPressed(Key::UP) && (konami == 1)) konami = 2;
-	else if (Input::isPressed(Key::DOWN) && (konami == 2)) konami = 3;
-	else if (Input::isPressed(Key::DOWN) && (konami == 3)) konami = 4;
-	else if (Input::isPressed(Key::LEFT) && (konami == 4)) konami = 5;
-	else if (Input::isPressed(Key::RIGHT) && (konami == 5)) konami = 6;
-	else if (Input::isPressed(Key::LEFT) && (konami == 6)) konami = 7;
-	else if (Input::isPressed(Key::RIGHT) && (konami == 7)) konami = 8;
-	else if (Input::isPressed(Key::B) && (konami == 8)) konami = 9;
-	else if (Input::isPressed(Key::A) && (konami == 9)) {
-		konami = 0;
+	if (Input::matchKeys(Key::UP, Key::UP, Key::DOWN, Key::DOWN, Key::LEFT, Key::RIGHT, Key::LEFT, Key::RIGHT, Key::B, Key::A)) {
+		Input::purge();
 		debug = !debug;
 	}
 
-	// player input
-	if (state != GameState::DEAD) {
-
-		if (Input::isPressed(Key::UP) || Input::isPressed(Key::W)) {
-			skip += skip * 0.1 + 0.02;
-		}
-
-		if (skip > 1) skip = 1;
-	} else {
+	if (state == GameState::DEAD) {
 		if (Input::isPressed(Key::ENTER)) {
 			reload = true;
 		}
@@ -273,6 +254,7 @@ void Level::draw(Renderer& renderer) {
 		emitTextQuads(renderer.text, 16, SH - 64,  20, 16, 255, 255, 0, 220, "Seg: " + std::to_string(total), TextMode::LEFT);
 		emitTextQuads(renderer.text, 16, SH - 96,  20, 16, 255, 255, 0, 220, "Bio: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
 		emitTextQuads(renderer.text, 16, SH - 128, 20, 16, 255, 255, 0, 220, "Spd: " + std::to_string(getSpeed()), TextMode::LEFT);
+		emitTextQuads(renderer.text, 16, SH - 160, 20, 16, 255, 255, 0, 220, "Ens: " + std::to_string(entities.size()), TextMode::LEFT);
 	}
 
 	if (state != GameState::DEAD) {
@@ -397,7 +379,7 @@ Collision Level::checkTileCollision(const Box& box) const {
 
 Collision Level::checkEntityCollision(Entity* self) const {
 
-	for (const auto& entity : entities) {
+	for (const auto& entity : std::views::join(std::array {std::ref(entities), std::ref(pending)} | std::views::transform([](auto &ref) -> auto& { return ref.get(); }))) {
 		Entity* pointer = entity.get();
 
 		// skip invalid collisions

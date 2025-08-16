@@ -103,16 +103,15 @@ TeslaAlienEntity::TeslaAlienEntity(double x, double y, int evolution, Side side)
 }
 
 bool TeslaAlienEntity::checkPlacement(Level& level) {
-	Collision collision = level.checkCollision(this);
-
-	if (collision.type == Collision::ENTITY) {
-		return false;
-	}
-
-	return true;
+	return level.checkEntityCollision(this).type == Collision::MISS;
 }
 
 void TeslaAlienEntity::tick(Level& level) {
+
+	if (stan_ticks > 0) {
+		dead = true;
+	}
+
 	AlienEntity::tick(level);
 }
 
@@ -131,3 +130,8 @@ void TeslaAlienEntity::onSpawned(const Level& level, Segment* segment) {
 		generateFoundation(*segment, pos, xs[side], side == RIGHT);
 	}
 }
+
+void TeslaAlienEntity::onDespawn(Level& level) {
+	level.addScore(-50);
+}
+

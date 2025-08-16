@@ -1,7 +1,6 @@
 #pragma once
 
 #include "external.hpp"
-#include "rendering.hpp"
 #include "game/color.hpp"
 #include "game/level/box.hpp"
 #include "render/renderer.hpp"
@@ -62,6 +61,9 @@ class Entity : public std::enable_shared_from_this<Entity> {
 
 		/// Invoked for entities when added to the world
 		virtual void onSpawned(const Level& level, NULLABLE Segment* segment);
+
+		/// Called when the entity is despawned dues to falling outside vertical world bounds
+		virtual void onDespawn(Level& level);
 
 		virtual bool checkPlacement(Level& level);
 		virtual bool isCausedByPlayer();

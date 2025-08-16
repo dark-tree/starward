@@ -33,7 +33,7 @@ struct Biome {
 		float terrain_low = 0.0f;
 		float terrain_high = 0.25;
 		float scroll_speed = 0.0f;
-		int bonus_rarity = 40;
+		int bonus_rarity = 20;
 		int end_segment = -1;
 
 		std::vector<Evolution> evolutions;
@@ -61,7 +61,7 @@ class BiomeBuilder {
 		BiomeBuilder(Biome& biome);
 
 		BiomeBuilder setPowerUpRarity(int rarity);
-		BiomeBuilder setScrollSpeed(float speed);
+		BiomeBuilder setBonusScrollSpeed(float speed);
 		BiomeBuilder addEvolution(Evolution evolution, int weight);
 		BiomeBuilder addAlien(Alien alien, int weight);
 		BiomeBuilder addEnemyPlacer(int count, int rarity);

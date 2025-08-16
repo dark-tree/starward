@@ -10,6 +10,7 @@ class AlienEntity : public Entity {
 
 	protected:
 
+		int stan_ticks = 0;
 		int damage_ticks = 0;
 		int health = 1;
 		int evolution;
@@ -27,6 +28,7 @@ class AlienEntity : public Entity {
 
 		void onDamage(Level& level, int damage, Entity* damager) override;
 		void tick(Level& level) override;
+		void onDespawn(Level& level) override;
 
 		/// Called when damage is dealt, no matter is the entity was killed or not
 		virtual void onDamaged(Level& level);

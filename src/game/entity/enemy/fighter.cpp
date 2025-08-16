@@ -214,7 +214,7 @@ void FighterAlienEntity::tick(Level& level) {
 		cooldown = 1;
 
 		if (visible) {
-			level.addEntity(new BulletEntity{-3, x, y - 24, self()});
+			level.addEntity(new BulletEntity{-3, x, y - 24, self(), false});
 		}
 	}
 

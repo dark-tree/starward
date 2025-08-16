@@ -48,13 +48,7 @@ TurretAlienEntity::TurretAlienEntity(double x, double y, int evolution)
 }
 
 bool TurretAlienEntity::checkPlacement(Level& level) {
-	Collision collision = level.checkCollision(this);
-
-	if (collision.type == Collision::ENTITY) {
-		return false;
-	}
-
-	return true;
+	return level.checkEntityCollision(this).type == Collision::MISS;
 }
 
 void TurretAlienEntity::shoot(Level& level, float speed, float radius, float offset) {

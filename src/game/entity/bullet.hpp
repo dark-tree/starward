@@ -2,9 +2,18 @@
 
 #include "entity.hpp"
 
+struct BulletConfig {
+	bool charged = false;
+	bool piercing = false;
+};
+
 class BulletEntity : public Entity {
 
 	private:
+
+		int cooldown = 0;
+		BulletConfig config;
+		Color color;
 
 		int time;
 		std::shared_ptr<Entity> parent;
@@ -14,7 +23,9 @@ class BulletEntity : public Entity {
 
 	public:
 
-		BulletEntity(float velocity, double x, double y, const std::shared_ptr<Entity>& except, float angle = deg(180));
+		BulletEntity(float velocity, double x, double y, const std::shared_ptr<Entity>& except, float angle, BulletConfig config = {.charged = false, .piercing = false});
+
+		bool isCharged() const;
 
 		bool isCausedByPlayer() override;
 		std::shared_ptr<Entity> getParent() override;

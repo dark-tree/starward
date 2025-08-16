@@ -51,7 +51,7 @@ void DecayEntity::tick(Level& level) {
 		row_2 = randomInt(0, 7);
 
 		if (shared->getPart(x, y - 32) == nullptr) {
-			level.addEntity(new BulletEntity{-3, x, y - 24, self()});
+			level.addEntity(new BulletEntity{-3, x, y - 24, self(), false});
 		}
 
 		cb = Color::of(200, randomInt(50, 100), randomInt(50, 100));
