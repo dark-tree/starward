@@ -23,6 +23,24 @@ Level::Level(BiomeManager& manager)
 	manager.tick(0);
 }
 
+void Level::applyCustomSpawnLogic(Segment& segment) {
+
+	int number = segment.index;
+	int selector = number % 50;
+
+	if (number < 20) {
+		return;
+	}
+
+	if ((selector == 0) || (selector == 1)) {
+		glm::ivec2 tile = segment.getRandomSpawnPos(0);
+		glm::vec2 pos = toEntityPos(tile.x, tile.y);
+		auto fighter = std::make_shared<FighterAlienEntity>(pos.x, pos.y, (int) manager.getEvolution());
+		trySpawn(fighter);
+	}
+
+}
+
 void Level::beginPlay() {
 	playing = true;
 }
@@ -208,6 +226,8 @@ void Level::tick() {
 
 				addEntity(new PowerUpEntity(entity.x, entity.y, PowerUpEntity::randomPick()));
 			}
+
+			applyCustomSpawnLogic(segment);
 
 			// prepare for the next segment
 			if (state != GameState::DEAD) {

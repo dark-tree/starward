@@ -1,7 +1,6 @@
 #pragma once
 
 #include <external.hpp>
-#include <rendering.hpp>
 
 #include "segment.hpp"
 #include "game/entity/entity.hpp"
@@ -77,6 +76,8 @@ class Level {
 		std::vector<std::shared_ptr<Entity>> pending {};
 		std::vector<std::shared_ptr<Entity>> entities {};
 		std::shared_ptr<PlayerEntity> player {};
+
+		void applyCustomSpawnLogic(Segment& segment);
 
 	public:
 

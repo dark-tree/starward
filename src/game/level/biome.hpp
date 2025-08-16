@@ -1,7 +1,8 @@
 #pragma once
 
 #include "external.hpp"
-#include "util.hpp"
+
+class Level;
 
 enum struct Alien {
 	SWEEPER = 0,
