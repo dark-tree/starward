@@ -22,8 +22,9 @@ set(libraries ${glm_SOURCE_DIR} ${stb_SOURCE_DIR} ${GLAD_INCLUDE_DIRS} ${OpenAL_
 
 file(GLOB_RECURSE GAME_SOURCES "src/**.cpp")
 add_executable(main ${GAME_SOURCES})
+target_include_directories(main PRIVATE lib src ${glm_SOURCE_DIR} ${stb_SOURCE_DIR} ${OpenAL_INCLUDE_DIR})
 
-add_library(external "lib/implementation.cpp")
+add_library(external "lib/implementation.cpp" "lib/font8x8.c")
 target_include_directories(external PRIVATE ${stb_SOURCE_DIR})
 
 if (DEFINED EMSCRIPTEN)
@@ -34,7 +35,6 @@ if (DEFINED EMSCRIPTEN)
 	target_link_options(main PRIVATE -sRUNTIME_DEBUG -sOPENAL_DEBUG -sWASM=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 --preload-file assets)
 
 	target_link_libraries(main PRIVATE glm external openal)
-	target_include_directories(main PRIVATE src ${glm_SOURCE_DIR} ${stb_SOURCE_DIR} ${OpenAL_INCLUDE_DIR})
 
 else()
 
@@ -59,7 +59,7 @@ else()
 	FetchContent_MakeAvailable(winx glad)
 
 	target_link_libraries(main PRIVATE glm external winx glad OpenAL::OpenAL)
-	target_include_directories(main PRIVATE src ${glm_SOURCE_DIR} ${stb_SOURCE_DIR} ${OpenAL_INCLUDE_DIR} ${winx_SOURCE_DIR} ${GLAD_INCLUDE_DIRS})
+	target_include_directories(main PRIVATE ${winx_SOURCE_DIR} ${GLAD_INCLUDE_DIRS})
 
 endif()
 

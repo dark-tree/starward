@@ -55,7 +55,7 @@ bool TeslaAlienEntity::spawn(Level& level, Segment& segment, int evolution) {
 				continue;
 			}
 
-			return spawnAt(level, left.x, right.x, left.y + segment.getVerticalOffset(), evolution);
+			return spawnAt(level, left.x, right.x, left.y + segment.getStartY(), evolution);
 		}
 	}
 
@@ -76,7 +76,7 @@ void TeslaAlienEntity::generateFoundation(Segment& segment, glm::ivec2 pos, int 
 
 		for (int y = -h; y <= h; y ++) {
 			int tx = pos.x + x;
-			int ty = pos.y + y - segment.getVerticalOffset();
+			int ty = pos.y + y - segment.getStartY();
 
 			if (tx < 0 || tx >= Segment::width || ty < 0 || ty >= Segment::height) {
 				continue;

@@ -35,6 +35,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/noise.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <font8x8.h>
 
 #include "util.hpp"
 

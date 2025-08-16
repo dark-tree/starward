@@ -34,7 +34,7 @@ bool TurretAlienEntity::spawn(Level& level, Segment& segment, int evolution) {
 				continue;
 			}
 
-			glm::vec2 pos = Level::toEntityPos(tile.x, tile.y + segment.getVerticalOffset());
+			glm::vec2 pos = Level::toEntityPos(tile.x, tile.y + segment.getStartY());
 			return level.trySpawn(new TurretAlienEntity {pos.x, pos.y, evolution});
 		}
 	}
@@ -131,7 +131,7 @@ void TurretAlienEntity::onSpawned(const Level& level, Segment* segment) {
 
 		for (int x = -h; x <= h; x ++) {
 			int tx = pos.x + x;
-			int ty = pos.y + oy - segment->getVerticalOffset();
+			int ty = pos.y + oy - segment->getStartY();
 
 			if (tx < 0 || tx >= Segment::width || ty < 0 || ty >= Segment::height) {
 				continue;

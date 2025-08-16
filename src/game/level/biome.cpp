@@ -1,6 +1,8 @@
 
 #include "biome.hpp"
 
+#include "segment.hpp"
+
 /*
  * EnemyPlacer
  */
@@ -94,7 +96,7 @@ void BiomeManager::reset() {
 	speed = 0;
 	low = -1;
 	high = -1;
-	index = 0;
+	index = -SEGMENT_START_OFFSET;
 }
 
 const Biome& BiomeManager::current() {

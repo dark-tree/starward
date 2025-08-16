@@ -1,7 +1,5 @@
 #include "game.hpp"
 
-int global_segment_id = 0;
-
 Game::Game() {
 	load();
 }
@@ -9,7 +7,7 @@ Game::Game() {
 void Game::load() {
 
 	// reset terrain generator
-	global_segment_id = 0;
+	Segment::resetTerrainGeneratr();
 
 	biomes = new BiomeManager();
 	loadBiomes();
@@ -43,6 +41,12 @@ void Game::tick() {
 }
 
 void Game::loadBiomes() {
+
+	biomes->beginBiome() // title
+		.setBonusScrollSpeed(0)
+		.setPowerUpRarity(1000)
+		.setEndSegment(3);
+
 	biomes->beginBiome() // start
 		.setTerrain(0.0, 0.25)
 		.addAlien(Alien::MINE, 1)

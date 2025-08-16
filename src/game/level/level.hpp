@@ -69,6 +69,7 @@ class Level {
 		int total = 0;
 		int play_count = 0;
 
+		bool playing = false;
 		bool debug = false;
 
 		std::array<Segment, 4> segments;
@@ -78,6 +79,8 @@ class Level {
 		std::shared_ptr<PlayerEntity> player {};
 
 	public:
+
+		void beginPlay();
 
 		Level(BiomeManager& manager);
 		void loadHighScore();
@@ -129,9 +132,8 @@ class Level {
 
 		Collision checkTileCollision(const Box& collider) const;
 		Collision checkEntityCollision(Entity* self) const;
-		Collision checkCollision(const Box& collider);
+		Collision checkCollision(Entity* self) const;
 
-		Collision checkCollision(Entity* self);
 		void setState(GameState state);
 
 		std::vector<std::shared_ptr<Entity>>& getEntities();

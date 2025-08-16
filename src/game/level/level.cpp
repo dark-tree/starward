@@ -23,6 +23,10 @@ Level::Level(BiomeManager& manager)
 	manager.tick(0);
 }
 
+void Level::beginPlay() {
+	playing = true;
+}
+
 void Level::loadHighScore() {
 	const char* stat_hi_score = "hi";
 	std::string hi_str = platform_read_string(stat_hi_score);
@@ -39,8 +43,19 @@ void Level::loadHighScore() {
 
 void Level::spawnInitial() {
 	addEntity(new PlayerEntity {});
-	addEntity(new SweeperAlienEntity {100, 450, 0});
-	addEntity(new PowerUpEntity {200, 600, PowerUpEntity::LIVE});
+
+	float offset = toEntityPos(0, Segment::height * 3).y;
+	addEntity(new SweeperAlienEntity {100, 450 + offset, 0});
+	addEntity(new PowerUpEntity {200, 600 + offset, PowerUpEntity::LIVE});
+
+	{
+		std::string line1 = "404";
+		std::string line2 = "Not Found";
+
+		segments[1].fill(0);
+		segments[1].generateString((Segment::width - line2.size() * 8) / 2, (Segment::height / 2 - 8) / 2, line2, 4, 1);
+		segments[1].generateString((Segment::width - line1.size() * 8) / 2, Segment::height / 2 + (Segment::height / 2 - 8) / 2, line1, 4, 1);
+	}
 
 	// float oy = 1024;
 	// int layers = 6;
@@ -333,6 +348,7 @@ float Level::getScroll() const {
 }
 
 float Level::getSpeed() const {
+	if (!playing) return 0.0f;
 	float v = std::min(1.0f, total * 0.002f);
 	return tar * base_speed * aliveness + (skip * 4 + tar * v * 2 + biome_speed) * aliveness;
 }
@@ -398,7 +414,7 @@ Collision Level::checkEntityCollision(Entity* self) const {
 
 }
 
-Collision Level::checkCollision(Entity* self) {
+Collision Level::checkCollision(Entity* self) const {
 
 	// check for terrain collision first as it is faster
 	Collision collision = checkTileCollision(self->getBoxCollider());

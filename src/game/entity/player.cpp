@@ -120,7 +120,7 @@ void PlayerEntity::tick(Level& level) {
 	tilt *= 0.9;
 	this->x += avoidance * 0.4;
 
-	if (Input::isPressed(Key::UP) || Input::isPressed(Key::W)) {
+	if ((Input::isPressed(Key::UP) || Input::isPressed(Key::W)) && level.getSpeed() > 0) {
 		if (level.isDebug() || nitro_ticks > 0) {
 			level.skip += level.skip * 0.1 + 0.02;
 
@@ -175,6 +175,10 @@ void PlayerEntity::tick(Level& level) {
 		}
 
 		SoundSystem::getInstance().add(shot ? Sounds::soft : Sounds::empty).play().volume(shot ? 0.8 : 1);
+
+		if (shot) {
+			level.beginPlay();
+		}
 	}
 
 	if (invulnerable > 0) {
