@@ -127,6 +127,15 @@ void PlayerEntity::tick(Level& level) {
 			if (nitro_ticks > 0) {
 				nitro_ticks --;
 			}
+
+			if (thruster_sound_timeout <= 0) {
+				SoundSystem::getInstance().add(Sounds::nitro).volume(0.3).pitch(1.1).play();
+				thruster_sound_timeout = 10;
+			}
+		}
+
+		if (thruster_sound_timeout > 0) {
+			thruster_sound_timeout --;
 		}
 	}
 

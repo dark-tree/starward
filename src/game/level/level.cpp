@@ -4,6 +4,7 @@
 #include "game/sounds.hpp"
 #include "game/emitter.hpp"
 #include "biome.hpp"
+#include "title.hpp"
 #include "game/entity/all.hpp"
 #include "game/entity/enemy/decay.hpp"
 
@@ -67,12 +68,17 @@ void Level::spawnInitial() {
 	addEntity(new PowerUpEntity {200, 600 + offset, PowerUpEntity::LIVE});
 
 	{
-		std::string line1 = "404";
-		std::string line2 = "Not Found";
+		int code = platform_get_startup_param();
+		std::string line1 = getTitle(code);
+		std::string line2 = getSubTitle(code);
+
+		printf("Rendering title screen...\n");
+		printf(" * Title:    %s\n", line1.c_str());
+		printf(" * Subtitle: %s\n", line2.c_str());
 
 		segments[1].fill(0);
-		segments[1].generateString((Segment::width - line2.size() * 8) / 2, (Segment::height / 2 - 8) / 2, line2, 4, 1);
-		segments[1].generateString((Segment::width - line1.size() * 8) / 2, Segment::height / 2 + (Segment::height / 2 - 8) / 2, line1, 4, 1);
+		segments[1].generateString((Segment::width - (int) line2.size() * 8) / 2, (Segment::height / 2 - 8) / 2, line2, 4, 1);
+		segments[1].generateString((Segment::width - (int) line1.size() * 8) / 2, Segment::height / 2 + (Segment::height / 2 - 8) / 2, line1, 4, 1);
 	}
 
 	// float oy = 1024;
@@ -415,7 +421,8 @@ Collision Level::checkTileCollision(const Box& box) const {
 
 Collision Level::checkEntityCollision(Entity* self) const {
 
-	for (const auto& entity : std::views::join(std::array {std::ref(entities), std::ref(pending)} | std::views::transform([](auto &ref) -> auto& { return ref.get(); }))) {
+	// handle alredy existing entities
+	for (const auto& entity : entities) {
 		Entity* pointer = entity.get();
 
 		// skip invalid collisions
@@ -424,6 +431,19 @@ Collision Level::checkEntityCollision(Entity* self) const {
 		}
 
 		// entity collisions are handled by entities
+		if (pointer->shouldCollide(self)) {
+			return {pointer};
+		}
+	}
+
+	// handle entities added in this frame
+	for (const auto& entity : pending) {
+		Entity* pointer = entity.get();
+
+		if (pointer == self || pointer == nullptr) {
+			continue;
+		}
+
 		if (pointer->shouldCollide(self)) {
 			return {pointer};
 		}

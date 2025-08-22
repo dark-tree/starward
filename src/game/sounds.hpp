@@ -14,5 +14,6 @@ namespace Sounds {
 	inline SoundGroup death;  // Game over
 	inline SoundGroup empty;  // Out of ammo trigger
 	inline SoundGroup soft;   // Player shoot
+	inline SoundGroup nitro;  // Player nitro
 
 };

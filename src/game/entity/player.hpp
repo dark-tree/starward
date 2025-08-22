@@ -14,6 +14,7 @@ class PlayerEntity : public Entity {
 		float cooldown = 0;
 		float tilt = 0;
 		int ammo = 32;
+		int thruster_sound_timeout = 0;
 		Box bumper;
 
 		std::shared_ptr<ShieldEntity> shield = nullptr;

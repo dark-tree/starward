@@ -32,5 +32,6 @@ void Sounds::load() {
 	death = std::move(groups.at("death"));
 	empty = std::move(groups.at("empty"));
 	soft = std::move(groups.at("soft"));
+	nitro = std::move(groups.at("thruster"));
 
 }

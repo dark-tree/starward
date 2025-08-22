@@ -92,6 +92,17 @@ using PlatformLoopCallback = void(*)();
 			return emscripten_run_script_string(code.data());
 		}
 
+		inline std::string platform_param() {
+			std::string code = "location.search.split('i=').splice(1).join('').split('&')[0]";
+			std::string data = emscripten_run_script_string(code.data());
+
+			if (data == "null" || data == "undefined") {
+				return "";
+			}
+
+			return data;
+		}
+
 	}
 
 	[[noreturn]] inline void platform_exit(int code) {
@@ -240,6 +251,10 @@ using PlatformLoopCallback = void(*)();
 			return buffer;
 		}
 
+		inline std::string platform_param() {
+			return "";
+		}
+
 	}
 
 	[[noreturn]] inline void platform_exit(int code) {
@@ -291,7 +306,6 @@ using PlatformLoopCallback = void(*)();
 
 #endif
 
-// shared
 inline void platform_write_string(const std::string& path, const std::string& data) {
 	impl::platform_write_string(path, data);
 	printf("Written '%s' into '/%s'\n", data.c_str(), path.c_str());
@@ -301,4 +315,18 @@ inline std::string platform_read_string(const std::string& path) {
 	std::string data = impl::platform_read_string(path);
 	printf("Read '%s' from '/%s'\n", data.c_str(), path.c_str());
 	return data;
+}
+
+inline int platform_get_startup_param() {
+	std::string data = impl::platform_param();
+
+	if (data.empty()) {
+		return 0;
+	}
+
+	try {
+		return std::stoi(data);
+	} catch (...) {
+		return 0;
+	}
 }
