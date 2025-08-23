@@ -32,7 +32,7 @@ if (DEFINED EMSCRIPTEN)
 	message(STATUS "Building for EMSCRIPTEN")
 
 	target_compile_options(main PRIVATE -O3 -Wno-c++17-extensions)
-	target_link_options(main PRIVATE -sRUNTIME_DEBUG -sOPENAL_DEBUG -sWASM=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 --preload-file assets)
+	target_link_options(main PRIVATE -sRUNTIME_DEBUG -sOPENAL_DEBUG "-sEXPORTED_FUNCTIONS=[\"_free\", \"_main\"]" -sWASM=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 --preload-file assets)
 
 	target_link_libraries(main PRIVATE glm external openal)
 
