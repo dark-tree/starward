@@ -277,6 +277,33 @@ void Level::tick() {
 	}
 }
 
+void Level::drawCredits(Renderer& renderer) {
+	int half = SW/2;
+	int row = SH/2 - SH/6;
+
+	emitTextQuads(renderer.text, SW / 2, SH - 64, 32, 24, 255, 255, 0, 255, "Credits", TextMode::CENTER);
+
+	// top left
+	emitTextQuads(renderer.text, half / 2, SH - 64*2, 24, 20, 255, 255, 0, 255, "Sounds Effects", TextMode::CENTER);
+	emitTextQuads(renderer.text, half / 2, SH - 64*2 - 32*2, 24, 20, 255, 255, 255, 255, "EVRetro", TextMode::CENTER);
+	emitTextQuads(renderer.text, half / 2, SH - 64*2 - 32*3, 24, 20, 255, 255, 255, 255, "Sophia Caldwell", TextMode::CENTER);
+	emitTextQuads(renderer.text, half / 2, SH - 64*2 - 32*4, 24, 20, 255, 255, 255, 255, "Cabled Mess", TextMode::CENTER);
+	emitTextQuads(renderer.text, half / 2, SH - 64*2 - 32*5, 24, 20, 255, 255, 255, 255, "magistermaks", TextMode::CENTER);
+
+	// top right
+	emitTextQuads(renderer.text, half / 2 + half, SH - 64*2, 24, 20, 255, 255, 0, 255, "Programming & Art", TextMode::CENTER);
+	emitTextQuads(renderer.text, half / 2 + half, SH - 64*2 - 32*2, 24, 20, 255, 255, 255, 255, "magistermaks", TextMode::CENTER);
+
+	// bottom left
+	emitTextQuads(renderer.text, half / 2, SH - 64*2 - row, 24, 20, 255, 255, 0, 255, "Shading", TextMode::CENTER);
+	emitTextQuads(renderer.text, half / 2, SH - 64*2 - row - 32*2, 24, 20, 255, 255, 255, 255, "Mattias", TextMode::CENTER);
+
+	// bottom right
+	emitTextQuads(renderer.text, half / 2 + half, SH - 64*2 - row, 24, 20, 255, 255, 0, 220, "Play Testing", TextMode::CENTER);
+	emitTextQuads(renderer.text,  half / 2 + half, SH - 64*2 - row - 32*2, 24, 20, 255, 255, 255, 220, "Player400", TextMode::CENTER);
+}
+
+
 void Level::draw(Renderer& renderer) {
 
 	for (auto& segment : segments) {
@@ -319,6 +346,10 @@ void Level::draw(Renderer& renderer) {
 		if ((score > hi) && (age % 10 < 5)) {
 			emitTextQuads(renderer.text, start - 8, SH / 2 + 16 - 48 - 32, 24, 20, 255, 255, 0, 220, "NEW HI-SCORE!", TextMode::LEFT);
 		}
+	}
+
+	if (Input::isPressed(PlatformKeyScope::TAB)) {
+		drawCredits(renderer);
 	}
 
 }

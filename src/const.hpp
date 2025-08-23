@@ -1,7 +1,7 @@
 #pragma once
 
 #define HTML_CANVAS "#canvas"
-#define GAME_TITLE "Space Something 2.0"
+#define GAME_TITLE "Starward Invasion"
 #define GAME_NATIVE_WIDTH 1280
 #define GAME_NATIVE_HEIGHT 720
 

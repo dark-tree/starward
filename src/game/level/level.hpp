@@ -125,6 +125,7 @@ class Level {
 		void addSlowness(float tar);
 		void addScore(int points);
 		void tick();
+		void drawCredits(Renderer& renderer);
 		void draw(Renderer& renderer);
 		void setTile(int x, int y, uint8_t tile);
 		uint8_t getTile(int x, int y) const;
