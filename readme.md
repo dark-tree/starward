@@ -7,7 +7,7 @@ with `server.sh` and open `http://localhost:8080/` in a browser.
 
 #### Build For Linux
 To build run the cmake script in the root directory,
-then start the execuable with `./build-native/main`.
+then start the executable with `./build-native/main`.
 
 ```bash
 cmake . -B build-native

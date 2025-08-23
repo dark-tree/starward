@@ -46,7 +46,7 @@ source ./emsdk/emsdk_env.sh
 
 cd "${ROOT_DIR}" || exit
 emcmake cmake . -B build
-cmake --build build/
+cmake --build build/ -j 8
 
 # Copy index file
 rm -f -- build/index.html
