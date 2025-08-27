@@ -25,7 +25,7 @@ PowerUpEntity::Type PowerUpEntity::randomPick() {
 
 PowerUpEntity::PowerUpEntity(double x, double y, Type type)
 : Entity(32, x, y), type(type) {
-
+	this->collider = Box {-24, -24, 48, 48};
 }
 
 bool PowerUpEntity::checkPlacement(Level& level) {

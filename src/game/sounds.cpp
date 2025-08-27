@@ -25,6 +25,7 @@ void Sounds::load() {
 		}
 	}
 
+	music = std::move(groups.at("music"));
 	beep = std::move(groups.at("beep"));
 	blow = std::move(groups.at("blow"));
 	coin = std::move(groups.at("coin"));

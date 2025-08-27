@@ -71,7 +71,7 @@ void Game::loadBiomes() {
 		.setEndSegment(20);
 
 	biomes->beginBiome() // tight tesla twister
-		.setTerrain(0.1, 0.4)
+		.setTerrain(0.1, 0.37)
 		.addAlien(Alien::TESLA, 2)
 		.addAlien(Alien::SWEEPER, 1)
 		.addEvolution(Evolution::LOW, 1)

@@ -43,6 +43,10 @@ void Level::applyCustomSpawnLogic(Segment& segment) {
 }
 
 void Level::beginPlay() {
+	if (!playing) {
+		SoundSystem::getInstance().add(Sounds::music).volume(0.4).loop(true).play();
+	}
+
 	playing = true;
 }
 
@@ -299,8 +303,9 @@ void Level::drawCredits(Renderer& renderer) {
 	emitTextQuads(renderer.text, half / 2, SH - 64*2 - row - 32*2, 24, 20, 255, 255, 255, 255, "Mattias", TextMode::CENTER);
 
 	// bottom right
-	emitTextQuads(renderer.text, half / 2 + half, SH - 64*2 - row, 24, 20, 255, 255, 0, 220, "Play Testing", TextMode::CENTER);
-	emitTextQuads(renderer.text,  half / 2 + half, SH - 64*2 - row - 32*2, 24, 20, 255, 255, 255, 220, "Player400", TextMode::CENTER);
+	emitTextQuads(renderer.text, half / 2 + half, SH - 64*2 - row, 24, 20, 255, 255, 0, 220, "Music", TextMode::CENTER);
+	emitTextQuads(renderer.text,  half / 2 + half, SH - 64*2 - row - 32*2, 24, 20, 255, 255, 255, 220, "Skay", TextMode::CENTER);
+
 }
 
 

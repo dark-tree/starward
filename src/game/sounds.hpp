@@ -7,6 +7,8 @@ namespace Sounds {
 	/// Sounds are loaded by this method, call it before trying to play any sound
 	void load();
 
+	inline SoundGroup music;
+
 	inline SoundGroup beep;   // Death screen beep
 	inline SoundGroup blow;   // Large explosion
 	inline SoundGroup coin;   // Bonus pickup
