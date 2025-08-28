@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="color: black; background-color: black;">
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -17,15 +17,35 @@
 				width: 100%;
 				height: 100%;
 			}
+
+			#loading {
+				position: fixed; /* floats above all content */
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				display: flex;
+				justify-content: center; /* horizontal */
+				align-items: center;     /* vertical */
+			}
 		</style>
 	</head>
 
 	<body>
 
+		<div id="loading">
+			<img src="loading.gif" alt="Loading..."/>
+		</div>
+
 		<!-- Create the canvas that the C++ code will draw into -->
 		<canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
 
 		<script>
+			function onGameReady() {
+				document.getElementById("loading").style.display = "none";
+				console.log("Ready event received from game!")
+			}
+
 			const canvas = document.querySelector("canvas");
 
 			canvas.width = window.innerWidth;

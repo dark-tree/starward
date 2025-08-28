@@ -169,6 +169,10 @@ using PlatformLoopCallback = void(*)();
 		return data;
 	}
 
+	inline void platform_ready() {
+		emscripten_run_script("onGameReady()");
+	}
+
 #elif defined(__linux__)
 
 	// sudo apt-get install libopenal-dev
@@ -302,6 +306,10 @@ using PlatformLoopCallback = void(*)();
 		winxSetCloseEventHandle(impl::platform_close_handler);
 		winxSetKeyboardEventHandle(impl::platform_keyboard_handler);
 		winxSetResizeEventHandle(impl::platform_resize_handler);
+	}
+
+	inline void platform_ready() {
+
 	}
 
 #endif

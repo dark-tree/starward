@@ -82,6 +82,7 @@ int main() {
 	Game game {};
 	printf("All game systems ready!\n");
 	printf("You can press and hold the TAB key to see credits & attribution.\n");
+	platform_ready();
 
 	int vw, vh;
 
