@@ -110,12 +110,10 @@ int main() {
 			vh = h;
 		});
 
-		renderer.beginDraw(begin_time, game.level->getLinearAliveness());
-
-		// render
+		// video
 		game.level->draw(renderer);
+		renderer.done(vw, vh, game.level->getLinearAliveness(), begin_time);
 
-		renderer.endDraw(vw, vh);
 		SoundSystem::getInstance().update();
 		Input::clear();
 

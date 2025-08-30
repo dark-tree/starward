@@ -3,7 +3,7 @@
 
 #include "level/level.hpp"
 
-void emitSpriteQuad(BufferWriter<Vert4f4b>& writer, float tx, float ty, float sx, float sy, float angle, const Sprite& s, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void emitSpriteQuad(BufferWriter<VertLevel>& writer, float tx, float ty, float sx, float sy, float angle, const Sprite& s, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 	double quarter = M_PI / 2;
 	double start = M_PI / 4 + M_PI / 2 + angle;
 
@@ -25,7 +25,7 @@ void emitSpriteQuad(BufferWriter<Vert4f4b>& writer, float tx, float ty, float sx
 	writer.push({tx + v0.x, v0.y + ty, s.min_u, s.min_v, r, g, b, a});
 }
 
-void emitLineQuad(BufferWriter<Vert4f4b>& writer, float x1, float y1, float x2, float y2, float width, const Sprite& s, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void emitLineQuad(BufferWriter<VertLevel>& writer, float x1, float y1, float x2, float y2, float width, const Sprite& s, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 
 	float dx = y1 - y2;
 	float dy = x2 - x1;
@@ -59,7 +59,7 @@ void emitTextQuads(RenderLayer& layer, float x, float y, float spacing, float si
 	}
 }
 
-void emitTileQuad(BufferWriter<Vert4f4b>& writer, Sprite s, int x, int y, float ox, float oy, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void emitTileQuad(BufferWriter<VertLevel>& writer, Sprite s, int x, int y, float ox, float oy, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 	const float unit = SW / Segment::width;
 
 	const float tx = x * unit + ox;

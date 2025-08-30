@@ -36,7 +36,7 @@ uint32_t Layout::size() const {
 uint32_t Layout::apply() const {
 	const uint32_t stride = size();
 
-	for (const Layout::Attribute& attr : attributes) {
+	for (const Attribute& attr : attributes) {
 		glVertexAttribPointer(attr.index, attr.count, attr.type, attr.normalize, stride, reinterpret_cast<void*>(attr.offset));
 		glEnableVertexAttribArray(attr.index);
 	}

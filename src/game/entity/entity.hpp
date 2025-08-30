@@ -20,7 +20,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
 		Box collider;
 		float size;
 
-		void emitEntityQuad(Level& level, BufferWriter<Vert4f4b>& writer, Sprite sprite, float size, float angle, Color color) const;
+		void emitEntityQuad(Level& level, BufferWriter<VertLevel>& writer, Sprite sprite, float size, float angle, Color color) const;
 		void emitBoxWireframe(Box box, RenderLayer& layer, float width, Color color) const;
 
 	public:

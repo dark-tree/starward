@@ -7,10 +7,10 @@
 
 struct RenderLayer {
 
-	BufferWriter<Vert4f4b>* writer;
+	BufferWriter<VertLevel>* writer;
 	TileSet* tileset;
 
-	void init(BufferWriter<Vert4f4b>* writer, TileSet* tileset);
+	void init(BufferWriter<VertLevel>* writer, TileSet* tileset);
 
 };
 
@@ -31,8 +31,8 @@ class Renderer {
 		VertexBuffer game_buffer;
 		VertexBuffer text_buffer;
 
-		BufferWriter<Vert4f4b> game_writer;
-		BufferWriter<Vert4f4b> text_writer;
+		BufferWriter<VertLevel> game_writer;
+		BufferWriter<VertLevel> text_writer;
 
 		TileSet font8x8;
 		TileSet tileset;
@@ -49,7 +49,6 @@ class Renderer {
 
 		Renderer();
 
-		void beginDraw(const std::chrono::time_point<std::chrono::steady_clock>& begin_time, float aliveness);
-		void endDraw(int vw, int vh);
+		void done(int vw, int vh, float aliveness, const std::chrono::time_point<std::chrono::steady_clock>& begin_time);
 
 };

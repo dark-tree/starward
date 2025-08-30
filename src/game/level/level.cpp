@@ -44,7 +44,7 @@ void Level::applyCustomSpawnLogic(Segment& segment) {
 
 void Level::beginPlay() {
 	if (!playing) {
-		SoundSystem::getInstance().add(Sounds::music).volume(0.4).loop(true).play();
+		SoundSystem::getInstance().add(Sounds::music).volume(0.3).loop(true).play();
 	}
 
 	playing = true;
@@ -143,6 +143,10 @@ void Level::addScore(int points) {
 	if (state != GameState::DEAD) {
 		score += points;
 
+		if (points < 0) {
+			score_lost_ticks = 30;
+		}
+
 		if (score < 0) {
 			score = 0;
 		}
@@ -183,6 +187,10 @@ std::shared_ptr<PlayerEntity> Level::getPlayer() {
 }
 
 void Level::tick() {
+
+	if (score_lost_ticks > 0) {
+		score_lost_ticks --;
+	}
 
 	// update player pointer
 	if (player && player->shouldRemove()) {
@@ -331,12 +339,25 @@ void Level::draw(Renderer& renderer) {
 	}
 
 	if (state != GameState::DEAD) {
-		emitTextQuads(renderer.text, SW - 16, SH - 32, 24, 20, 255, 255, 0, 220, std::to_string(score), TextMode::RIGHT);
+		uint8_t g = 255;
+		uint8_t b = 0;
+
+		if (score_lost_ticks > 0) {
+			g = 0;
+
+			if ((score_lost_ticks / 5) % 2 == 0) {
+				g = 150;
+				b = 150;
+			}
+
+		}
+
+		emitTextQuads(renderer.text, SW - 16, SH - 32, 24, 20, 255, g, b, 220, std::to_string(score), TextMode::RIGHT);
 	}
 
 	if (state == GameState::DEAD && (age % 120 < 60)) {
 		if (age % 120 == 0) {
-			SoundSystem::getInstance().add(Sounds::beep).play();
+			SoundSystem::getInstance().add(Sounds::beep).volume(1.5).play();
 		}
 
 		std::string over = "GAME OVER";

@@ -85,7 +85,7 @@ class Screen {
 
 		virtual ~Screen() {}
 
-		void render(TileSet& tileset, BufferWriter<Vert4f4b>& buffer) {
+		void render(TileSet& tileset, BufferWriter<VertLevel>& buffer) {
 			const auto [w, h] = getCanvasSize();
 
 			float ox = (w - tiles.width * 32) * 0.5f;
@@ -278,7 +278,7 @@ class ScreenStack {
 			return screens.back();
 		}
 
-		void render(TileSet& tileset, BufferWriter<Vert4f4b>& buffer) {
+		void render(TileSet& tileset, BufferWriter<VertLevel>& buffer) {
 			if (!screens.empty()) {
 				top()->render(tileset, buffer);
 			}

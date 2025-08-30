@@ -78,5 +78,5 @@ void main() {
     if (uv.y < 0.0 || uv.y > 1.0) col *= 0.0;
 
     col *= 1.0 - 0.65 * vec3(clamp((mod(vTex.x * res.x, 2.0) - 1.0) * 2.0, 0.0, 1.0));
-    fColor = vec4(col, 1.0) * (0.8f + uAliveness * 0.2f);
+    fColor = vec4(col, 1.0) * (0.9f + uAliveness * 0.1f);
 }

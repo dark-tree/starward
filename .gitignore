@@ -4,3 +4,4 @@ lib/*/
 !lib/glad/
 .vs
 local
+.idea

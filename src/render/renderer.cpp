@@ -6,7 +6,7 @@
  * RenderLayer
  */
 
-void RenderLayer::init(BufferWriter<Vert4f4b>* writer, TileSet* tileset) {
+void RenderLayer::init(BufferWriter<VertLevel>* writer, TileSet* tileset) {
 	this->writer = writer;
 	this->tileset = tileset;
 }
@@ -17,7 +17,7 @@ void RenderLayer::init(BufferWriter<Vert4f4b>* writer, TileSet* tileset) {
 
 Renderer::Renderer() {
 
-	Vert2f vertices_quad[] = {
+	VertBlit vertices_quad[] = {
 		{0, 0},
 		{1, 0},
 		{1, 1},
@@ -78,35 +78,34 @@ Renderer::Renderer() {
 	printf("Render system started!\n");
 }
 
-void Renderer::beginDraw(const std::chrono::time_point<std::chrono::steady_clock>& begin_time, float aliveness) {
+void Renderer::done(int vw, int vh, float aliveness, const std::chrono::time_point<std::chrono::steady_clock>& begin_time) {
+
+	game_writer.upload();
+	text_writer.upload();
+
+	glViewport(0, 0, SW, SH);
+	pass_1.use();
+	pass_1.clear();
+	level_shader.use();
+
+	glUniform1f(level_shader.uniform("uAliveness"), aliveness);
+	tileset.use();
+	game_buffer.draw();
+
+	glUniform1f(level_shader.uniform("uAliveness"), 1.0f);
+	font8x8.use();
+	text_buffer.draw();
+
+	// apply a CRT-like effect and draw into back buffer
+	glViewport(0, 0, vw, vh);
+	pass_2.use();
+	pass_2.clear();
+
+	color_att.use();
 	degrade_shader.use();
 	const auto now_time = std::chrono::steady_clock::now();
 	glUniform1f(degrade_shader.uniform("uTime"), std::chrono::duration_cast<std::chrono::duration<float>>(now_time - begin_time).count());
 	glUniform1f(degrade_shader.uniform("uAliveness"), aliveness);
-	glViewport(0, 0, SW, SH);
-}
 
-void Renderer::endDraw(int vw, int vh) {
-	game_writer.upload();
-	text_writer.upload();
-
-	// render
-	pass_1.use();
-	pass_1.clear();
-
-	tileset.use();
-	level_shader.use();
-	game_buffer.draw();
-
-	font8x8.use();
-	text_buffer.draw();
-
-	glViewport(0, 0, vw, vh);
-
-	// apply a CRT-like effect and draw into back buffer
-	pass_2.use();
-	pass_2.clear();
-	color_att.use();
-	degrade_shader.use();
 	blit_buffer.draw();
 }

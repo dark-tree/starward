@@ -62,7 +62,7 @@ void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
 				}
 			}
 
-			SoundSystem::getInstance().add(Sounds::blow).play();
+			SoundSystem::getInstance().add(Sounds::blow).volume(2.0).play();
 			lives--;
 			invulnerable = 200;
 		}

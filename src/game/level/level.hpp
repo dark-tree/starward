@@ -59,6 +59,7 @@ class Level {
 		float aliveness = 1.0f;
 		float linear_aliveness = 1.0f;
 		int score = 0;
+		int score_lost_ticks = 0;
 		int hi = 0;
 		float base_speed = 0.8;
 		float scroll = 0;

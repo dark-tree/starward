@@ -10,7 +10,7 @@
  * Entity
  */
 
-void Entity::emitEntityQuad(Level& level, BufferWriter<Vert4f4b>& writer, Sprite sprite, float size, float angle, Color color) const {
+void Entity::emitEntityQuad(Level& level, BufferWriter<VertLevel>& writer, Sprite sprite, float size, float angle, Color color) const {
 	emitSpriteQuad(writer, x, y + level.getScroll(), size, size, angle, sprite, color.r, color.g, color.b, color.a);
 }
 
