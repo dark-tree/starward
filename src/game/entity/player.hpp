@@ -31,6 +31,7 @@ class PlayerEntity : public Entity {
 		int nitro_ticks = 60 * 10;
 		int charged_ammo = 0;
 		int piercing_ammo = 0;
+		int boring_ammo = 0;
 
 	public:
 

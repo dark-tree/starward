@@ -478,7 +478,7 @@ Collision Level::checkTileCollision(const Box& box) const {
 
 Collision Level::checkEntityCollision(Entity* self) const {
 
-	// handle alredy existing entities
+	// handle already existing entities
 	for (const auto& entity : entities) {
 		Entity* pointer = entity.get();
 

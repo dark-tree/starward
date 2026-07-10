@@ -1,5 +1,7 @@
 #pragma once
 
+#include <game/entity/bullet.hpp>
+
 #include "alien.hpp"
 
 class PlayerEntity;
@@ -20,7 +22,7 @@ class MineAlienEntity : public AlienEntity {
 		void onDamage(Level& level, int damage, Entity* damager) override;
 		void onDespawn(Level& level) override;
 
-		void tickExplode(Level& level, bool reduced);
+		void tickExplode(Level& level, std::shared_ptr<Entity> source, BulletConfig config = {});
 		void tick(Level& level) override;
 		void draw(Level& level, Renderer& renderer) override;
 };

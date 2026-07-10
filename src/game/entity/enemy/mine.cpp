@@ -22,26 +22,31 @@ bool MineAlienEntity::checkPlacement(Level& level) {
 }
 
 void MineAlienEntity::onDamage(Level& level, int damage, Entity* damager) {
-	bool reduced = false;
+	auto source = self();
+	BulletConfig config {};
 
 	if (BulletEntity* bullet = dynamic_cast<BulletEntity*>(damager)) {
-		if (bullet->isCharged()) reduced = true;
+		if (bullet->isCharged()) {
+			source = bullet->getParent();
+		}
+
+		config = bullet->getConfig();
 	}
 
-	tickExplode(level, reduced);
+	tickExplode(level, source, config);
 }
 
 void MineAlienEntity::onDespawn(Level& level) {
 	level.addScore(evolution * -10);
 }
 
-void MineAlienEntity::tickExplode(Level& level, bool reduced) {
+void MineAlienEntity::tickExplode(Level& level, std::shared_ptr<Entity> source, BulletConfig config) {
 	spawnParticles(level, 5, 10);
 	level.addScore(100);
 	this->dead = true;
 
 	float start = randomFloat(-M_PI, M_PI);
-	int bullets = (evolution ? 16 : 10) - (reduced ? 5 : 0);
+	int bullets = (evolution ? 16 : 10);
 	float step = 2 * M_PI / bullets;
 	int radius = evolution ? 32 : 24;
 
@@ -50,7 +55,7 @@ void MineAlienEntity::tickExplode(Level& level, bool reduced) {
 		float bx = x + radius * cos(angle);
 		float by = y + radius * sin(angle);
 
-		level.addEntity(new BulletEntity{-3, bx, by, self(), (float) M_PI_2 - angle});
+		level.addEntity(new BulletEntity{-3, bx, by, source, (float) M_PI_2 - angle, config});
 	}
 }
 
@@ -80,7 +85,7 @@ void MineAlienEntity::tick(Level& level) {
 	if (distance < (evolution ? 200 : 150)) {
 		level.addEntity(new BlowEntity(x, y));
 		SoundSystem::getInstance().add(Sounds::damage).play();
-		tickExplode(level, false);
+		tickExplode(level, self());
 	}
 }
 

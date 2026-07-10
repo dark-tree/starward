@@ -238,7 +238,7 @@ void FighterAlienEntity::debugDraw(Level& level, Renderer& renderer) {
 
 		int ox = 0;
 
-		emitSpriteQuad(writer, tx, ty - 16, 16, 16, angle, tileset.sprite(6, 1), 0, 255, 0, 255);
+		emitSpriteQuad(writer, tx, ty - 16, 16, 16, angle, tileset.sprite(7, 6), 0, 255, 0, 255);
 		emitLineQuad(writer, x, y + level.getScroll(), tx, ty - 16, 2, tileset.sprite(0, 0), 0, 255, 0, 100);
 
 		if (down) {

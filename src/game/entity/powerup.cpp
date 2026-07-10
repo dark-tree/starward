@@ -12,14 +12,17 @@
  */
 
 PowerUpEntity::Type PowerUpEntity::randomPick() {
-	int pick = randomInt(0, 120);
-	if (pick >=   0 && pick <=  20) return LIVE;
-	if (pick >=  20 && pick <=  40) return DOUBLE_BARREL;
-	if (pick >=  40 && pick <=  60) return SHIELD;
-	if (pick >=  60 && pick <=  80) return NITRO;
-	if (pick >=  80 && pick <= 100) return STAN;
-	if (pick >= 100 && pick <= 120) return PIERCE;
+	int pick = randomInt(0, 6);
 
+	if (pick == 0) return LIVE;
+	if (pick == 1) return DOUBLE_BARREL;
+	if (pick == 2) return SHIELD;
+	if (pick == 3) return NITRO;
+	if (pick == 4) return STAN;
+	if (pick == 5) return PIERCE;
+	if (pick == 6) return BORING;
+
+	printf("Invalid power up picked!\n");
 	return randomPick();
 }
 
@@ -54,13 +57,18 @@ void PowerUpEntity::applyEffect(Level& level, PlayerEntity* player) {
 	}
 
 	if (type == STAN) {
-		player->charged_ammo += 20;
+		player->charged_ammo += 30;
 		level.addEntity(new TextEntity {x, y, "Charged Bullets", 30});
 	}
 
 	if (type == PIERCE) {
-		player->piercing_ammo += 20;
+		player->piercing_ammo += 30;
 		level.addEntity(new TextEntity {x, y, "Piercing Bullets", 30});
+	}
+
+	if (type == BORING) {
+		player->boring_ammo += 30;
+		level.addEntity(new TextEntity {x, y, "Drilling Bullets", 30});
 	}
 }
 

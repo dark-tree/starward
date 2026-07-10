@@ -15,6 +15,7 @@ class PowerUpEntity : public Entity {
 			NITRO = 3,
 			STAN = 4,
 			PIERCE = 5,
+			BORING = 6,
 		};
 
 		static Type randomPick();

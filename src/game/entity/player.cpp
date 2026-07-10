@@ -44,7 +44,7 @@ bool PlayerEntity::shouldCollide(Entity* entity) {
 }
 
 void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
-	if (damage > 0) {
+	if (damage > 0 && !damager->isCausedByPlayer()) {
 		if (level.isDebug()) {
 			return;
 		}
@@ -168,6 +168,11 @@ void PlayerEntity::tick(Level& level) {
 		if (piercing_ammo > 0) {
 			config.piercing = true;
 			piercing_ammo --;
+		}
+
+		if (boring_ammo > 0) {
+			config.boring = true;
+			boring_ammo --;
 		}
 
 		if (double_barrel_ticks > 0) {
