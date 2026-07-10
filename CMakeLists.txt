@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20...5.0)
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 include(FetchContent)
 
 project(Starward)
@@ -8,7 +9,7 @@ set(CXX_STANDARD_REQUIRED ON)
 FetchContent_Declare(
 		glm
 		GIT_REPOSITORY https://github.com/g-truc/glm
-		GIT_TAG        1.0.1
+		GIT_TAG        1.0.3
 )
 
 FetchContent_Declare(
