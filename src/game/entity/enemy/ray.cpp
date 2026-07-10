@@ -49,6 +49,10 @@ void RayBeamEntity::tick(Level& level) {
 
 	if (left->isDead() || right->isDead()) {
 		dead = true;
+
+		// when one of the towers dies avoid cringe and destroy both
+		left->kill(level);
+		right->kill(level);
 	}
 }
 
