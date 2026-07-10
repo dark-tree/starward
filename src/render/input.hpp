@@ -13,7 +13,7 @@ class InputState {
 		float prev_mouse_y;
 
 		// records the state of the keyboard keys
-		std::unordered_map<Key, KeyState> keyboard;
+		std::unordered_map<Key, bool> keyboard;
 
 	public:
 
@@ -29,10 +29,10 @@ class InputState {
 		}
 
 		/// returns the state of the given key
-		KeyState& get(Key key) {
+		bool& get(Key key) {
 
 			// if key is not in the map the underlying integral type of the
-			// KeyState enum will be initilized to 0, which corresponds to KeyState::UP
+			// KeyState enum will be initialized to 0, which corresponds to KeyState::UP
 			return keyboard[key];
 		}
 
@@ -60,16 +60,12 @@ class Input {
 	public:
 
 		static void press(Key code) {
-			KeyState& ks = state().get(code);
-			ks = (ks == KeyState::UP) ? KeyState::TYPED : KeyState::DOWN;
-
-			if (ks == KeyState::TYPED) {
-				state().history.push(code);
-			}
+			state().get(code) = true;
 		}
 
 		static void release(Key code) {
-			state().get(code) = KeyState::UP;
+			state().get(code) = false;
+			state().history.push(code);
 		}
 
 		static void move(float x, float y) {
@@ -83,7 +79,7 @@ class Input {
 	public:
 
 		static bool isPressed(Key code) {
-			return state().get(code) != KeyState::UP;
+			return state().get(code);
 		}
 
 		static void purge() {

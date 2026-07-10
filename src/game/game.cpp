@@ -97,7 +97,7 @@ void Game::loadBiomes() {
 		.addEvolution(Evolution::HIGH, 1)
 		.addEnemyPlacer(1, 0)
 		.addEnemyPlacer(1, 2)
-		.setPowerUpRarity(3)
+		.setPowerUpRarity(4)
 		.setEndSegment(72);
 
 	biomes->beginBiome() // mixed bag

@@ -2,14 +2,6 @@
 
 #include "const.hpp"
 
-struct PlatformKeyStateScope {
-	enum KeyStateEnum : unsigned int {
-		UP    = 0b00,
-		DOWN  = 0b01,
-		TYPED = 0b11,
-	};
-};
-
 struct PlatformKeyScope {
 	enum KeyEnum : unsigned int {
 		UNDEF = 0,
@@ -31,7 +23,6 @@ struct PlatformKeyScope {
 
 // export enums
 using Key = PlatformKeyScope::KeyEnum;
-using KeyState = PlatformKeyStateScope::KeyStateEnum;
 
 // event callback types
 using PlatformKeyEventCallback = void(*)(Key);
