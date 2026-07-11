@@ -1,11 +1,14 @@
 #pragma once
 
+#include <game/entity/bullet.hpp>
+
 #include "alien.hpp"
 
 class TurretAlienEntity : public AlienEntity {
 
 	private:
 
+		BulletConfig config;
 		int barrel = 1;
 		float target = -deg(180); // desired rotation
 		float head = -deg(180); // current rotation
