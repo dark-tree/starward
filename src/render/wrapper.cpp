@@ -7,23 +7,23 @@ void __main_loop() {
 }
 
 void initVideoSystem() {
-	platform_init();
+	platform::init();
 
 	// configure STB image
 	stbi_set_flip_vertically_on_load(true);
 
 	// set event handlers
-	platform_set_keydown_callback(Input::press);
-	platform_set_keyup_callback(Input::release);
+	platform::set_keydown_callback(Input::press);
+	platform::set_keyup_callback(Input::release);
 }
 
 Rectangle getCanvasSize() {
 	Rectangle rect;
-	platform_get_canvas_element_size(&rect.width, &rect.height);
+	platform::get_render_target_size(&rect.width, &rect.height);
 	return rect;
 }
 
 void setMainLoop(const std::function<void()>& loop) {
 	__main_loop_func = loop;
-	platform_set_main_loop(__main_loop, 0);
+	platform::set_main_loop(__main_loop, 0);
 }

@@ -23,11 +23,10 @@
 #include <regex>
 #include <ranges>
 
-// emscripten
-#include <platform.hpp>
+#include <platform/platform.hpp>
 
 // libraries
-#include <AL/al.h>
+#include <AL/al.h> // header missing? make sure you have OpenAL dev packages installed!
 #include <AL/alc.h>
 #include <stb_image.h>
 #include <stb_vorbis.c>

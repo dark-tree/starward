@@ -56,14 +56,14 @@ void Level::beginPlay() {
 
 void Level::loadHighScore() {
 	const char* stat_hi_score = "hi";
-	std::string hi_str = platform_read_string(stat_hi_score);
+	std::string hi_str = platform::read_string(stat_hi_score);
 
 	if (hi_str.length() > 0) {
 		try {
 			hi = std::stoi(hi_str);
 		} catch (...) {
 			hi = 0;
-			platform_write_string(stat_hi_score, "0");
+			platform::write_string(stat_hi_score, "0");
 		}
 	}
 }
@@ -76,7 +76,7 @@ void Level::spawnInitial() {
 	addEntity(new PowerUpEntity {200, 600 + offset, PowerUpEntity::LIVE});
 
 	{
-		int code = platform_get_startup_param();
+		int code = platform::get_startup_param();
 		std::string line1 = getTitle(code);
 		std::string line2 = getSubTitle(code);
 
@@ -125,14 +125,14 @@ void Level::loadPlayCount() {
 	constexpr const char* local_play_count = "count";
 
 	int plays = 0;
-	std::string plays_str = platform_read_string(local_play_count);
+	std::string plays_str = platform::read_string(local_play_count);
 
 	if (plays_str.length() > 0) {
 		plays = std::stoi(plays_str);
 	}
 
 	plays ++;
-	platform_write_string(local_play_count, std::to_string(plays));
+	platform::write_string(local_play_count, std::to_string(plays));
 
 	printf("Started session #%d\n", plays);
 	this->play_count = plays;
@@ -163,7 +163,7 @@ void Level::setState(GameState state) {
 	if (state == GameState::DEAD) {
 		if (score > hi) {
 			printf("New hi-score set: %d points (was: %d points)!\n", score, hi);
-			platform_write_string("hi", std::to_string(score));
+			platform::write_string("hi", std::to_string(score));
 		}
 	}
 }
@@ -396,7 +396,7 @@ void Level::draw(Renderer& renderer) {
 		}
 	}
 
-	if (Input::isPressed(PlatformKeyScope::TAB)) {
+	if (Input::isPressed(Key::TAB)) {
 		drawCredits(renderer);
 	}
 
