@@ -44,7 +44,7 @@ bool PlayerEntity::shouldCollide(Entity* entity) {
 }
 
 void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
-	if (damage > 0 && !damager->isCausedByPlayer()) {
+	if (damage > 0 && (damager == nullptr || !damager->isCausedByPlayer())) {
 		if (level.isDebug()) {
 			return;
 		}
@@ -107,7 +107,7 @@ void PlayerEntity::tick(Level& level) {
 		Collision collision = level.checkTileCollision(getBoxCollider());
 
 		if (collision.type == Collision::TILE) {
-			onDamage(level, 10, this);
+			onDamage(level, 10, nullptr);
 		} else {
 			Collision left = level.checkTileCollision(getBoxBumper(-1));
 			Collision right = level.checkTileCollision(getBoxBumper(+1));
