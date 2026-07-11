@@ -324,6 +324,9 @@ void Level::drawCredits(Renderer& renderer) {
 	emitTextQuads(renderer.text, half / 2 + half, SH - 64*2 - row, 24, 20, 255, 255, 0, 220, "Music", TextMode::CENTER);
 	emitTextQuads(renderer.text,  half / 2 + half, SH - 64*2 - row - 32*2, 24, 20, 255, 255, 255, 220, "Skay", TextMode::CENTER);
 
+	// bottom center
+	emitTextQuads(renderer.text, SW / 2, 64, 20, 16, 255, 255, 255, 255, "https://github.com/dark-tree/starward", TextMode::CENTER);
+
 }
 
 
