@@ -36,8 +36,26 @@
 		return true;
 	}
 
-	static EM_BOOL platform_mousemove_handler(int type, const EmscriptenMouseEvent* event, void* userdata) {
-		reinterpret_cast<PlatformMouseEventCallback>(userdata)(event->clientX, event->clientY);
+	static EM_BOOL platform_mouse_handler(int type, const EmscriptenMouseEvent* event, void* userdata) {
+		reinterpret_cast<PlatformMouseEventCallback>(userdata)(event->clientX, event->clientY, event->buttons != 0);
+		return true;
+	}
+
+	static EM_BOOL platform_touch_handler(int type, const EmscriptenTouchEvent* event, void* userdata) {
+
+		bool pressed = (type == EMSCRIPTEN_EVENT_TOUCHSTART) || (type == EMSCRIPTEN_EVENT_TOUCHMOVE);
+
+		int i = event->numTouches;
+
+		if (i == 0) {
+			reinterpret_cast<PlatformMouseEventCallback>(userdata)(0, 0, false);
+			return true;
+		}
+
+		float x = event->touches[0].clientX;
+		float y = event->touches[0].clientY;
+
+		reinterpret_cast<PlatformMouseEventCallback>(userdata)(x, y, pressed);
 		return true;
 	}
 
@@ -66,6 +84,18 @@
 
 	void platform::set_keyup_callback(PlatformKeyEventCallback callback) {
 		emscripten_set_keyup_callback(HTML_CANVAS, (void*) callback, false, platform_keyup_handler);
+	}
+
+	void platform::set_touch_callback(PlatformMouseEventCallback callback) {
+		emscripten_set_mousemove_callback(HTML_CANVAS, (void*) callback, false, platform_mouse_handler);
+		emscripten_set_mousedown_callback(HTML_CANVAS, (void*) callback, false, platform_mouse_handler);
+		emscripten_set_mouseup_callback(HTML_CANVAS, (void*) callback, false, platform_mouse_handler);
+		emscripten_set_mouseup_callback(HTML_CANVAS, (void*) callback, false, platform_mouse_handler);
+
+		emscripten_set_touchstart_callback(HTML_CANVAS, (void*) callback, false, platform_touch_handler);
+		emscripten_set_touchend_callback(HTML_CANVAS, (void*) callback, false, platform_touch_handler);
+		emscripten_set_touchmove_callback(HTML_CANVAS, (void*) callback, false, platform_touch_handler);
+		emscripten_set_touchcancel_callback(HTML_CANVAS, (void*) callback, false, platform_touch_handler);
 	}
 
 	void platform::get_render_target_size(int* width, int* height) {

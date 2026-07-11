@@ -1,6 +1,8 @@
 #pragma once
 
 #include <external.hpp>
+
+#include "wrapper.hpp"
 #include "util/ring.hpp"
 
 class InputState {
@@ -9,8 +11,7 @@ class InputState {
 
 		float mouse_x;
 		float mouse_y;
-		float prev_mouse_x;
-		float prev_mouse_y;
+		bool mouse_pressed;
 
 		// records the state of the keyboard keys
 		std::unordered_map<Key, bool> keyboard;
@@ -21,9 +22,8 @@ class InputState {
 		Ring<Key, 32> history;
 
 		/// moves the virtual mouse
-		void move(float x, float y) {
-			prev_mouse_x = mouse_x;
-			prev_mouse_y = mouse_y;
+		void touch(float x, float y, bool pressed) {
+			mouse_pressed = pressed;
 			mouse_x = x;
 			mouse_y = y;
 		}
@@ -44,6 +44,17 @@ class InputState {
 				// changes KeyState::TYPED to KeyState::DOWN
 				((int32_t&) state) &= 0b01;
 			}
+		}
+
+		bool isTouched() {
+			return mouse_pressed;
+		}
+
+		glm::vec2 getMousePos() {
+			float x = (mouse_x - render_region_offset_x) / render_region_width * SW;
+			float y = (mouse_y - render_region_offset_y) / render_region_height * SH;
+
+			return glm::vec2(x, SH - y);
 		}
 
 };
@@ -68,8 +79,8 @@ class Input {
 			state().history.push(code);
 		}
 
-		static void move(float x, float y) {
-			state().move(x, y);
+		static void touch(float x, float y, bool pressed) {
+			state().touch(x, y, pressed);
 		}
 
 		static void clear() {
@@ -80,6 +91,14 @@ class Input {
 
 		static bool isPressed(Key code) {
 			return state().get(code);
+		}
+
+		static glm::vec2 cursor() {
+			return state().getMousePos();
+		}
+
+		static bool isTouched() {
+			return state().isTouched();
 		}
 
 		static void purge() {

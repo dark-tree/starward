@@ -7,10 +7,13 @@
 
 #if defined(__linux__)
 
+	static int mouse_x = 0, mouse_y = 0;
+	static bool mouse_pressed = false;
 	static int screen_width;
 	static int screen_height;
-	static PlatformKeyEventCallback keydown_callback;
-	static PlatformKeyEventCallback keyup_callback;
+	static PlatformKeyEventCallback keydown_callback = [] (Key) -> void {};
+	static PlatformKeyEventCallback keyup_callback = [] (Key) -> void {};
+	static PlatformMouseEventCallback mouse_callback = [] (float, float, bool) -> void {};
 
 	/// translates the system keycode into key enum
 	static Key platform_translate_key(int key) {
@@ -48,6 +51,21 @@
 	static void platform_resize_handler(int width, int height) {
 		screen_width = width;
 		screen_height = height;
+	}
+
+	static void platform_mouse_handler(int x, int y) {
+		mouse_x = x;
+		mouse_y = y;
+
+		mouse_callback(mouse_x, mouse_y, mouse_pressed);
+	}
+
+	static void platform_button_handler(int state, int keycode) {
+		if (keycode == WXB_LEFT) {
+			mouse_pressed = (state == WINX_PRESSED);
+		}
+
+		mouse_callback(mouse_x, mouse_y, mouse_pressed);
 	}
 
 	/*
@@ -101,6 +119,10 @@
 		keyup_callback = callback;
 	}
 
+	void platform::set_touch_callback(PlatformMouseEventCallback callback) {
+		mouse_callback = callback;
+	}
+
 	void platform::get_render_target_size(int* width, int* height) {
 		*width = screen_width;
 		*height = screen_height;
@@ -134,6 +156,8 @@
 		winxSetCloseEventHandle(platform_close_handler);
 		winxSetKeyboardEventHandle(platform_keyboard_handler);
 		winxSetResizeEventHandle(platform_resize_handler);
+		winxSetCursorEventHandle(platform_mouse_handler);
+		winxSetButtonEventHandle(platform_button_handler);
 	}
 
 	void platform::ready() {

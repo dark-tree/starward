@@ -1,4 +1,5 @@
 #include "wrapper.hpp"
+#include "input.hpp"
 
 static std::function<void()> __main_loop_func;
 
@@ -15,6 +16,7 @@ void initVideoSystem() {
 	// set event handlers
 	platform::set_keydown_callback(Input::press);
 	platform::set_keyup_callback(Input::release);
+	platform::set_touch_callback(Input::touch);
 }
 
 Rectangle getCanvasSize() {

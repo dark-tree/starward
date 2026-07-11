@@ -350,14 +350,18 @@ void Level::draw(Renderer& renderer) {
 			frame_count = 0;
 		}
 
+		glm::vec2 pos = Input::cursor();
+		bool pressed = Input::isTouched();
 
-		int x = 32;
-		int y = 74;
+		emitSpriteQuad(*renderer.terrain.writer, pos.x, pos.y, 16, 16, 0, renderer.terrain.tileset->sprite(7, 6), 0, pressed ? 255 : 100, 0, 255);
 
-		emitTextQuads(renderer.text, x, SH - y - 00, 20, 16, 255, 255, 0, 220, "FPS: " + std::to_string(frame_rate), TextMode::LEFT);
-		emitTextQuads(renderer.text, x, SH - y - 32, 20, 16, 255, 255, 0, 220, "S: " + std::to_string(total) + ", B: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
-		emitTextQuads(renderer.text, x, SH - y - 64, 20, 16, 255, 255, 0, 220, "E: " + std::to_string(entities.size()), TextMode::LEFT);
-		emitTextQuads(renderer.text, x, SH - y - 96, 20, 16, 255, 255, 0, 220, "V: " + std::to_string(getSpeed()), TextMode::LEFT);
+		constexpr int x = 32;
+		constexpr int y = SH - 74;
+
+		emitTextQuads(renderer.text, x, y - 00, 20, 16, 255, 255, 0, 220, "FPS: " + std::to_string(frame_rate), TextMode::LEFT);
+		emitTextQuads(renderer.text, x, y - 32, 20, 16, 255, 255, 0, 220, "S: " + std::to_string(total) + ", B: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
+		emitTextQuads(renderer.text, x, y - 64, 20, 16, 255, 255, 0, 220, "E: " + std::to_string(entities.size()), TextMode::LEFT);
+		emitTextQuads(renderer.text, x, y - 96, 20, 16, 255, 255, 0, 220, "V: " + std::to_string(getSpeed()), TextMode::LEFT);
 	}
 
 	if (state != GameState::DEAD) {

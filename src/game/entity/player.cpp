@@ -120,7 +120,12 @@ void PlayerEntity::tick(Level& level) {
 	tilt *= 0.9;
 	this->x += avoidance * 0.4;
 
-	if ((Input::isPressed(Key::UP) || Input::isPressed(Key::W)) && level.getSpeed() > 0) {
+	const bool go_fast = Input::isPressed(Key::UP) || Input::isPressed(Key::W) || (Input::isTouched() && Input::cursor().y > SH / 2);
+	const bool go_left = Input::isPressed(Key::LEFT) || Input::isPressed(Key::A) || (Input::isTouched() && Input::cursor().x < x - 10);
+	const bool go_right = Input::isPressed(Key::RIGHT) || Input::isPressed(Key::D) || (Input::isTouched() && Input::cursor().x > x + 10);
+	const bool go_shoot = Input::isPressed(Key::SPACE) || Input::isTouched();
+
+	if (go_fast && level.getSpeed() > 0) {
 		if (level.isDebug() || nitro_ticks > 0) {
 			level.skip += level.skip * 0.1 + 0.02;
 
@@ -139,13 +144,13 @@ void PlayerEntity::tick(Level& level) {
 		}
 	}
 
-	if ((avoidance <= 0) && Input::isPressed(Key::LEFT) || Input::isPressed(Key::A)) {
+	if ((avoidance <= 0) && go_left) {
 		this->x -= 6;
 		tilt -= 0.1;
 		onUserInput(level);
 	}
 
-	if ((avoidance >= 0) && Input::isPressed(Key::RIGHT) || Input::isPressed(Key::D)) {
+	if ((avoidance >= 0) && go_right) {
 		this->x += 6;
 		tilt += 0.1;
 		onUserInput(level);
@@ -153,7 +158,7 @@ void PlayerEntity::tick(Level& level) {
 
 	this->angle = tilt * 0.2;
 
-	if ((cooldown <= 0) && Input::isPressed(Key::SPACE)) {
+	if ((cooldown <= 0) && go_shoot) {
 		bool shot = false;
 
 		BulletConfig config {};

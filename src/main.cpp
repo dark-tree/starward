@@ -10,6 +10,11 @@
 // docs
 // https://emscripten.org/docs/api_reference/html5.h.html
 
+int render_region_offset_x;
+int render_region_offset_y;
+int render_region_width;
+int render_region_height;
+
 void checkViewport(float ratio, const std::function<void(int, int, int, int, glm::mat4& matrix)>& on_resize) {
 
 	static int pw = 0;
@@ -61,6 +66,11 @@ void checkViewport(float ratio, const std::function<void(int, int, int, int, glm
 		// resolution needs to be divisible by 2, not gonna lie, i don't know why
 		if (rwi % 2 == 1) rwi ++;
 		if (rhi % 2 == 1) rhi ++;
+
+		render_region_width = rwi;
+		render_region_height = rhi;
+		render_region_offset_x = mx;
+		render_region_offset_y = my;
 
 		on_resize(w, h, rwi, rhi, matrix);
 		printf("Screen resized to %dx%d (with region: [%d, %d], offset: [%f, %f], factor: [%f, %f])\n", w, h, rwi, rhi, ox, oy, fx * SW, fy * SH);

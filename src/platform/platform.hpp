@@ -40,7 +40,7 @@ enum struct Key : unsigned int {
 
 // event callback types
 using PlatformKeyEventCallback = void(*)(Key);
-using PlatformMouseEventCallback = void(*)(float, float);
+using PlatformMouseEventCallback = void(*)(float, float, bool);
 using PlatformLoopCallback = void(*)();
 
 namespace platform {
@@ -65,6 +65,9 @@ namespace platform {
 
 	/// Set a callback that will be invoked when a keyboard key is released
 	void set_keyup_callback(PlatformKeyEventCallback callback);
+
+	/// Set a callback that will be invoked when a point is touched
+	void set_touch_callback(PlatformMouseEventCallback callback);
 
 	/// Get the dimensions (in pixels) of our canvas
 	void get_render_target_size(int* width, int* height);
