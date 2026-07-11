@@ -22,6 +22,12 @@ glm::vec2 Level::toEntityPos(int x, int y) {
 	return (glm::vec2 {x, y} + 0.5f) * pixels;
 }
 
+glm::vec2 Level::getPointerPos() {
+	glm::vec2 pos = Input::cursor();
+	pos.y -= getScroll();
+	return pos;
+}
+
 Level::Level(BiomeManager& manager)
 : manager(manager) {
 	loadHighScore();

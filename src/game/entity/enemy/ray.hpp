@@ -23,5 +23,6 @@ class RayBeamEntity : public AlienEntity {
 		void onDamage(Level& level, int damage, Entity* damager) override;
 		void tick(Level& level) override;
 		void draw(Level& level, Renderer& renderer) override;
+		bool shouldAutoTarget() override;
 
 };

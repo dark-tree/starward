@@ -12,7 +12,7 @@
  */
 
 PowerUpEntity::Type PowerUpEntity::randomPick() {
-	int pick = randomInt(0, 6);
+	int pick = randomInt(0, 7);
 
 	if (pick == 0) return LIVE;
 	if (pick == 1) return DOUBLE_BARREL;
@@ -21,6 +21,7 @@ PowerUpEntity::Type PowerUpEntity::randomPick() {
 	if (pick == 4) return STAN;
 	if (pick == 5) return PIERCE;
 	if (pick == 6) return BORING;
+	if (pick == 7) return GUIDED;
 
 	printf("Invalid power up picked!\n");
 	return randomPick();
@@ -70,6 +71,11 @@ void PowerUpEntity::applyEffect(Level& level, PlayerEntity* player) {
 		player->boring_ammo += 30;
 		level.addEntity(new TextEntity {x, y, "Drilling Bullets", 30});
 	}
+
+	if (type == GUIDED) {
+		player->guided_ammo += 20;
+		level.addEntity(new TextEntity {x, y, "Guided Bullets", 30});
+	}
 }
 
 void PowerUpEntity::onDamage(Level& level, int damage, Entity* damager) {
@@ -84,6 +90,10 @@ void PowerUpEntity::onDamage(Level& level, int damage, Entity* damager) {
 
 		Entity::onDamage(level, damage, damager);
 	}
+}
+
+bool PowerUpEntity::shouldAutoTarget() {
+	return true;
 }
 
 void PowerUpEntity::tick(Level& level) {

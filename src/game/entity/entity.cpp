@@ -111,3 +111,7 @@ Box Entity::getBoxCollider() const {
 bool Entity::isDead() const {
 	return dead;
 }
+
+bool Entity::shouldAutoTarget() {
+	return false;
+}

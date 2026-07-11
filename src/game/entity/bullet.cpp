@@ -1,11 +1,19 @@
 
 #include "bullet.hpp"
 
+#include <game/emitter.hpp>
+
+#include "enemy/alien.hpp"
 #include "particle/blow.hpp"
 #include "particle/tile.hpp"
 #include "game/level/level.hpp"
 #include "game/sounds.hpp"
 #include "particle/dust.hpp"
+
+// no 2d cross? Skill issue
+static float cross(glm::vec2 v1, glm::vec2 v2) {
+	return (v1.x*v2.y) - (v1.y*v2.x);
+}
 
 /*
  * BulletEntity
@@ -86,10 +94,59 @@ int BulletEntity::eraseTilesAround(Level& level, int radius) {
 	return broken.size();
 }
 
+bool BulletEntity::lockOntoTarget(Level& level) {
+	float dist = std::numeric_limits<float>::infinity();
+	std::shared_ptr<Entity> target = nullptr;
+
+	for (auto e : level.getEntities()) {
+
+		if (!e->shouldAutoTarget()) {
+			continue;
+		}
+
+		if (isCausedByPlayer() == e->isCausedByPlayer()) {
+			continue;
+		}
+
+		float horizontal = std::abs(e->x - x);
+
+		if (horizontal < dist) {
+			dist = horizontal;
+			target = e;
+		}
+	}
+
+	if (target) {
+		this->target = target;
+		return true;
+	}
+
+	return false;
+}
+
 void BulletEntity::tick(Level& level) {
 
-	x += velocity * cos(deg(270) - angle);
-	y += velocity * sin(deg(270) - angle);
+	auto vec = velocity * glm::vec2(
+		cos(deg(270) - angle),
+		sin(deg(270) - angle)
+	);
+
+	x += vec.x;
+	y += vec.y;
+
+	if (target) {
+		if (target->isDead()) {
+			target = nullptr;
+		} else {
+			const glm::vec2 direction = glm::normalize(glm::vec2(target->x, target->y) - glm::vec2(x, y));
+			const float correction = atan2(cross(vec, direction), dot(vec, direction)) * 0.1;
+			angle -= correction;
+		}
+	} else if (config.targeting) {
+		if (lockOntoTarget(level)) {
+			level.addEntity(new DustEntity {x, y, 0, 0, 1, 1, 1, 30, Color::white().withAlpha(100)});
+		}
+	}
 
 	if (time <= 0) {
 		dead = true;
@@ -154,6 +211,14 @@ void BulletEntity::draw(Level& level, Renderer& renderer) {
 		alpha = 1;
 	}
 
+	if (level.isDebug() && target) {
+		emitLineQuad(*renderer.terrain.writer, x, y + level.getScroll(), target->x, target->y + level.getScroll() - 16, 2, renderer.terrain.tileset->sprite(0, 0), color.r, color.g, color.b, 100);
+	}
+
 	Sprite sprite = renderer.terrain.tileset->sprite(config.piercing ? 7 : 6, 5);
 	emitEntityQuad(level, *renderer.terrain.writer, sprite, 16, angle, color.withAlpha(alpha * 255));
+}
+
+bool BulletEntity::shouldAutoTarget() {
+	return false;
 }

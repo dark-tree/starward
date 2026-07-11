@@ -32,12 +32,14 @@ class PlayerEntity : public Entity {
 		int charged_ammo = 0;
 		int piercing_ammo = 0;
 		int boring_ammo = 0;
+		int guided_ammo = 0;
 
 	public:
 
 		PlayerEntity();
 
 		bool shouldCollide(Entity* entity) override;
+		bool shouldAutoTarget() override;
 
 		bool isCausedByPlayer() override;
 		void onDamage(Level& level, int damage, Entity* damager) override;

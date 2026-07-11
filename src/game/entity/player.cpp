@@ -180,6 +180,11 @@ void PlayerEntity::tick(Level& level) {
 			boring_ammo --;
 		}
 
+		if (guided_ammo > 0) {
+			config.targeting = true;
+			guided_ammo --;
+		}
+
 		if (double_barrel_ticks > 0) {
 			level.addEntity(new BulletEntity {-11, x - 32, y + 30, self(), 0, config});
 			level.addEntity(new BulletEntity {-11, x + 32, y + 30, self(), 0, config});
@@ -240,6 +245,10 @@ void PlayerEntity::draw(Level& level, Renderer& renderer) {
 	if (modulo) {
 		emitSpriteQuad(writer, 16 + magazines * 16, 16, 6, 6, 0, tileset.sprite(0, 0), 155, 155, 255, unit);
 	}
+}
+
+bool PlayerEntity::shouldAutoTarget() {
+	return true;
 }
 
 void PlayerEntity::debugDraw(Level& level, Renderer& renderer) {

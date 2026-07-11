@@ -25,6 +25,10 @@ void RayBeamEntity::onDamage(Level& level, int damage, Entity* damager) {
 	// the ray entity cannot be damaged, ignore all attacks
 }
 
+bool RayBeamEntity::shouldAutoTarget() {
+	return false;
+}
+
 void RayBeamEntity::tick(Level& level) {
 	AlienEntity::tick(level);
 

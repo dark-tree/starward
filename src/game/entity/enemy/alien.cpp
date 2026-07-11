@@ -97,3 +97,7 @@ void AlienEntity::onKilled(Level& level) {
 	spawnParticles(level, 5, 10);
 	level.addScore(100);
 }
+
+bool AlienEntity::shouldAutoTarget() {
+	return true;
+}

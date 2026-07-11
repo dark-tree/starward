@@ -65,6 +65,9 @@ class Entity : public std::enable_shared_from_this<Entity> {
 		/// Called when the entity is despawned dues to falling outside vertical world bounds
 		virtual void onDespawn(Level& level);
 
+		/// Should this entity be automatically targeted by guided munitions?
+		virtual bool shouldAutoTarget();
+
 		virtual bool checkPlacement(Level& level);
 		virtual bool isCausedByPlayer();
 		virtual std::shared_ptr<Entity> getParent();
