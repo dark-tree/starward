@@ -44,39 +44,62 @@ vec3 sampleInput(vec2 resolution, vec2 pos) {
     return texture(uSampler, normalizedPos).rgb;
 }
 
+float triangle(float x)  {
+    return asin(sin(x)) * (2.0 / 3.1415162342);
+}
+
+const float band_width = 0.11;
+const float band_speed = 0.06;
+
 void main() {
     vec2 res = getResolution();
     vec2 uv = curve(vTex.xy);
 
+    bool band = false;
     vec3 col;
     float x = sin(0.3*uTime+uv.y*21.0)*sin(0.7*uTime+uv.y*29.0)*sin(0.3+0.33*uTime+uv.y*31.0)*0.0017;
+
+    // banding
+    if (uv.y > (fract(uTime * -band_speed) * 2.0 - 0.5) && uv.y < (fract(uTime * -band_speed + band_width) * 2.0 - 0.5)) {
+        x += 0.003;
+        band = true;
+    }
 
     col.r = sampleInput(res, vec2(x+uv.x+0.001,uv.y+0.001)).x+0.05;
     col.g = sampleInput(res, vec2(x+uv.x+0.000,uv.y-0.002)).y+0.05;
     col.b = sampleInput(res, vec2(x+uv.x-0.002,uv.y+0.000)).z+0.05;
+
+    // chromatic abberation
     col.r += 0.08*sampleInput(res, 0.75*vec2(x+0.025, -0.027)+vec2(uv.x+0.001,uv.y+0.001)).x;
     col.g += 0.05*sampleInput(res, 0.75*vec2(x-0.022, -0.02)+vec2(uv.x+0.000,uv.y-0.002)).y;
     col.b += 0.08*sampleInput(res, 0.75*vec2(x-0.02, -0.018)+vec2(uv.x-0.002,uv.y+0.000)).z;
 
-    col = clamp(col*0.6+0.4*col*col*1.0,0.0,1.0);
+    // green tint
+    col = clamp(col * 0.6 + 0.4 * col * col, 0.0, 1.0);
     col = mix(col, vec3(0.3, 1.0, 0.5), 0.20);
 
-    float vig = (0.0 + 1.0*16.0*uv.x*uv.y*(1.0-uv.x)*(1.0-uv.y));
-    col *= vec3(pow(vig,0.3));
+    // vignette
+    float vig = (16.0 * uv.x * uv.y * (1.0 - uv.x) * (1.0 - uv.y));
+    col *= vec3(pow(vig, 0.32));
 
-    col *= vec3(0.95,1.05,0.95);
-    col *= 2.8;
+    // boost brightness
+    col *= vec3(0.95, 1.05, 0.95);
+    col *= (band ? 3.1 : 2.8);
 
-    float scans = clamp( 0.35+0.35*sin(3.5*uTime+vTex.y * res.y *1.5), 0.0, 1.0);
+    // horizontal scan lines
+    float scans = clamp(0.35 + 0.35 * sin(3.5 * uTime + vTex.y * res.y * 1.5), 0.0, 1.0);
+    col *= vec3(0.2 + 0.7 * pow(scans, 1.7)); // this used to be 0.4 + ..., but without the vertical lines the image is too bright
 
-    float s = pow(scans,1.7);
-    col = col*vec3( 0.4+0.7*s) ;
+    // flicker
+    col *= 1.0 + (band ? 0.02 : 0.01) * sin(110.0 * uTime);
 
-    col *= 1.0+0.01*sin(110.0*uTime);
-
+    // mask out some garbage in the corners
     if (uv.x < 0.0 || uv.x > 1.0) col *= 0.0;
     if (uv.y < 0.0 || uv.y > 1.0) col *= 0.0;
 
-    col *= 1.0 - 0.65 * vec3(clamp((mod(vTex.x * res.x, 2.0) - 1.0) * 2.0, 0.0, 1.0));
+//    // vertical scan lines
+//    float vbar = triangle(vTex.x * 3.1415) * (res.x / 2.0);
+//    col *= 1.0 - 0.65 * vec3(clamp(vbar, 0.0, 1.0));
+
     fColor = vec4(col, 1.0) * (0.9f + uAliveness * 0.1f);
 }

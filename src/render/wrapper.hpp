@@ -1,8 +1,11 @@
 #pragma once
 
-#include "input.hpp"
 #include <external.hpp>
-#include <util.hpp>
+
+extern int render_region_offset_x;
+extern int render_region_offset_y;
+extern int render_region_width;
+extern int render_region_height;
 
 void __main_loop();
 

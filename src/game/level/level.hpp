@@ -82,6 +82,7 @@ class Level {
 
 	public:
 
+		glm::vec2 getPointerPos();
 		void beginPlay();
 
 		Level(BiomeManager& manager);

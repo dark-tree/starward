@@ -9,7 +9,7 @@
 template <typename... Args>
 [[noreturn]] inline void fault(const char* format, Args... args) {
 	printf(format, args...);
-	platform_exit(-1);
+	platform::exit(-1);
 }
 #pragma clang diagnostic pop
 #pragma GCC diagnostic pop

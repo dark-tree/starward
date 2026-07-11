@@ -27,6 +27,13 @@ bool AlienEntity::wasAttacked() const {
 	return attacked;
 }
 
+void AlienEntity::kill(Level& level) {
+	if (!dead) {
+		this->dead = true;
+		onKilled(level);
+	}
+}
+
 int AlienEntity::getHealth() const {
 	return health;
 }
@@ -50,8 +57,7 @@ void AlienEntity::onDamage(Level& level, int damage, NULLABLE Entity* damager) {
 		onDamaged(level);
 
 		if (health <= 0) {
-			this->dead = true;
-			onKilled(level);
+			this->kill(level);
 		}
 
 	}
@@ -90,4 +96,8 @@ void AlienEntity::onDespawn(Level& level) {
 void AlienEntity::onKilled(Level& level) {
 	spawnParticles(level, 5, 10);
 	level.addScore(100);
+}
+
+bool AlienEntity::shouldAutoTarget() {
+	return true;
 }

@@ -41,12 +41,19 @@
 		<canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
 
 		<script>
-			function onGameReady() {
-				document.getElementById("loading").style.display = "none";
-				console.log("Ready event received from game!")
-			}
+            const canvas = document.querySelector("canvas");
 
-			const canvas = document.querySelector("canvas");
+			function onGameReady() {
+                document.getElementById("loading").style.display = "none";
+                console.log("Ready event received from game!")
+            }
+
+            function adjustCanvasSize() {
+                canvas.width = canvas.clientWidth
+                canvas.height = canvas.clientHeight
+            }
+
+            document.body.onresize = adjustCanvasSize;
 
 			canvas.width = window.innerWidth;
 			canvas.height = window.innerHeight;

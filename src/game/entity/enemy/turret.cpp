@@ -44,7 +44,11 @@ bool TurretAlienEntity::spawn(Level& level, Segment& segment, int evolution) {
 }
 
 TurretAlienEntity::TurretAlienEntity(double x, double y, int evolution)
-	: AlienEntity(x, y, evolution) {
+	: AlienEntity(x, y, evolution), config({}) {
+
+	if (evolution < 2) {
+		config.boring = (randomInt(0, 10) == 0);
+	}
 }
 
 bool TurretAlienEntity::checkPlacement(Level& level) {
@@ -61,7 +65,7 @@ void TurretAlienEntity::shoot(Level& level, float speed, float radius, float off
 	float effect = radius - 8;
 
 	// create bullet
-	level.addEntity(new BulletEntity {-speed, x + radius * ax, y + radius * ay, self(), head});
+	level.addEntity(new BulletEntity {-speed, x + radius * ax, y + radius * ay, self(), head, config});
 
 	// particle effect
 	for (int i = randomInt(2, 5); i > 0; i--) {

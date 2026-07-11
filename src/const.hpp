@@ -1,5 +1,7 @@
 #pragma once
 
+#define GAME_VERSION "v1.0"
+
 #define HTML_CANVAS "#canvas"
 #define GAME_TITLE "Starward Invasion"
 #define GAME_NATIVE_WIDTH 1280

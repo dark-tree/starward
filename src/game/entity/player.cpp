@@ -44,7 +44,7 @@ bool PlayerEntity::shouldCollide(Entity* entity) {
 }
 
 void PlayerEntity::onDamage(Level& level, int damage, Entity* damager) {
-	if (damage > 0) {
+	if (damage > 0 && (damager == nullptr || !damager->isCausedByPlayer())) {
 		if (level.isDebug()) {
 			return;
 		}
@@ -107,7 +107,7 @@ void PlayerEntity::tick(Level& level) {
 		Collision collision = level.checkTileCollision(getBoxCollider());
 
 		if (collision.type == Collision::TILE) {
-			onDamage(level, 10, this);
+			onDamage(level, 10, nullptr);
 		} else {
 			Collision left = level.checkTileCollision(getBoxBumper(-1));
 			Collision right = level.checkTileCollision(getBoxBumper(+1));
@@ -120,7 +120,12 @@ void PlayerEntity::tick(Level& level) {
 	tilt *= 0.9;
 	this->x += avoidance * 0.4;
 
-	if ((Input::isPressed(Key::UP) || Input::isPressed(Key::W)) && level.getSpeed() > 0) {
+	const bool go_fast = Input::isPressed(Key::UP) || Input::isPressed(Key::W) || (Input::isTouched() && Input::cursor().y > SH / 2);
+	const bool go_left = Input::isPressed(Key::LEFT) || Input::isPressed(Key::A) || (Input::isTouched() && Input::cursor().x < x - 10);
+	const bool go_right = Input::isPressed(Key::RIGHT) || Input::isPressed(Key::D) || (Input::isTouched() && Input::cursor().x > x + 10);
+	const bool go_shoot = Input::isPressed(Key::SPACE) || Input::isTouched();
+
+	if (go_fast && level.getSpeed() > 0) {
 		if (level.isDebug() || nitro_ticks > 0) {
 			level.skip += level.skip * 0.1 + 0.02;
 
@@ -139,13 +144,13 @@ void PlayerEntity::tick(Level& level) {
 		}
 	}
 
-	if ((avoidance <= 0) && Input::isPressed(Key::LEFT) || Input::isPressed(Key::A)) {
+	if ((avoidance <= 0) && go_left) {
 		this->x -= 6;
 		tilt -= 0.1;
 		onUserInput(level);
 	}
 
-	if ((avoidance >= 0) && Input::isPressed(Key::RIGHT) || Input::isPressed(Key::D)) {
+	if ((avoidance >= 0) && go_right) {
 		this->x += 6;
 		tilt += 0.1;
 		onUserInput(level);
@@ -153,7 +158,7 @@ void PlayerEntity::tick(Level& level) {
 
 	this->angle = tilt * 0.2;
 
-	if ((cooldown <= 0) && Input::isPressed(Key::SPACE)) {
+	if ((cooldown <= 0) && go_shoot) {
 		bool shot = false;
 
 		BulletConfig config {};
@@ -168,6 +173,16 @@ void PlayerEntity::tick(Level& level) {
 		if (piercing_ammo > 0) {
 			config.piercing = true;
 			piercing_ammo --;
+		}
+
+		if (boring_ammo > 0) {
+			config.boring = true;
+			boring_ammo --;
+		}
+
+		if (guided_ammo > 0) {
+			config.targeting = true;
+			guided_ammo --;
 		}
 
 		if (double_barrel_ticks > 0) {
@@ -230,6 +245,10 @@ void PlayerEntity::draw(Level& level, Renderer& renderer) {
 	if (modulo) {
 		emitSpriteQuad(writer, 16 + magazines * 16, 16, 6, 6, 0, tileset.sprite(0, 0), 155, 155, 255, unit);
 	}
+}
+
+bool PlayerEntity::shouldAutoTarget() {
+	return true;
 }
 
 void PlayerEntity::debugDraw(Level& level, Renderer& renderer) {

@@ -8,6 +8,10 @@
 #include "game/entity/all.hpp"
 #include "game/entity/enemy/decay.hpp"
 
+int frame_rate = 0;
+int frame_count = 0;
+uint64_t frame_timestamp = 0;
+
 glm::vec2 Level::toTilePos(int x, int y) {
 	const float pixels = SW / Segment::width;
 	return glm::vec2 {x, y} / pixels;
@@ -16,6 +20,12 @@ glm::vec2 Level::toTilePos(int x, int y) {
 glm::vec2 Level::toEntityPos(int x, int y) {
 	const float pixels = SW / Segment::width;
 	return (glm::vec2 {x, y} + 0.5f) * pixels;
+}
+
+glm::vec2 Level::getPointerPos() {
+	glm::vec2 pos = Input::cursor();
+	pos.y -= getScroll();
+	return pos;
 }
 
 Level::Level(BiomeManager& manager)
@@ -52,14 +62,14 @@ void Level::beginPlay() {
 
 void Level::loadHighScore() {
 	const char* stat_hi_score = "hi";
-	std::string hi_str = platform_read_string(stat_hi_score);
+	std::string hi_str = platform::read_string(stat_hi_score);
 
 	if (hi_str.length() > 0) {
 		try {
 			hi = std::stoi(hi_str);
 		} catch (...) {
 			hi = 0;
-			platform_write_string(stat_hi_score, "0");
+			platform::write_string(stat_hi_score, "0");
 		}
 	}
 }
@@ -72,7 +82,7 @@ void Level::spawnInitial() {
 	addEntity(new PowerUpEntity {200, 600 + offset, PowerUpEntity::LIVE});
 
 	{
-		int code = platform_get_startup_param();
+		int code = platform::get_startup_param();
 		std::string line1 = getTitle(code);
 		std::string line2 = getSubTitle(code);
 
@@ -121,14 +131,14 @@ void Level::loadPlayCount() {
 	constexpr const char* local_play_count = "count";
 
 	int plays = 0;
-	std::string plays_str = platform_read_string(local_play_count);
+	std::string plays_str = platform::read_string(local_play_count);
 
 	if (plays_str.length() > 0) {
 		plays = std::stoi(plays_str);
 	}
 
 	plays ++;
-	platform_write_string(local_play_count, std::to_string(plays));
+	platform::write_string(local_play_count, std::to_string(plays));
 
 	printf("Started session #%d\n", plays);
 	this->play_count = plays;
@@ -159,7 +169,7 @@ void Level::setState(GameState state) {
 	if (state == GameState::DEAD) {
 		if (score > hi) {
 			printf("New hi-score set: %d points (was: %d points)!\n", score, hi);
-			platform_write_string("hi", std::to_string(score));
+			platform::write_string("hi", std::to_string(score));
 		}
 	}
 }
@@ -332,10 +342,33 @@ void Level::draw(Renderer& renderer) {
 			entity->debugDraw(*this, renderer);
 		}
 
-		emitTextQuads(renderer.text, 16, SH - 64,  20, 16, 255, 255, 0, 220, "Seg: " + std::to_string(total), TextMode::LEFT);
-		emitTextQuads(renderer.text, 16, SH - 96,  20, 16, 255, 255, 0, 220, "Bio: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
-		emitTextQuads(renderer.text, 16, SH - 128, 20, 16, 255, 255, 0, 220, "Spd: " + std::to_string(getSpeed()), TextMode::LEFT);
-		emitTextQuads(renderer.text, 16, SH - 160, 20, 16, 255, 255, 0, 220, "Ens: " + std::to_string(entities.size()), TextMode::LEFT);
+		frame_count ++;
+
+		namespace sc = std::chrono;
+		auto time = sc::system_clock::now();
+		auto since_epoch = time.time_since_epoch();
+		auto millis = sc::duration_cast<sc::milliseconds>(since_epoch);
+		uint64_t now = millis.count();
+
+		if (now > (frame_timestamp + 1000)) {
+			frame_timestamp = now;
+			frame_rate = frame_count;
+			frame_count = 0;
+		}
+
+		glm::vec2 pos = Input::cursor();
+		bool pressed = Input::isTouched();
+
+		emitSpriteQuad(*renderer.terrain.writer, pos.x, pos.y, 16, 16, 0, renderer.terrain.tileset->sprite(7, 6), 0, pressed ? 255 : 100, 0, 255);
+
+		constexpr int x = 32;
+		constexpr int y = SH - 74;
+
+		emitTextQuads(renderer.text, x, y - 00,  20, 16, 255, 255, 0, 220, "Starward " GAME_VERSION, TextMode::LEFT);
+		emitTextQuads(renderer.text, x, y - 32,  20, 16, 255, 255, 0, 220, "FPS: " + std::to_string(frame_rate), TextMode::LEFT);
+		emitTextQuads(renderer.text, x, y - 64,  20, 16, 255, 255, 0, 220, "S: " + std::to_string(total) + ", B: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
+		emitTextQuads(renderer.text, x, y - 96,  20, 16, 255, 255, 0, 220, "E: " + std::to_string(entities.size()), TextMode::LEFT);
+		emitTextQuads(renderer.text, x, y - 128, 20, 16, 255, 255, 0, 220, "V: " + std::to_string(getSpeed()), TextMode::LEFT);
 	}
 
 	if (state != GameState::DEAD) {
@@ -374,7 +407,7 @@ void Level::draw(Renderer& renderer) {
 		}
 	}
 
-	if (Input::isPressed(PlatformKeyScope::TAB)) {
+	if (Input::isPressed(Key::TAB)) {
 		drawCredits(renderer);
 	}
 
@@ -478,7 +511,7 @@ Collision Level::checkTileCollision(const Box& box) const {
 
 Collision Level::checkEntityCollision(Entity* self) const {
 
-	// handle alredy existing entities
+	// handle already existing entities
 	for (const auto& entity : entities) {
 		Entity* pointer = entity.get();
 

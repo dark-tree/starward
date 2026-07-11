@@ -15,6 +15,8 @@ class PowerUpEntity : public Entity {
 			NITRO = 3,
 			STAN = 4,
 			PIERCE = 5,
+			BORING = 6,
+			GUIDED = 7,
 		};
 
 		static Type randomPick();
@@ -28,6 +30,7 @@ class PowerUpEntity : public Entity {
 		PowerUpEntity(double x, double y, Type type);
 
 		bool checkPlacement(Level& level) override;
+		bool shouldAutoTarget() override;
 
 		void applyEffect(Level& level, PlayerEntity* player);
 		void onDamage(Level& level, int damage, Entity* damager) override;

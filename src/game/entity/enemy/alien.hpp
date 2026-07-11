@@ -26,9 +26,13 @@ class AlienEntity : public Entity {
 
 	public:
 
+		// kill this entity (if alive), invokes the onKilled() method
+		void kill(Level& level);
+
 		void onDamage(Level& level, int damage, Entity* damager) override;
 		void tick(Level& level) override;
 		void onDespawn(Level& level) override;
+		bool shouldAutoTarget() override;
 
 		/// Called when damage is dealt, no matter is the entity was killed or not
 		virtual void onDamaged(Level& level);
