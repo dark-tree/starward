@@ -364,10 +364,11 @@ void Level::draw(Renderer& renderer) {
 		constexpr int x = 32;
 		constexpr int y = SH - 74;
 
-		emitTextQuads(renderer.text, x, y - 00, 20, 16, 255, 255, 0, 220, "FPS: " + std::to_string(frame_rate), TextMode::LEFT);
-		emitTextQuads(renderer.text, x, y - 32, 20, 16, 255, 255, 0, 220, "S: " + std::to_string(total) + ", B: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
-		emitTextQuads(renderer.text, x, y - 64, 20, 16, 255, 255, 0, 220, "E: " + std::to_string(entities.size()), TextMode::LEFT);
-		emitTextQuads(renderer.text, x, y - 96, 20, 16, 255, 255, 0, 220, "V: " + std::to_string(getSpeed()), TextMode::LEFT);
+		emitTextQuads(renderer.text, x, y - 00,  20, 16, 255, 255, 0, 220, "Starward " GAME_VERSION, TextMode::LEFT);
+		emitTextQuads(renderer.text, x, y - 32,  20, 16, 255, 255, 0, 220, "FPS: " + std::to_string(frame_rate), TextMode::LEFT);
+		emitTextQuads(renderer.text, x, y - 64,  20, 16, 255, 255, 0, 220, "S: " + std::to_string(total) + ", B: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
+		emitTextQuads(renderer.text, x, y - 96,  20, 16, 255, 255, 0, 220, "E: " + std::to_string(entities.size()), TextMode::LEFT);
+		emitTextQuads(renderer.text, x, y - 128, 20, 16, 255, 255, 0, 220, "V: " + std::to_string(getSpeed()), TextMode::LEFT);
 	}
 
 	if (state != GameState::DEAD) {
