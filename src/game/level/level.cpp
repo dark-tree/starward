@@ -8,6 +8,10 @@
 #include "game/entity/all.hpp"
 #include "game/entity/enemy/decay.hpp"
 
+int frame_rate = 0;
+int frame_count = 0;
+uint64_t frame_timestamp = 0;
+
 glm::vec2 Level::toTilePos(int x, int y) {
 	const float pixels = SW / Segment::width;
 	return glm::vec2 {x, y} / pixels;
@@ -332,10 +336,28 @@ void Level::draw(Renderer& renderer) {
 			entity->debugDraw(*this, renderer);
 		}
 
-		emitTextQuads(renderer.text, 16, SH - 64,  20, 16, 255, 255, 0, 220, "Seg: " + std::to_string(total), TextMode::LEFT);
-		emitTextQuads(renderer.text, 16, SH - 96,  20, 16, 255, 255, 0, 220, "Bio: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
-		emitTextQuads(renderer.text, 16, SH - 128, 20, 16, 255, 255, 0, 220, "Spd: " + std::to_string(getSpeed()), TextMode::LEFT);
-		emitTextQuads(renderer.text, 16, SH - 160, 20, 16, 255, 255, 0, 220, "Ens: " + std::to_string(entities.size()), TextMode::LEFT);
+		frame_count ++;
+
+		namespace sc = std::chrono;
+		auto time = sc::system_clock::now();
+		auto since_epoch = time.time_since_epoch();
+		auto millis = sc::duration_cast<sc::milliseconds>(since_epoch);
+		uint64_t now = millis.count();
+
+		if (now > (frame_timestamp + 1000)) {
+			frame_timestamp = now;
+			frame_rate = frame_count;
+			frame_count = 0;
+		}
+
+
+		int x = 32;
+		int y = 74;
+
+		emitTextQuads(renderer.text, x, SH - y - 00, 20, 16, 255, 255, 0, 220, "FPS: " + std::to_string(frame_rate), TextMode::LEFT);
+		emitTextQuads(renderer.text, x, SH - y - 32, 20, 16, 255, 255, 0, 220, "S: " + std::to_string(total) + ", B: " + std::to_string(manager.getBiomeIndex()), TextMode::LEFT);
+		emitTextQuads(renderer.text, x, SH - y - 64, 20, 16, 255, 255, 0, 220, "E: " + std::to_string(entities.size()), TextMode::LEFT);
+		emitTextQuads(renderer.text, x, SH - y - 96, 20, 16, 255, 255, 0, 220, "V: " + std::to_string(getSpeed()), TextMode::LEFT);
 	}
 
 	if (state != GameState::DEAD) {

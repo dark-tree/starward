@@ -53,6 +53,11 @@ cd "${BUILD_DIR}" || exit
 export EMSDK_QUIET=1
 source ./emsdk/emsdk_env.sh
 
+rm -rf ./index.html
+rm -rf ./main.data
+rm -rf ./main.wasm
+rm -rf ./main.js
+
 cd "${ROOT_DIR}" || exit
 emcmake cmake . -B build -DCMAKE_BUILD_TYPE=$cmake_config || exit 1
 cmake --build build/ -j 8 || exit 1
